@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Style Guide for Lectoro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Styles -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&family=Quicksand:wght@300..700&display=swap"
+        rel="stylesheet">
+
+    <link href="output.css" rel="stylesheet">
+
+    <!-- Scripts -->
+    <script src="tailwind.config.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+
+    <!-- Testing -->
+    <script>
+        $(document).ready(function () {
+            $("#testAlertBanner").click(function () {
+                var alertType = "default";
+                var message = "This is a test alert! Please disregard this.";
+
+                var div = document.createElement("div");
+                div.classList.add("alertBanner", "opacity-0");
+
+                var span = document.createElement("span");
+                span.textContent = message;
+
+                var innerDiv = document.createElement("div");
+                innerDiv.appendChild(document.createElement("div"));
+
+                var button = document.createElement("button");
+                button.onclick = function () {
+                    setTimeout(function () {
+                        div.style.opacity = 0;
+                        setTimeout(function () {
+                            div.remove();
+                        }, 100);
+                    }, 100);
+                }
+
+                var icon = document.createElement("i");
+                icon.classList.add("bx", "bx-x");
+
+                if (alertType == "default") {
+                    div.classList.add("alertBannerDefault");
+
+                    button.appendChild(icon);
+                    innerDiv.appendChild(button);
+
+                    div.appendChild(span);
+                    div.appendChild(innerDiv);
+
+                } else if (alertType == "info") {
+                    var buttonText = "Learn More";
+
+                    div.classList.add("alertBannerInfo");
+                    var symbol = document.createElement("i");
+                    symbol.classList.add("bx", "bx-info-circle");
+                    div.appendChild(symbol);
+
+                    var btn = document.createElement("a");
+                    btn.appendChild(document.createElement("span").textContent(buttonText));
+
+                    div.appendChild(btn);
+
+                    button.appendChild(icon);
+                    innerDiv.appendChild(button);
+
+                    div.appendChild(span);
+                    div.appendChild(innerDiv);
+
+                } else if (alertType == "error") {
+                    var buttonText = "Try again";
+
+                    div.classList.add("alertBannerError");
+                    var symbol = document.createElement("i");
+                    symbol.classList.add("bx", "bx-error");
+                    div.appendChild(symbol);
+
+                    var btn = document.createElement("a");
+                    btn.appendChild(document.createElement("span").textContent(buttonText));
+
+                    div.appendChild(btn);
+
+                    button.appendChild(icon);
+                    innerDiv.appendChild(button);
+
+                    div.appendChild(span);
+                    div.appendChild(innerDiv);
+                }
+
+                $(document.body).append(div);
+
+                setTimeout(function () {
+                    div.style.opacity = 1;
+                }, 100);
+            });
+        });
+    </script>
+</head>
+
+<body class="bg-background">
+    <div class="px-48">
+        <span class="block text-center text-4xl py-10">Style Guide</span>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Colour Palette</p>
+            <div
+                class="text-black px-10 py-10 flex flex-wrap w-full bg-white gap-10 text-center  shadow-panel">
+
+                <div id="testAlertBanner" class="flex flex-col items-center w-32">
+                    <div class="bg-background w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Background</span>
+                    <span>#212529</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-textAccent w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Text Accent</span>
+                    <span>#b3b4b6</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-accent w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Accent</span>
+                    <span>#007bff</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-accentBold w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Accent Bold</span>
+                    <span>#0d6efd</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-accentDark w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Accent Dark</span>
+                    <span>#0054af</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-blackOpaque w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Black Opaque</span>
+                    <span>#0000001a</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-menu w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Menu</span>
+                    <span>#343a40</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-buttonHover w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Menu Button Hover</span>
+                    <span>#4c5257</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-buttonHoverOpaque w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Menu Button Hover Opaque</span>
+                    <span>#4c52571a</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-success w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Success</span>
+                    <span>#68e24d</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-successBold w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Success Bold</span>
+                    <span>#47bf2b</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-warning w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Warning</span>
+                    <span>#ff8d30</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-warningBold w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Warning Bold</span>
+                    <span>#d2750b</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-error w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Error</span>
+                    <span>#fc2d29</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-errorBold w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Error Bold</span>
+                    <span>#c72522</span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Typography</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left  shadow-panel">
+                <p class="text-2xl pb-4">Usage</p>
+                <table
+                    class="mb-10 overflow-hidden [&_tr:nth-of-type(odd)]:bg-slate-300 [&_tr:nth-of-type(1)]:text-[#dee2e6] [&_tr:nth-of-type(1)]:!bg-slate-600 [&_tr_th]:py-2 [&_tr_td]:pb-2 [&_tr_td]:pt-2 [&_tr_td:first-of-type]:pl-2 w-full rounded-lg border border-separate border-spacing-0">
+                    <tr>
+                        <th class="pl-2">Style Name</th>
+                        <th>Font</th>
+                        <th>Size</th>
+                        <th>Use</th>
+                    </tr>
+                    <tr class="font-assistant">
+                        <td class="text-4xl font-quicksand font-medium">Heading Large</td>
+                        <td>Quicksand @ 500 (Medium)</td>
+                        <td>text-4xl</td>
+                        <td>Primary/Page Heading</td>
+                    </tr>
+                    <tr class="font-assistant">
+                        <td class="text-3xl font-quicksand font-medium">Heading Medium</td>
+                        <td>Quicksand @ 500 (Medium)</td>
+                        <td>text-3xl</td>
+                        <td>Secondary Headings, Sidebar Title</td>
+                    </tr>
+                    <tr class="font-assistant">
+                        <td class="text-2xl font-quicksand font-medium">Heading Small</td>
+                        <td>Quicksand @ 500 (Medium)</td>
+                        <td>text-2xl</td>
+                        <td>Tertiary Headings</td>
+                    </tr>
+                    <tr class="font-assistant">
+                        <td class="text-md font-quicksand font-medium">Default Text</td>
+                        <td>Quicksand @ 500 (Medium)</td>
+                        <td>text-md</td>
+                        <td>Buttons, Tables</td>
+                    </tr>
+                    <tr class="font-assistant">
+                        <td class="text-lg font-normal">Body Text</td>
+                        <td>Assistant @ 400 (Normal)</td>
+                        <td>text-lg</td>
+                        <td>Body Text</td>
+                    </tr>
+                </table>
+
+                <div class="flex flex-row gap-20">
+                    <div class="text-lg">
+                        <p class="text-2xl pb-4">Font Weights</p>
+                        <div class="flex w-240">
+                            <div class="flex flex-col">
+                                <span class="font-light border-t-2">Light</span>
+                                <span class="font-light border-b-2 italic">Light Italic</span>
+                                <span class="font-normal">Normal</span>
+                                <span class="font-normal border-b-2 italic">Normal Italic</span>
+                                <span class="font-medium">Medium</span>
+                                <span class="font-medium border-b-2 italic">Medium Italic</span>
+                                <span class="font-semibold">Semi Bold</span>
+                                <span class="font-semibold border-b-2 italic">Semi Bold Italic</span>
+                                <span class="font-bold">Bold</span>
+                                <span class="font-bold border-b-2 italic">Bold Italic</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-light border-t-2">300</span>
+                                <br>
+                                <span class="font-normal border-t-2">400</span>
+                                <br>
+                                <span class="font-medium border-t-2">500</span>
+                                <br>
+                                <span class="font-semibold border-t-2">600</span>
+                                <br>
+                                <span class="font-bold border-t-2">700</span>
+                                <span class="border-b-2 text-[#ffffff00]">Text Break</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-lg">
+                        <p class="text-2xl pb-4">Body Copy</p>
+                        <div class="flex">
+                            <span class="w-fit font-assistant font-normal text-lg">
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas lectus lacus, gravida
+                                sed tristique ac, fringilla non purus. Donec ligula elit, euismod gravida pharetra nec,
+                                mattis sit amet arcu. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices
+                                posuere cubilia curae; Quisque convallis metus erat, in sollicitudin lacus malesuada eu.
+                                Etiam placerat quam eget nulla dictum, ac commodo elit facilisis. Pellentesque ut libero
+                                elementum quam varius pulvinar ut vitae orci.
+                                <br><br>Donec sit amet elit neque. Praesent condimentum efficitur ligula a eleifend.
+                                Integer fermentum odio sed elit venenatis, non consequat tortor mattis. Donec consequat
+                                neque quis eros dignissim interdum. Pellentesque at dui eros. Maecenas rutrum venenatis
+                                nibh, sed blandit orci varius quis. Maecenas vitae consectetur nulla. Aliquam non purus
+                                vitae odio volutpat vestibulum eget quis magna.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Buttons</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left  shadow-panel">
+                <p class="text-2xl pb-4">Component Buttons</p>
+                <div class="flex flex-wrap gap-10 pb-10">
+                    <a href="#" class="componentButton componentButtonActive">
+                        <i class='bx bx-expand-horizontal'></i>
+                        <span>Active</span>
+                    </a>
+
+                    <a href="#" class="componentButton componentButtonDisabled">
+                        <i class='bx bx-expand-horizontal'></i>
+                        <span>Disabled</span>
+                    </a>
+
+                    <a href="#" class="text-black componentButton bg-white">
+                        <i class='bx bx-expand-horizontal'></i>
+                        <span>Enabled</span>
+                    </a>
+
+                    <a href="#" class="text-black componentButton componentButtonHover bg-white">
+                        <i class='bx bx-expand-horizontal'></i>
+                        <span>Hover</span>
+                    </a>
+                </div>
+
+                <p class="text-2xl pb-4">Dropdown Menu Buttons</p>
+                <div class="text-[#dee2e6] flex flex-wrap gap-10">
+                    <a href="#"
+                        class="w-240 bg-menu transition ease-out duration-300 block px-4 py-2 text-md rounded-lg">Enabled</a>
+
+                    <a href="#"
+                        class="w-240 bg-buttonHover transition ease-out duration-300 block px-4 py-2 text-md rounded-lg">Hover</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Inputs</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left  shadow-panel">
+                <p class="text-2xl pb-4">Text Inputs</p>
+                <div class="grid gap-10 pb-10">
+                    <div>
+                        <input
+                            class="textInput mr-10"
+                            placeholder="Unfocused">
+                        <input class="textInput outline outline-2 outline-accent" placeholder="Focused">
+                    </div>
+
+                    <div class="searchBarWrapper">
+                        <label for="default-search" class="label">Search</label>
+                        <div class="searchBar">
+                            <i class="searchIcon bx bx-search"></i>
+                            <input type="search" id="default-search" class="searchInput" placeholder="Find Students" required />
+                            <button type="submit" class="searchButton">Search</button>
+                        </div>
+                    </div>
+
+                    <div class="messageBox">
+                        <div class="messageHeader">
+                            <label for="comment" class="sr-only">Your message</label>
+                            <textarea id="comment" rows="4" class="messageInput" placeholder="Write a message..." required></textarea>
+                        </div>
+                        <div class="messageFooter">
+                            <div class="buttonGroup">
+                                <button type="button" class="attachButton">
+                                    <i class="attachIcon bx bx-paperclip bx-rotate-270"></i>
+                                    <span class="sr-only">Attach file</span>
+                                </button>
+                                <button type="button" class="uploadButton">
+                                    <i class="uploadIcon bx bx-image"></i>
+                                    <span class="sr-only">Upload image</span>
+                                </button>
+                            </div>
+                            <button type="submit" class="sendButton">
+                                <i class="sendIcon bx bx-send text-2xl transition duration-200 transform scale-100 group-hover:scale-110"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <p class="text-2xl pb-4">Checkboxes</p>
+                <div>
+                    <div class="flex flex-wrap gap-10 pb-10">
+                        <input type="checkbox" class="cursor-not-allowed bg-textAccent rounded-md pl-2 p-1" disabled />
+                        <input type="checkbox" class="rounded-md pl-2 p-1" />
+                        <input type="checkbox" class="text-accent rounded-md pl-2 p-1" checked />
+                        <input type="checkbox"
+                            class="text-accent outline outline-2 outline-offset-2 outline-accent rounded-md pl-2 p-1"
+                            checked />
+                    </div>
+                </div>
+
+                <p class="text-2xl pb-4">Toggles</p>
+                <div>
+                    <div class="flex flex-wrap gap-10 pb-10">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer" disabled>
+                            <div
+                                class="cursor-not-allowed relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                            </div>
+                            <span class="ms-3 text-md text-black">Disabled</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer">
+                            <div
+                                class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                            </div>
+                            <span class="ms-3 text-md text-black">Unchecked</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer" checked>
+                            <div
+                                class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-accent">
+                            </div>
+                            <span class="ms-3 text-md text-black">Checked</span>
+                        </label>
+                    </div>
+                </div>
+
+                <p class="text-2xl pb-4">Radio Buttons</p>
+                <div class="flex flex-wrap gap-10 pb-10">
+                    <input type="radio" class="cursor-not-allowed bg-textAccent rounded-full pl-2 p-1" disabled>
+                    <input type="radio" class="rounded-full pl-2 p-1" disabled>
+                    <input type="radio" class="rounded-full pl-2 p-1" checked disabled>
+                    <input type="radio" class="outline outline-2 outline-offset-2 outline-accent rounded-full pl-2 p-1"
+                        checked disabled>
+                </div>
+
+                <p class="text-2xl pb-4">Sliders</p>
+                <div class="flex flex-wrap gap-10 pb-10">
+                    <div class="relative w-40">
+                        <label for="labels-range-input" class="sr-only">Labels range</label>
+                        <input disabled id="labels-range-input" type="range" value="70" min="1" max="100"
+                            class="w-full h-2 bg-gray-200  rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    </div>
+                    <div class="relative w-40">
+                        <label for="labels-range-input" class="sr-only">Labels range</label>
+                        <input id="labels-range-input" type="range" value="70" min="1" max="100"
+                            class="w-full h-2 bg-gray-200  rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    </div>
+                </div>
+
+                <p class="text-2xl pb-4">Progress Bars</p>
+                <div class="flex flex-wrap gap-10 pb-10">
+                    <div class="progressBarBig">
+                        <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
+                            aria-valuemax="100"><span>25%</span>
+                        </div>
+                    </div>
+
+                    <div class="progressBarSmall">
+                        <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
+                            aria-valuemax="100"><span class="text-transparent">Value</span>
+                        </div>
+                        <label>25%</label>
+                    </div>
+
+                    <div class="progressBarSmall">
+                        <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
+                            aria-valuemax="100"><span class="text-transparent">Value</span>
+                        </div>
+                    </div>
+
+                    <div class="progressBarTiny">
+                        <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
+                            aria-valuemax="100"><span class="text-transparent">Value</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Menus</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left  shadow-panel">
+                <p class="text-2xl pb-4">Dropdown</p>
+                <table
+                    class="mb-10 overflow-hidden [&_tr:nth-of-type(odd)]:bg-slate-300 [&_tr:nth-of-type(1)]:text-[#dee2e6] [&_tr:nth-of-type(1)]:!bg-slate-600 [&_tr_th]:py-2 [&_tr_td]:pb-2 [&_tr_td]:pt-2 [&_tr_td:first-of-type]:pl-2 w-full rounded-lg border border-separate border-spacing-0">
+                    <tr>
+                        <th class="pl-2">Dropdown Button</th>
+                        <th>Dropdown Menu</th>
+                    </tr>
+                    <tr class="font-assistant">
+                        <td>
+                            <div class="flex flex-wrap gap-10">
+                                <button type="button" class="group w-full flex items-center" id="dropdown-button">
+                                    <!-- Will have to change to an img -->
+                                    <i class="bx bxs-user text-2xl pr-1.5"></i>
+                                    <span id="username" class="align-top">user</span>
+                                    <i
+                                        class="group-hover:text-accent transition-color ease-out duration-300 bx bx-chevron-down pl-1.5"></i>
+                                </button>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div id="dropdown-menu"
+                                class="overflow-hidden text-[#dee2e6] w-40 rounded-lg bg-menu shadow-[0_.25rem_.5rem_rgba(0,0,0,0.31)]">
+                                <div>
+                                    <div class="py-3 select-none">
+                                        <p class="px-4 ">John Smith</p>
+                                        <p class="px-4 text-sm text-textAccent">js652@uow.edu.au</p>
+                                    </div>
+                                    <hr class="opacity-20">
+                                    <a
+                                        class="hover:bg-buttonHover cursor-pointer transition ease-out duration-300 block px-4 py-2 text-md">Settings</a>
+                                    <a
+                                        class="hover:bg-buttonHover cursor-pointer transition ease-out duration-300 block px-4 py-2 text-md">Profile</a>
+                                    <hr class="opacity-20">
+                                    <a
+                                        class="hover:bg-buttonHover cursor-pointer transition ease-out duration-300 block px-4 py-2 text-md">Sign
+                                        out</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Alerts</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left  shadow-panel">
+                <p class="text-2xl pb-4">Banner Alert</p>
+                <div class="flex flex-wrap gap-10 pb-10">
+                    <div id="alert-banner-1" class="w-full relative alertBanner alertBannerDefault">
+                        <span>This is an example of a default banner alert</span>
+                        <div>
+                            <div></div>
+                            <button data-dismiss-target="#alert-banner-1">
+                                <i class="bx bx-x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="alert-banner-2" class="w-full relative alertBanner alertBannerInfo" role="alert">
+                        <i class="bx bx-info-circle"></i>
+                        <span>This is an example of an informative banner alert</span>
+                        <div>
+                            <a class="alertBannerButton">
+                                <span>Learn more</span>
+                            </a>
+                            <div></div>
+                            <button data-dismiss-target="#alert-banner-2">
+                                <i class="bx bx-x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="alert-banner-3" class="w-full relative alertBanner alertBannerError" role="alert">
+                        <i class="bx bx-error"></i>
+                        <span>This is an example of an error banner alert</span>
+                        <div>
+                            <a class="alertBannerButton">
+                                <span>Try again</span>
+                            </a>
+                            <div></div>
+                            <button data-dismiss-target="#alert-banner-3">
+                                <i class="bx bx-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-2xl pb-4">Popup Alert</p>
+                <div class="flex flex-wrap gap-10">
+                    <div id="popup-alert-1" class="alertPopup alertPopupDefault">
+                        <div>
+                            <i class="bx bx-error-circle"></i>
+                            <span>Default Alert</span>
+                            <a data-dismiss-target="#popup-alert-1">
+                                <i class="bx bx-x"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="popup-alert-2" class="alertPopup alertPopupInfo">
+                        <div>
+                            <i class="bx bx-info-circle"></i>
+                            <span>Info Alert</span>
+                            <a data-dismiss-target="#popup-alert-2">
+                                <i class="bx bx-x"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="popup-alert-3" class="alertPopup alertPopupSuccess">
+                        <div>
+                            <i class="bx bx-check-circle"></i>
+                            <span>Success Alert</span>
+                            <a data-dismiss-target="#popup-alert-3">
+                                <i class="bx bx-x"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="popup-alert-4" class="alertPopup alertPopupWarning">
+                        <div>
+                            <i class="bx bx-error"></i>
+                            <span>Warning Alert</span>
+                            <a data-dismiss-target="#popup-alert-4">
+                                <i class="bx bx-x"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="popup-alert-5" class="alertPopup alertPopupError">
+                        <div class="">
+                            <i class="bx bx-x-circle"></i>
+                            <span>Error Alert</span>
+                            <a data-dismiss-target="#popup-alert-5">
+                                <i class="bx bx-x"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="popup-alert-6" class="alertPopup alertPopupDark">
+                        <div>
+                            <i class="bx bx-error-circle"></i>
+                            <span>Dark Alert</span>
+                            <a data-dismiss-target="#popup-alert-6">
+                                <i class="bx bx-x"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Tables</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left  shadow-panel">
+                <p class="text-2xl pb-4">Default Table</p>
+                <div class="flex flex-wrap gap-10">
+
+                    <table
+                        class="mb-10 overflow-hidden [&_tr:nth-of-type(odd)]:bg-slate-300 [&_tr:nth-of-type(1)]:text-[#dee2e6] [&_tr:nth-of-type(1)]:!bg-slate-600 [&_tr_th]:py-2 [&_tr_td]:pb-2 [&_tr_td]:pt-2 [&_tr_:first-of-type]:pl-2 w-full rounded-lg border border-separate border-spacing-0">
+                        <tr>
+                            <th>#</th>
+                            <th>Header 1</th>
+                            <th>Header 2</th>
+                            <th>Header 3</th>
+                            <th>Header 4</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>A</td>
+                            <td>1</td>
+                            <td>a</td>
+                            <td>11</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>B</td>
+                            <td>2</td>
+                            <td>b</td>
+                            <td>22</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>C</td>
+                            <td>3</td>
+                            <td>c</td>
+                            <td>33</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>D</td>
+                            <td>4</td>
+                            <td>d</td>
+                            <td>44</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>E</td>
+                            <td>5</td>
+                            <td>e</td>
+                            <td>55</td>
+                        </tr>
+                    </table>
+
+                </div>
+                <p class="text-2xl pb-4">Minimalist Table</p>
+                <div class="flex flex-wrap gap-10">
+
+                    <table
+                        class="[&_tr]:border-b-2 [&_tr]:border-accent [&_tr:not(:first-of-type)]:border-opacity-10 overflow-hidden [&_tr_th]:py-2 [&_tr_td]:pb-2 [&_tr_td]:pt-2 [&_tr_:first-of-type]:pl-2 w-full border-collapse border-spacing-0">
+                        <tr>
+                            <th>#</th>
+                            <th>Header 1</th>
+                            <th>Header 2</th>
+                            <th>Header 3</th>
+                            <th>Header 4</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>A</td>
+                            <td>1</td>
+                            <td>a</td>
+                            <td>11</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>B</td>
+                            <td>2</td>
+                            <td>b</td>
+                            <td>22</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>C</td>
+                            <td>3</td>
+                            <td>c</td>
+                            <td>33</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>D</td>
+                            <td>4</td>
+                            <td>d</td>
+                            <td>44</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>E</td>
+                            <td>5</td>
+                            <td>e</td>
+                            <td>55</td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+
+</html>

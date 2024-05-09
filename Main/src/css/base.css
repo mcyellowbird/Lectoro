@@ -1,0 +1,442 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+
+    /* Progress Bars */
+    .progressBarBig {
+        @apply w-280 border rounded-xl bg-gradient-to-r from-blackOpaque;
+    }
+
+    .progressBarBig>div {
+        @apply text-[#dee2e6] bg-gradient-to-r from-accentDark to-accent rounded-xl text-center;
+    }
+
+    .progressBarSmall {
+        @apply w-280 h-4 border rounded-xl bg-gradient-to-r from-blackOpaque flex flex-col;
+    }
+
+    .progressBarSmall>div {
+        @apply h-4 text-[#dee2e6] bg-gradient-to-r from-accentDark to-accent rounded-xl text-center;
+    }
+
+    .progressBarSmall>label {
+        @apply self-center;
+    }
+
+    .progressBarTiny {
+        @apply w-280 h-2 border rounded-xl bg-gradient-to-r from-blackOpaque flex flex-col;
+    }
+
+    .progressBarTiny>div {
+        @apply h-2 text-[#dee2e6] bg-gradient-to-r from-accentDark to-accent rounded-xl text-center;
+    }
+
+    /* Default Alert Popup */
+
+    .alertPopupDefault {
+        @apply border-l-textAccent;
+    }
+
+    .alertPopupDefault>div {
+        @apply bg-textAccent;
+    }
+
+    .alertPopupDefault>div>i {
+        @apply text-2xl text-textAccent;
+    }
+
+    .alertPopupDefault>div>span {
+        @apply text-textAccent;
+    }
+
+    .alertPopupDefault>div>a>i {
+        @apply text-textAccent;
+    }
+
+    /* Info Alert Popup */
+
+    .alertPopupInfo {
+        @apply border-l-accentBold;
+    }
+
+    .alertPopupInfo>div {
+        @apply bg-accentBold;
+    }
+
+    .alertPopupInfo>div>i {
+        @apply text-2xl text-accentBold;
+    }
+
+    .alertPopupInfo>div>span {
+        @apply text-accentBold;
+    }
+
+    .alertPopupInfo>div>a>i {
+        @apply text-accentBold;
+    }
+
+    /* Success Alert Popup */
+
+    .alertPopupSuccess {
+        @apply border-l-successBold;
+    }
+
+    .alertPopupSuccess>div {
+        @apply bg-successBold;
+    }
+
+    .alertPopupSuccess>div>i {
+        @apply text-2xl text-successBold;
+    }
+
+    .alertPopupSuccess>div>span {
+        @apply text-successBold;
+    }
+
+    .alertPopupSuccess>div>a>i {
+        @apply text-successBold;
+    }
+
+    /* Warning Alert Popup */
+
+    .alertPopupWarning {
+        @apply border-l-warningBold;
+    }
+
+    .alertPopupWarning>div {
+        @apply bg-warningBold;
+    }
+
+    .alertPopupWarning>div>i {
+        @apply text-2xl text-warningBold;
+    }
+
+    .alertPopupWarning>div>span {
+        @apply text-warningBold;
+    }
+
+    .alertPopupWarning>div>a>i {
+        @apply text-warningBold;
+    }
+
+    /* Error Alert Popup */
+
+    .alertPopupError {
+        @apply border-l-errorBold;
+    }
+
+    .alertPopupError>div {
+        @apply bg-errorBold;
+    }
+
+    .alertPopupError>div>i {
+        @apply text-2xl text-errorBold;
+    }
+
+    .alertPopupError>div>span {
+        @apply text-errorBold;
+    }
+
+    .alertPopupError>div>a>i {
+        @apply text-errorBold;
+    }
+
+    /* Dark Alert Popup */
+
+    .alertPopupDark {
+        @apply border-l-menu;
+    }
+
+    .alertPopupDark>div {
+        @apply bg-menu;
+    }
+
+    .alertPopupDark>div>i {
+        @apply text-2xl text-menu;
+    }
+
+    .alertPopupDark>div>span {
+        @apply text-menu;
+    }
+
+    .alertPopupDark>div>a>i {
+        @apply text-menu;
+    }
+
+    /* Alert Popup Base */
+
+    .alertPopup {
+        @apply bg-background w-fit border-l-8 rounded-md shadow-lg;
+    }
+
+    .alertPopup>div {
+        @apply w-400 h-12 bg-opacity-20 rounded-r-md items-center flex;
+    }
+
+    .alertPopup>div>a {
+        @apply cursor-pointer text-2xl pr-4;
+    }
+
+    .alertPopup>div>i {
+        @apply pl-4;
+    }
+
+    .alertPopup>div>span {
+        @apply pl-2 font-bold flex-grow;
+    }
+
+    .popupContainer {
+        @apply flex flex-col fixed z-10 right-10 bottom-10 gap-2;
+    }
+
+    /* Alert Banner */
+
+    .alertBannerDefault {
+        @apply bg-menu;
+    }
+
+    .alertBannerInfo {
+        @apply bg-accentBold;
+    }
+
+    .alertBannerError {
+        @apply bg-errorBold;
+    }
+
+    .alertBanner {
+        @apply relative w-1/2 transition-opacity ease-in duration-100 text-white flex flex-row items-center h-16 shadow-lg;
+    }
+
+    .alertBanner>i {
+        @apply text-2xl pl-4;
+    }
+
+    .alertBanner>span {
+        @apply pl-4 w-full;
+    }
+
+    .alertBanner>div {
+        @apply h-full self-end flex flex-row items-center;
+    }
+
+    .alertBannerButton {
+        @apply cursor-pointer text-sm font-bold text-center w-120 h-10 rounded-full px-4 py-2 border-2 border-textColour border-opacity-60;
+    }
+
+    .alertBanner>div>div {
+        @apply h-3/4 border-r-2 border-opacity-20 pl-4;
+    }
+
+    .alertBanner>div>button {
+        @apply text-2xl p-4;
+    }
+
+    .bannerContainer {
+        @apply fixed z-10 top-4 flex flex-col items-center w-full gap-2;
+    }
+
+    /* Buttons */
+
+    button {
+        @apply transition ease-out duration-200;
+    }
+
+    /* Component Button Normal */
+    .componentButton {
+        @apply bg-background transform-style-3d text-textColour w-240 flex items-center rounded-xl p-2 relative;
+    }
+
+    .componentButton i {
+        @apply pl-1 pr-2 transition ease-out duration-200;
+    }
+
+    /* .componentButton::before {
+        @apply rounded-lg absolute top-0 left-0 right-0 bottom-0 opacity-0 transition-opacity duration-200 ease-out bg-gradient-to-r from-accent to-purple-500;
+    } */
+
+    .componentButton::before {
+        @apply scale-y-110 scale-x-102 -translate-z-1 -inset-5 rounded-xl absolute top-0 left-0 right-0 bottom-0 opacity-0 transition-opacity duration-200 ease-out bg-gradient-to-r from-accent to-purple-500;
+    }
+
+    .componentButton:hover:not(.componentButtonDisabled, .componentButtonActive)::before {
+        @apply opacity-100;
+    }
+
+    .componentButton:hover:not(.componentButtonDisabled, .componentButtonActive) i {
+        @apply text-accent;
+    }
+
+    .componentButtonDisabled {
+        @apply cursor-not-allowed bg-buttonDisabled;
+    }
+
+    .componentButtonHover {
+        @apply outline outline-2 outline-accent;
+    }
+
+    .componentButtonActive {
+        @apply bg-accentDark;
+    }
+
+    .componentButtonActive::before {
+        @apply from-accentDark to-accentDark opacity-100;
+    }
+
+    .componentButtonActive:hover {
+        @apply bg-accent;
+    }
+
+    /* Component Button Small */
+    .componentButtonSmall {
+        @apply bg-background transform-style-3d text-textColour w-12 flex items-center rounded-xl p-2 relative;
+    }
+
+    .componentButtonSmall i {
+        @apply pl-1 pr-2 transition ease-out duration-200;
+    }
+
+    .componentButtonSmall:hover:not(.componentButtonDisabled, .componentButtonActive) i {
+        @apply text-accent;
+    }
+    .componentButtonSmallActive {
+        @apply text-accentDark;
+    }
+
+    /* Inputs */
+
+    /* Text Input */
+
+    .textInput {
+        @apply placeholder-textAccent bg-gray-50 outline outline-1 outline-menu rounded-md w-40 pl-2 p-1;
+    }
+
+    .textInput:focus {
+        @apply outline outline-2 outline-accent;
+    }
+
+    /* Search Bar */
+    .searchBarWrapper {
+        @apply w-96 mb-2;
+    }
+
+    .label {
+        @apply mb-2 text-sm font-medium text-gray-900 sr-only;
+    }
+
+    .searchBar {
+        @apply relative flex w-full;
+    }
+
+    .searchIcon {
+        @apply absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-lg;
+    }
+
+    .searchInput {
+        @apply block w-full p-4 pl-10 text-sm placeholder-textAccent rounded-lg bg-gray-50;
+    }
+
+    .searchButton {
+        @apply absolute bottom-2.5 end-2.5 px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg;
+    }
+
+    .searchButton:hover {
+        @apply bg-accentDark;
+    }
+
+    .searchButton:focus {
+        @apply ring-4 outline-none ring-blue-300;
+    }
+
+    /* Message Box */
+
+    .messageBox {
+        @apply w-96 mb-4 rounded-lg bg-white border border-gray-600;
+    }
+
+    .messageHeader {
+        @apply transition px-4 py-2 rounded-t-lg bg-gray-50 border-b-2 group-focus-within:border-blue-500;
+    }
+
+    .messageInput {
+        @apply w-full px-4 py-2 text-sm bg-gray-50 border-none border-gray-300 rounded-lg;
+    }
+
+    .messageInput:focus {
+        @apply ring-0;
+    }
+
+    .messageInput:focus+.messageHeader {
+        @apply border-b-2 border-accent;
+    }
+
+    .messageFooter {
+        @apply flex items-center justify-between px-3 py-2 border-t;
+    }
+
+    .buttonGroup {
+        @apply flex;
+    }
+
+    .attachButton,
+    .uploadButton,
+    .sendButton {
+        @apply flex justify-center items-center p-2 rounded cursor-pointer;
+    }
+
+    .attachButton:hover .attachIcon,
+    .uploadButton:hover .uploadIcon {
+        @apply text-textColour;
+    }
+
+    .sendButton:hover .sendIcon {
+        @apply scale-110;
+    }
+
+    .attachIcon,
+    .uploadIcon {
+        @apply text-textAccent text-lg;
+    }
+
+    .sendIcon {
+        @apply text-accent transition duration-200 transform scale-100 text-2xl;
+    }
+
+    body {
+        @apply bg-background m-0 p-0 font-quicksand font-medium text-textColour overflow-x-hidden overflow-y-auto;
+    }
+
+    #main-content {
+        @apply transition-all duration-300 ease-out;
+    }
+
+    ::-webkit-scrollbar {
+        @apply w-3;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        @apply bg-accentBold rounded-lg;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-accentDark;
+    }
+
+    .sidebar {
+        @apply fixed flex top-0 left-0 transition-transform duration-300 ease-out;
+    }
+}
+
+/* Define the gradient transition for the button hover state */
+.componentButton::before {
+    content: '';
+}
+
+a {
+    text-decoration: none;
+}

@@ -1,0 +1,16 @@
+:root {
+    --sidebar-width-base: 280px;
+    --sidebar-width-small: 80px;
+    --background-color: #212529;
+    --outline-dark: #4c5257;
+    --accent-color: #007bff;
+    --accent-color-bold: #0d6efd;
+    --accent-color-dark: #0054af;
+    --success: #68e24d;
+    --success-bold: #47bf2b;
+    --warning: #ff8d30;
+    --warning-bold: #d2750b;
+    --error: #fc2d29;
+    --error-bold: #c72522;
+    --main-font: Verdana;
+}

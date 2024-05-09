@@ -1,0 +1,15 @@
+To add a custom style like regular CSS, 
+
+open a cmd prompt in the main folder, then run the following command:
+    
+    npx tailwindcss -i src/css/base.css -o src/css/index.css --watch
+
+After that, go into base.css and add any styles you want.
+If you want to use TailwindCSS styles (Which you should for consistency), then do as you normally would, but use '@apply style;' instead of normal CSS, like so:
+    
+    .example {
+        @apply bg-sky-400;
+        @apply text-2xl;
+    }
+
+Everything should update automatically, ready for production.

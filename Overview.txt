@@ -1,0 +1,32 @@
+1. Home
+Overview of the Automatic Student Attendance System
+Introduction to the project objectives and scope
+Key features and benefits of the system
+
+2. About
+Background information on the project
+Overview of the University of Wollongong (UOW)
+Team members and their roles in the project
+
+3. Features
+Automated Attendance Tracking
+Real-time Attendance Data
+User-friendly Interface
+Customization and Integration Options
+Compliance and Security Measures
+
+4. Technology
+Overview of the technologies used in the system
+Explanation of face recognition technology
+Details on web-based programming languages and frameworks
+Database management system used for storing attendance records
+
+5. Documentation
+User guides for lecturers and lab demonstrators
+Technical documentation for system administrators
+Troubleshooting resources and FAQs
+Contact
+
+6. Contact information for project inquiries
+Feedback form for users to submit comments or suggestions
+Links to social media channels for further engagement

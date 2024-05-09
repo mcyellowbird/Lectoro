@@ -1,0 +1,13 @@
+Running the server without install it first:
+	1. Open a Command Prompt terminal
+	2. Navigate to the appropriate directory
+	3. Run:
+		npx http-server [path] [options]
+		
+	4. Access the directory using localhost:8080
+	
+Installing the server globally:
+	1. Open a Command Prompt terminal
+	2. Run: npm install --globally http-server
+	3. Can then run the server by using the following command:
+		http-server [path] [options]

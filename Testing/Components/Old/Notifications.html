@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="root.css">
+    <script src="https://kit.fontawesome.com/d19bb7ac4a.js" crossorigin="anonymous"></script>
+    <style>
+        * {
+            font-family: var(--main-font);
+            color: var(--component-background-color);
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="color: white;">States Colour Palette Test</h1>
+
+    <!-- Success -->
+    <div class="test"
+        style="border-radius: 6px; background: var(--success); box-shadow: 0px 0px 5px var(--outline-dark); width: 500px; display: flex; padding: 20px;">
+        <div style="margin-right: 20px;">
+            <i class="fa-solid fa-check-circle"></i>
+        </div>
+        <div>
+            <strong>Success!</strong>
+            <br><br>
+            Your action was successful. Everything is running smoothly.
+            <br><br>
+            <button
+                style="padding: 10px; background-color: var(--success-bold); border: none; border-radius: 6px; font-size: 14px;"><strong>Continue</strong></button>
+        </div>
+    </div>
+
+    <!-- Warning -->
+    <div
+        style="margin-top: 50px; border-radius: 6px; background: var(--warning); box-shadow: 0px 0px 5px var(--outline-dark); width: 500px; display: flex; padding: 20px;">
+        <div style="margin-right: 20px;">
+            <i class="fa-solid fa-exclamation-circle"></i>
+        </div>
+        <div>
+            <strong>Warning!</strong>
+            <br><br>
+            There seems to be an issue that requires attention. Please review the details below.
+            <br><br>
+            <button
+                style="padding: 10px; background-color: var(--warning-bold); border: none; border-radius: 6px; font-size: 14px;"><strong>Dismiss</strong></button>
+            <button
+                style="padding: 10px; background-color: var(--warning-bold); border: none; border-radius: 6px; font-size: 14px;"><strong>Learn
+                    More</strong></button>
+        </div>
+    </div>
+
+    <!-- Error -->
+    <div
+        style="margin-top: 50px; border-radius: 6px; background: var(--error); box-shadow: 0px 0px 5px var(--outline-dark); width: 500px; display: flex; padding: 20px;">
+        <div style="margin-right: 20px;">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+        </div>
+        <div>
+            <strong>Error!</strong>
+            <br><br>
+            An unexpected error occurred. Please try again later or contact support for assistance.
+            <br><br>
+            <button
+                style="padding: 10px; background-color: var(--error-bold); border: none; border-radius: 6px; font-size: 14px;"><strong>Retry</strong></button>
+            <button
+                style="padding: 10px; background-color: var(--error-bold); border: none; border-radius: 6px; font-size: 14px;"><strong>Contact
+                    Support</strong></button>
+        </div>
+    </div>
+</body>
+
+</html>

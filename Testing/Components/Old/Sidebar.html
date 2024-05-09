@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar</title>
+    <link rel="stylesheet" href="root.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--component-background-color);
+            font-family: var(--main-font);
+            height: 100%;
+            display: flex;
+        }
+
+        a,
+        label {
+            text-decoration: none;
+            color: #efefef;
+        }
+
+        #sidebar {
+            height: 100vh;
+            width: var(--sidebar-width-base);
+
+            background: var(--component-background-color);
+            box-shadow: 0px 0px 10px var(--component-background-color);
+
+            padding: 1rem;
+
+            display: flex;
+            flex-shrink: 0;
+            flex-direction: column;
+        }
+
+        .navTitle {
+            margin-right: auto;
+            margin-bottom: 0;
+            align-items: center;
+            display: flex;
+        }
+
+        .navTitle>span {
+            margin-left: .4rem;
+            font-size: 1.6rem;
+        }
+
+        hr {
+            width: 100%;
+            margin: 1rem 0;
+            border: 1px solid #4c5257;
+        }
+
+        ul {
+            margin-bottom: auto;
+            padding: 0;
+            margin-block-start: 0;
+            flex-direction: column;
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        li {
+            border-radius: 6px;
+            margin-bottom: .2rem;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .activeNav {
+            background-color: var(--accent-color-bold);
+        }
+
+        li:hover {
+            background-color: var(--accent-color);
+        }
+
+        li>a {
+            padding: .5rem;
+            display: block;
+        }
+
+        .dropdown-menu {
+            display: none;
+
+            position: absolute;
+            inset: auto auto 0px 0px;
+            margin: 0px;
+            min-width: 100px;
+            background-color: var(--component-background-color);
+            border: 1px solid var(--outline-dark);
+            border-radius: 6px;
+            text-align: center;
+            transform: translate(88px, -42px);
+            overflow: hidden;
+        }
+
+        .dropdown-menu * {
+            margin: 0;
+        }
+
+        .dropdown-menu li {
+            border-radius: 0;
+        }
+
+        #dropdownToggle {
+            display: none;
+        }
+
+        .dropdown>label {
+            display: inline-block;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #dropdownToggle:checked~.dropdown-menu {
+            display: block;
+        }
+
+        .dropdown>label>i:nth-of-type(3) {
+            display: inline-block;
+        }
+
+        .dropdown>label>i:nth-of-type(2) {
+            display: none;
+        }
+
+        #dropdownToggle:checked~label>i:nth-of-type(3) {
+            display: none;
+        }
+
+        #dropdownToggle:checked~label>i:nth-of-type(2) {
+            display: inline-block;
+        }
+
+        .sidebar-small {
+            width: var(--sidebar-width-small) !important;
+        }
+
+
+        #main {
+            flex-grow: 1;
+            padding: 60px 100px;
+            margin-left: var(--sidebar-width-base);
+            height: 100vh;
+        }
+
+        button:hover {
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        .test {
+            width: 10px;
+            color: blue;
+            margin-left: 120px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: #efefef;
+        }
+
+        .b-example-divider {
+            width: 100%;
+            height: 3rem;
+            background-color: rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+        }
+
+        .b-example-vr {
+            flex-shrink: 0;
+            width: 1.5rem;
+            height: 100vh;
+        }
+    </style>
+    <script src="https://kit.fontawesome.com/d19bb7ac4a.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="sidebar">
+
+        <a href="#" class="navTitle">
+            <i class="fa-solid fa-brand fa-xl"></i>
+            <span>Title</span>
+        </a>
+
+        <hr>
+
+        <ul>
+            <li class="activeNav">
+                <a href="#">
+                    <i class="fa-solid fa-house"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fa-solid fa-book"></i>
+                    Attendance Records
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fa-solid fa-gear"></i>
+                    Settings
+                </a>
+            </li>
+        </ul>
+
+        <hr>
+
+        <div class="dropdown">
+
+            <input id="dropdownToggle" type="checkbox">
+            <label for="dropdownToggle" class="avatar">
+                <i class="fa-solid fa-user"></i>
+                <strong>username</strong>
+                <i class="fa-solid fa-chevron-up"></i>
+                <i class="fa-solid fa-chevron-down"></i>
+            </label>
+            <div class="dropdown-menu">
+                <ul>
+                    <li>
+                        <a class="dropdown-item" href="#">Item 1</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">Item 2</a>
+                    </li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">Sign out</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="b-example-divider b-example-vr"></div>
+</body>
+
+</html>
