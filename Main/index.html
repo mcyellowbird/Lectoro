@@ -20,9 +20,9 @@
     <!-- <script src="tailwind.config.js"></script> -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    <script src="./src/js/includes.js" type="module"></script>
-    <!-- <script src="./src/components/sidebar.js"></script>
-    <script src="./src/components/skeleton.js"></script> -->
+    <!-- <script src="./src/js/includes.js" type="module"></script> -->
+    <script src="./src/components/sidebar.js"></script>
+    <script src="./src/components/skeleton.js"></script>
     <script>
         $(document).ready(function () {
             const data = {
@@ -42,7 +42,7 @@
 
             const mainContent = $('#main-content');
 
-            $("#sidebar").append(sidebar(data));
+            $("#sidebar").append(generateSidebar(data));
             $("#main-content").append(generateSkeleton());
 
             // Add event listener to the drawer for when it's shown or hidden

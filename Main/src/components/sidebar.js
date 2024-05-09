@@ -164,5 +164,3 @@ function generateSidebar(data) {
     </div>
     `
 }
-
-export default generateSidebar();

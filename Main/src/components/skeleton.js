@@ -1,4 +1,4 @@
-export function generateSkeleton() {
+function generateSkeleton() {
     return `
         <div class="flex flex-wrap p-16 h-min gap-10">
         <div class="flex gap-10">
