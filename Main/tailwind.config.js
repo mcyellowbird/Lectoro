@@ -2,11 +2,11 @@
 const colors = require('tailwindcss/colors')
 module.exports = {
   content: [
-    'Main/*.html',
-    'Main/src/components/*.{html,js}',
-    'Main/src/css/*.css',
-    'Main/src/includes/*.js',
-    'Main/node_modules/flowbite/**/*.js',
+    './*.html',
+    './src/components/*.{html,js}',
+    './src/css/*.css',
+    './src/includes/*.js',
+    './node_modules/flowbite/**/*.js',
   ],
   theme: {
     extend: {
