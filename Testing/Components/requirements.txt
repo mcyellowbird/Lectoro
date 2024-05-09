@@ -1,3 +1,5 @@
 npm install -D tailwindcss
 npm install flowbite
 npm install -D tailwindcss-3d
+npm install apexcharts --save
+npx tailwindcss -c tailwind.config.js -i src/css/base.css -o src/css/index.css

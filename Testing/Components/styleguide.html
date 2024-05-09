@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Styles -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" /> -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link
         href="https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&family=Quicksand:wght@300..700&display=swap"
@@ -16,13 +16,317 @@
     <link href="output.css" rel="stylesheet">
 
     <!-- Scripts -->
-    <script src="tailwind.config.js"></script>
+    <!-- <script src="tailwind.config.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 
     <!-- Testing -->
     <script>
         $(document).ready(function () {
+
+            // Vertical Bar Chart
+
+            const options = {
+                colors: ["#0d6efd", "#a855f7"],
+                series: [{
+                        name: "Organic",
+                        color: "#0d6efd",
+                        data: [{
+                                x: "Mon",
+                                y: 231
+                            },
+                            {
+                                x: "Tue",
+                                y: 122
+                            },
+                            {
+                                x: "Wed",
+                                y: 63
+                            },
+                            {
+                                x: "Thu",
+                                y: 421
+                            },
+                            {
+                                x: "Fri",
+                                y: 122
+                            },
+                            {
+                                x: "Sat",
+                                y: 323
+                            },
+                            {
+                                x: "Sun",
+                                y: 111
+                            },
+                        ],
+                    },
+                    {
+                        name: "Social media",
+                        color: "#a855f7",
+                        data: [{
+                                x: "Mon",
+                                y: 232
+                            },
+                            {
+                                x: "Tue",
+                                y: 113
+                            },
+                            {
+                                x: "Wed",
+                                y: 341
+                            },
+                            {
+                                x: "Thu",
+                                y: 224
+                            },
+                            {
+                                x: "Fri",
+                                y: 522
+                            },
+                            {
+                                x: "Sat",
+                                y: 411
+                            },
+                            {
+                                x: "Sun",
+                                y: 243
+                            },
+                        ],
+                    },
+                ],
+                chart: {
+                    type: "bar",
+                    height: "288px",
+                    fontFamily: "Quicksand",
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: "70%",
+                        borderRadiusApplication: "end",
+                        borderRadius: 8,
+                    },
+                },
+                tooltip: {
+                    shared: true,
+                    intersect: false,
+                    style: {
+                        fontFamily: "Quicksand",
+                    },
+                },
+                states: {
+                    hover: {
+                        filter: {
+                            type: "darken",
+                            value: 1,
+                        },
+                    },
+                },
+                stroke: {
+                    show: true,
+                    width: 0,
+                    colors: ["transparent"],
+                },
+                grid: {
+                    show: false,
+                    strokeDashArray: 4,
+                    padding: {
+                        left: 2,
+                        right: 2,
+                        top: -14
+                    },
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                legend: {
+                    show: false,
+                },
+                xaxis: {
+                    floating: false,
+                    labels: {
+                        show: true,
+                        style: {
+                            fontFamily: "Quicksand",
+                            cssClass: 'text-xs font-normal fill-gray-400'
+                        }
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                    axisTicks: {
+                        show: false,
+                    },
+                },
+                yaxis: {
+                    show: false,
+                },
+                fill: {
+                    opacity: 1,
+                },
+            }
+
+
+            if (document.getElementById("column-chart") && typeof ApexCharts !== 'undefined') {
+                const chart = new ApexCharts(document.getElementById("column-chart"), options);
+                chart.render();
+            }
+
+            // 
+
+            // Pie Chart
+
+            const getChartOptions = () => {
+                return {
+                    series: [80.9, 74.2, 92.5, 66.1],
+                    colors: ["#1C64F2", "#16BDCA", "#9061F9", "#343A40"],
+                    chart: {
+                        height: 350,
+                        width: "100%",
+                        type: "pie",
+                        fontFamily: "Quicksand",
+                        foreColor: '#fff',
+                    },
+                    stroke: {
+                        colors: ["#ffffff44"],
+                        lineCap: "",
+                    },
+                    plotOptions: {
+                        pie: {
+                            labels: {
+                                show: true,
+                            },
+                            size: "100%",
+                            dataLabels: {
+                                offset: -25
+                            }
+                        },
+                    },
+                    labels: ["CSIT110", "CSIT111", "CSIT113", "CSIT114"],
+                    legend: {
+                        show: true,
+                        position: "bottom",
+                        fontFamily: "Quicksand",
+                    },
+                    yaxis: {
+                        labels: {
+                            formatter: function (value) {
+                                return value + "%"
+                            },
+                        },
+                    },
+                    xaxis: {
+                        labels: {
+                            formatter: function (value) {
+                                return value + "%"
+                            }
+                        },
+                        axisTicks: {
+                            show: false,
+                        },
+                        axisBorder: {
+                            show: false,
+                        },
+                    },
+                }
+            }
+
+
+            if (document.getElementById("pie-chart") && typeof ApexCharts !== 'undefined') {
+                const chart = new ApexCharts(document.getElementById("pie-chart"), getChartOptions());
+                chart.render();
+            }
+
+            //
+
+            // Line Graph
+
+
+            const lineOptions = {
+                chart: {
+                    height: "100%",
+                    maxWidth: "100%",
+                    type: "area",
+                    fontFamily: "Quicksand",
+                    foreColor: "#b3b4b6",
+                    dropShadow: {
+                        enabled: false,
+                    },
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                tooltip: {
+                    enabled: true,
+                    x: {
+                        show: false,
+                    },
+                },
+                fill: {
+                    type: "gradient",
+                    gradient: {
+                        opacityFrom: 0.55,
+                        opacityTo: 0,
+                        shade: "#1C64F2",
+                        gradientToColors: ["#1C64F2"],
+                    },
+                },
+                dataLabels: {
+                    enabled: false,
+                    style: {
+                        fontFamily: "Quicksand",
+                        colors: ['white']
+                    },
+                },
+                stroke: {
+                    width: 6,
+                },
+                grid: {
+                    show: true,
+                    strokeDashArray: 4,
+                    padding: {
+                        left: 2,
+                        right: 2,
+                        top: 0
+                    },
+                },
+                series: [{
+                    name: "New users",
+                    data: [73, 92, 54, 82, 60],
+                    color: "#0054af",
+                }, ],
+                xaxis: {
+                    categories: ['01 February', '02 February', '03 February', '04 February', '05 February',
+                        '06 February', '07 February'
+                    ],
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                    axisTicks: {
+                        show: false,
+                    },
+                },
+                yaxis: {
+                    show: true,
+                },
+            }
+
+
+            if (document.getElementById("area-chart") && typeof ApexCharts !== 'undefined') {
+                const chart = new ApexCharts(document.getElementById("area-chart"), lineOptions);
+                chart.render();
+            }
+
+            // 
+
             $("#testAlertBanner").click(function () {
                 var alertType = "default";
                 var message = "This is a test alert! Please disregard this.";
@@ -113,8 +417,7 @@
 
         <div class="px-96 py-10 w-full">
             <p class="text-3xl mb-10">Colour Palette</p>
-            <div
-                class="text-black px-10 py-10 flex flex-wrap w-full bg-white gap-10 text-center  shadow-panel">
+            <div class="text-black px-10 py-10 flex flex-wrap w-full bg-white gap-10 text-center  shadow-panel">
 
                 <div id="testAlertBanner" class="flex flex-col items-center w-32">
                     <div class="bg-background w-32 h-32 rounded-full shadow-lg"></div>
@@ -144,6 +447,12 @@
                     <div class="bg-accentDark w-32 h-32 rounded-full shadow-lg"></div>
                     <span class="py-1">Accent Dark</span>
                     <span>#0054af</span>
+                </div>
+
+                <div class="flex flex-col items-center w-32">
+                    <div class="bg-secondaryAccent w-32 h-32 rounded-full shadow-lg"></div>
+                    <span class="py-1">Secondary Accent</span>
+                    <span>#a855f7</span>
                 </div>
 
                 <div class="flex flex-col items-center w-32">
@@ -349,9 +658,7 @@
                 <p class="text-2xl pb-4">Text Inputs</p>
                 <div class="grid gap-10 pb-10">
                     <div>
-                        <input
-                            class="textInput mr-10"
-                            placeholder="Unfocused">
+                        <input class="textInput mr-10" placeholder="Unfocused">
                         <input class="textInput outline outline-2 outline-accent" placeholder="Focused">
                     </div>
 
@@ -359,7 +666,8 @@
                         <label for="default-search" class="label">Search</label>
                         <div class="searchBar">
                             <i class="searchIcon bx bx-search"></i>
-                            <input type="search" id="default-search" class="searchInput" placeholder="Find Students" required />
+                            <input type="search" id="default-search" class="searchInput" placeholder="Find Students"
+                                required />
                             <button type="submit" class="searchButton">Search</button>
                         </div>
                     </div>
@@ -367,7 +675,8 @@
                     <div class="messageBox">
                         <div class="messageHeader">
                             <label for="comment" class="sr-only">Your message</label>
-                            <textarea id="comment" rows="4" class="messageInput" placeholder="Write a message..." required></textarea>
+                            <textarea id="comment" rows="4" class="messageInput" placeholder="Write a message..."
+                                required></textarea>
                         </div>
                         <div class="messageFooter">
                             <div class="buttonGroup">
@@ -381,11 +690,12 @@
                                 </button>
                             </div>
                             <button type="submit" class="sendButton">
-                                <i class="sendIcon bx bx-send text-2xl transition duration-200 transform scale-100 group-hover:scale-110"></i>
+                                <i
+                                    class="sendIcon bx bx-send text-2xl transition duration-200 transform scale-100 group-hover:scale-110"></i>
                             </button>
                         </div>
                     </div>
-                    
+
                 </div>
 
                 <p class="text-2xl pb-4">Checkboxes</p>
@@ -481,50 +791,297 @@
         </div>
 
         <div class="px-96 py-10 w-full">
-            <p class="text-3xl mb-10">Menus</p>
-            <div class="text-black px-10 py-10 w-full bg-white text-left  shadow-panel">
-                <p class="text-2xl pb-4">Dropdown</p>
-                <table
-                    class="mb-10 overflow-hidden [&_tr:nth-of-type(odd)]:bg-slate-300 [&_tr:nth-of-type(1)]:text-[#dee2e6] [&_tr:nth-of-type(1)]:!bg-slate-600 [&_tr_th]:py-2 [&_tr_td]:pb-2 [&_tr_td]:pt-2 [&_tr_td:first-of-type]:pl-2 w-full rounded-lg border border-separate border-spacing-0">
-                    <tr>
-                        <th class="pl-2">Dropdown Button</th>
-                        <th>Dropdown Menu</th>
-                    </tr>
-                    <tr class="font-assistant">
-                        <td>
-                            <div class="flex flex-wrap gap-10">
-                                <button type="button" class="group w-full flex items-center" id="dropdown-button">
-                                    <!-- Will have to change to an img -->
-                                    <i class="bx bxs-user text-2xl pr-1.5"></i>
-                                    <span id="username" class="align-top">user</span>
-                                    <i
-                                        class="group-hover:text-accent transition-color ease-out duration-300 bx bx-chevron-down pl-1.5"></i>
-                                </button>
+            <p class="text-3xl mb-10">Menus & Charts</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left shadow-panel">
+                <div class="flex flex-row justify-between">
+                    <div class="flex flex-col items-start gap-2">
+                        <p class="text-2xl pb-4">Dropdown</p>
+                        <div class="flex flex-wrap gap-10 font-assistant">
+                            <button type="button" class="group w-full flex items-center" id="dropdown-button">
+                                <!-- Will have to change to an img -->
+                                <i class="bx bxs-user text-2xl pr-1.5"></i>
+                                <span id="username" class="align-top">user</span>
+                                <i
+                                    class="group-hover:text-accent transition-color ease-out duration-300 bx bx-chevron-down pl-1.5"></i>
+                            </button>
+                        </div>
+                        <div id="dropdown-menu"
+                            class="overflow-hidden text-[#dee2e6] w-40 rounded-lg bg-menu shadow-[0_.25rem_.5rem_rgba(0,0,0,0.31)]">
+                            <div>
+                                <div class="py-3 select-none">
+                                    <p class="px-4 ">John Smith</p>
+                                    <p class="px-4 text-sm text-textAccent">js652@uow.edu.au</p>
+                                </div>
+                                <hr class="opacity-20">
+                                <a
+                                    class="hover:bg-buttonHover cursor-pointer transition ease-out duration-300 block px-4 py-2 text-md">Settings</a>
+                                <a
+                                    class="hover:bg-buttonHover cursor-pointer transition ease-out duration-300 block px-4 py-2 text-md">Profile</a>
+                                <hr class="opacity-20">
+                                <a
+                                    class="hover:bg-buttonHover cursor-pointer transition ease-out duration-300 block px-4 py-2 text-md">Sign
+                                    out</a>
                             </div>
-                        </td>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-start gap-2">
+                        <p class="text-2xl pb-4">Pie Chart</p>
 
-                        <td>
-                            <div id="dropdown-menu"
-                                class="overflow-hidden text-[#dee2e6] w-40 rounded-lg bg-menu shadow-[0_.25rem_.5rem_rgba(0,0,0,0.31)]">
-                                <div>
-                                    <div class="py-3 select-none">
-                                        <p class="px-4 ">John Smith</p>
-                                        <p class="px-4 text-sm text-textAccent">js652@uow.edu.au</p>
+                        <div class="max-w-sm w-full rounded-lg shadow-lg bg-menu p-4 md:p-6">
+
+                            <div class="flex justify-between items-start w-full">
+                                <div class="flex-col items-center">
+                                    <div class="flex items-center mb-1">
+                                        <h5 class="text-xl font-bold leading-none text-white me-1">
+                                            Subject Attendance</h5>
+                                        <svg data-popover-target="chart-info" data-popover-placement="bottom"
+                                            class="w-3.5 h-3.5 text-textAccent hover:text-white cursor-pointer ms-1"
+                                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                            viewBox="0 0 20 20">
+                                            <path
+                                                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm0 16a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm1-5.034V12a1 1 0 0 1-2 0v-1.418a1 1 0 0 1 1.038-.999 1.436 1.436 0 0 0 1.488-1.441 1.501 1.501 0 1 0-3-.116.986.986 0 0 1-1.037.961 1 1 0 0 1-.96-1.037A3.5 3.5 0 1 1 11 11.466Z" />
+                                        </svg>
                                     </div>
-                                    <hr class="opacity-20">
-                                    <a
-                                        class="hover:bg-buttonHover cursor-pointer transition ease-out duration-300 block px-4 py-2 text-md">Settings</a>
-                                    <a
-                                        class="hover:bg-buttonHover cursor-pointer transition ease-out duration-300 block px-4 py-2 text-md">Profile</a>
-                                    <hr class="opacity-20">
-                                    <a
-                                        class="hover:bg-buttonHover cursor-pointer transition ease-out duration-300 block px-4 py-2 text-md">Sign
-                                        out</a>
+                                    <button id="dateRangeButton" data-dropdown-toggle="dateRangeDropdown"
+                                        data-dropdown-ignore-click-outside-class="datepicker" type="button"
+                                        class="inline-flex items-center text-accent font-medium hover:underline">31
+                                        Nov - 31 Dev <svg class="w-3 h-3 ms-2" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 1 4 4 4-4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="flex justify-end items-center">
+                                    <button id="widgetDropdownButton" data-dropdown-toggle="widgetDropdown"
+                                        data-dropdown-placement="bottom" type="button"
+                                        class="inline-flex items-center justify-center w-8 h-8 text-textAccent hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-700 rounded-lg text-sm"><svg
+                                            class="w-3.5 h-3.5 text-white" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
+                                            <path
+                                                d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
+                                        </svg><span class="sr-only">Open dropdown</span>
+                                    </button>
                                 </div>
                             </div>
-                        </td>
-                    </tr>
-                </table>
+
+                            <div class="py-6" id="pie-chart"></div>
+
+                            <div class="grid grid-cols-1 items-center border-t border-gray-700 justify-between">
+                                <div class="flex justify-between items-center pt-5">
+                                    <!-- Button -->
+                                    <button id="dropdownDefaultButton" data-dropdown-toggle="lastDaysdropdown"
+                                        data-dropdown-placement="bottom"
+                                        class="text-sm font-medium text-textAccent text-center inline-flex items-center hover:text-white"
+                                        type="button">
+                                        Last 7 days
+                                        <svg class="w-2.5 m-2.5 ms-1.5" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 1 4 4 4-4" />
+                                        </svg>
+                                    </button>
+
+                                    <a href="#"
+                                        class="uppercase text-sm font-semibold inline-flex items-center rounded-lg text-accent hover:text-blue-500  focus:ring-gray-700 border-gray-700 px-3 py-2">
+                                        Subject Report
+                                        <svg class="w-2.5 h-2.5 ms-1.5 rtl:rotate-180" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 9 4-4-4-4" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="flex flex-col items-start gap-2">
+                        <p class="text-2xl pb-4">Bar Graph</p>
+
+                        <div class="max-w-sm w-full rounded-lg shadow bg-menu p-4 md:p-6">
+                            <div class="flex justify-between pb-4 mb-4 border-b border-gray-700">
+                                <div class="flex items-center">
+                                    <div
+                                        class="w-12 h-12 rounded-lg bg-menu flex items-center justify-center me-3">
+                                        <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 19">
+                                            <path
+                                                d="M14.5 0A3.987 3.987 0 0 0 11 2.1a4.977 4.977 0 0 1 3.9 5.858A3.989 3.989 0 0 0 14.5 0ZM9 13h2a4 4 0 0 1 4 4v2H5v-2a4 4 0 0 1 4-4Z" />
+                                            <path
+                                                d="M5 19h10v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2ZM5 7a5.008 5.008 0 0 1 4-4.9 3.988 3.988 0 1 0-3.9 5.859A4.974 4.974 0 0 1 5 7Zm5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm5-1h-.424a5.016 5.016 0 0 1-1.942 2.232A6.007 6.007 0 0 1 17 17h2a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5ZM5.424 9H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h2a6.007 6.007 0 0 1 4.366-5.768A5.016 5.016 0 0 1 5.424 9Z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h5 class="leading-none text-2xl font-bold text-white pb-1">
+                                            CSIT110</h5>
+                                        <p class="text-sm font-normal text-gray-400">Attendance</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-xs font-medium inline-flex items-center px-2.5 py-1 rounded-md bg-green-900 text-green-300">
+                                        <svg class="w-2.5 h-2.5 me-1.5" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4" />
+                                        </svg>
+                                        12.5%
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2">
+                                <dl class="flex items-center justify-end">
+                                    <dt class="text-gray-400 text-sm font-normal me-1">Attendance
+                                        Rate:</dt><br>
+                                    <dd class="text-sm text-white font-semibold">80.9%</dd>
+                                </dl>
+                            </div>
+
+                            <div id="column-chart"></div>
+                            <div
+                                class="grid grid-cols-1 items-center border-t border-gray-700 justify-between">
+                                <div class="flex justify-between items-center pt-5">
+                                    <!-- Button -->
+                                    <button id="dropdownDefaultButton" data-dropdown-toggle="lastDaysdropdown"
+                                        data-dropdown-placement="bottom"
+                                        class="text-sm font-medium text-textAccent hover:text-gray-900 text-center inline-flex items-center dark:hover:text-white"
+                                        type="button">
+                                        Last 7 days
+                                        <svg class="w-2.5 m-2.5 ms-1.5" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 1 4 4 4-4" />
+                                        </svg>
+                                    </button>
+                                    <!-- Dropdown menu -->
+                                    <div id="lastDaysdropdown"
+                                        class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                                        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                                            aria-labelledby="dropdownDefaultButton">
+                                            <li>
+                                                <a href="#"
+                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Yesterday</a>
+                                            </li>
+                                            <li>
+                                                <a href="#"
+                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Today</a>
+                                            </li>
+                                            <li>
+                                                <a href="#"
+                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last
+                                                    7 days</a>
+                                            </li>
+                                            <li>
+                                                <a href="#"
+                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last
+                                                    30 days</a>
+                                            </li>
+                                            <li>
+                                                <a href="#"
+                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last
+                                                    90 days</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <a href="#"
+                                        class="uppercase text-sm font-semibold inline-flex items-center rounded-lg text-blue-600 hover:text-blue-700 dark:hover:text-blue-500  hover:bg-gray-100 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 px-3 py-2">
+                                        Subject Report
+                                        <svg class="w-2.5 h-2.5 ms-1.5 rtl:rotate-180" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 9 4-4-4-4" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="flex flex-col items-start gap-2">
+                        <p class="text-2xl pb-4">Line Graph</p>
+
+                        <div class="max-w-sm w-full rounded-lg shadow bg-menu p-4 md:p-6">
+                            <div class="flex justify-between">
+                                <div>
+                                    <h5 class="leading-none text-3xl font-bold text-white pb-2">405
+                                    </h5>
+                                    <p class="text-base font-normal text-gray-400">Attendees this
+                                        week
+                                    </p>
+                                </div>
+                                <div
+                                    class="flex items-center px-2.5 py-0.5 text-base font-semibold text-green-500 text-center">
+                                    12.5%
+                                    <svg class="w-3 h-3 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 10 14">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div id="area-chart"></div>
+                            <div
+                                class="grid grid-cols-1 items-center border-t border-gray-700 justify-between">
+                                <div class="flex justify-between items-center pt-5">
+                                    <!-- Button -->
+                                    <button id="dropdownDefaultButton" data-dropdown-toggle="lastDaysdropdown"
+                                        data-dropdown-placement="bottom"
+                                        class="text-sm font-medium text-textAccent hover:text-gray-900 text-center inline-flex items-center dark:hover:text-white"
+                                        type="button">
+                                        Last 7 days
+                                        <svg class="w-2.5 m-2.5 ms-1.5" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 1 4 4 4-4" />
+                                        </svg>
+                                    </button>
+                                    <!-- Dropdown menu -->
+                                    <div id="lastDaysdropdown"
+                                        class="z-10 hidden divide-y divide-gray-100 rounded-lg shadow w-44 bg-gray-700">
+                                        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                                            aria-labelledby="dropdownDefaultButton">
+                                            <li>
+                                                <a href="#"
+                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Yesterday</a>
+                                            </li>
+                                            <li>
+                                                <a href="#"
+                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Today</a>
+                                            </li>
+                                            <li>
+                                                <a href="#"
+                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last
+                                                    7 days</a>
+                                            </li>
+                                            <li>
+                                                <a href="#"
+                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last
+                                                    30 days</a>
+                                            </li>
+                                            <li>
+                                                <a href="#"
+                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last
+                                                    90 days</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <a href="#"
+                                        class="uppercase text-sm font-semibold inline-flex items-center rounded-lg text-blue-600 hover:text-blue-700 dark:hover:text-blue-500  hover:bg-gray-100 dark:hover:bg-gray-700 dark:focus:ring-gray-700 border-gray-700 px-3 py-2">
+                                        Subject Report
+                                        <svg class="w-2.5 h-2.5 ms-1.5 rtl:rotate-180" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 9 4-4-4-4" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
 

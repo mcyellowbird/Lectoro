@@ -17,6 +17,7 @@ module.exports = {
         accent: '#007bff',
         accentBold: '#0d6efd',
         accentDark: '#0054af',
+        secondaryAccent: '#a855f7',
         blackOpaque: '#0000001a',
         menu: '#343a40',
         buttonHover: '#4c5257',

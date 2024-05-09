@@ -249,7 +249,7 @@
     } */
 
     .componentButton::before {
-        @apply scale-y-110 scale-x-102 -translate-z-1 -inset-5 rounded-xl absolute top-0 left-0 right-0 bottom-0 opacity-0 transition-opacity duration-200 ease-out bg-gradient-to-r from-accent to-purple-500;
+        @apply scale-y-110 scale-x-102 -translate-z-1 -inset-5 rounded-xl absolute top-0 left-0 right-0 bottom-0 opacity-0 transition-opacity duration-200 ease-out bg-gradient-to-r from-accent to-secondaryAccent;
     }
 
     .componentButton:hover:not(.componentButtonDisabled, .componentButtonActive)::before {
@@ -264,8 +264,11 @@
         @apply cursor-not-allowed bg-buttonDisabled;
     }
 
-    .componentButtonHover {
-        @apply outline outline-2 outline-accent;
+    .componentButtonHover::before {
+        @apply opacity-100;
+    }
+    .componentButtonHover i {
+        @apply text-accent;
     }
 
     .componentButtonActive {
