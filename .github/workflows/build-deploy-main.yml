@@ -30,7 +30,6 @@ jobs:
           npm install -D tailwindcss
           npm install flowbite
           npm install -D tailwindcss-3d
-          npx tailwindcss init
           npx tailwindcss -i src/css/base.css -o src/css/index.css
       
       - name: Upload artifact
