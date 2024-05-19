@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="svg" href="/Images/NexTech_logo.svg">
+
+    <!-- Styles -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+
+    <link href="output.css" rel="stylesheet">
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tailwind.config.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebar').load('Sidebar.html', function () {
+                // Get references to elements
+                const mainContent = $('#main-content');
+
+                // Add event listener to the drawer for when it's shown or hidden
+                $('#sidebar-large-button').click( function () {
+                    mainContent.addClass('ml-sidebarSmall');
+                    mainContent.removeClass('ml-sidebarLarge');
+                });
+
+                $('#sidebar-small-button').click( function () {
+                    mainContent.addClass('ml-sidebarLarge');
+                    mainContent.removeClass('ml-sidebarSmall');
+                });
+
+                $('#dropdown-button').click(function () {
+                    $('#dropdown-arrow').toggleClass('bx-chevron-down');
+                    $('#dropdown-arrow').toggleClass('bx-chevron-up');
+                });
+            });
+        });
+    </script>
+</head>
+
+<body class="bg-background p-0 m-0">
+    <div id="sidebar"></div>
+
+    <div id="main-content" class="ml-304">
+        <div class="mt-40 mx-40 grid grid-flow-col justify-between">
+            <div class="bg-menu shadow-xl w-[120] h-80 rounded-lg flex"></div>
+            <div class="bg-menu shadow-xl w-[120] h-80 rounded-lg flex"></div>
+            <div class="bg-menu shadow-xl w-[120] h-80 rounded-lg flex"></div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+
+</html>

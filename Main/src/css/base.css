@@ -168,7 +168,7 @@
     /* Alert Popup Base */
 
     .alertPopup {
-        @apply bg-background w-fit border-l-8 rounded-md shadow-lg;
+        @apply absolute bottom-8 right-8 bg-background w-fit border-l-8 rounded-md shadow-lg;
     }
 
     .alertPopup>div {
@@ -206,7 +206,7 @@
     }
 
     .alertBanner {
-        @apply relative w-1/2 transition-opacity ease-in duration-100 text-white flex flex-row items-center h-16 shadow-lg;
+        @apply absolute top-8 w-1/2 transition-opacity ease-in duration-100 text-white flex flex-row items-center h-16 shadow-lg;
     }
 
     .alertBanner>i {

@@ -33,11 +33,12 @@
                 // Calculate average attendance for each subject and render the chart
                 var pieData = [];
                 Object.keys(graphData).forEach(subject => {
-                    let totalAttendance = graphData[subject].reduce((acc, obj) => acc + obj
+                    let totalAttendance = graphData[subject].data.reduce((acc, obj) => acc + obj
                         .attendance, 0);
-                    let averageAttendance = totalAttendance / graphData[subject].length;
+                    let averageAttendance = totalAttendance / graphData[subject].data.length;
                     pieData.push(parseFloat(averageAttendance.toFixed(2)));
                 });
+                dates = graphData[Object.keys(graphData)[0]].data.map(entry => entry.date);
 
                 // Pie Chart
                 var pieChart = {
@@ -53,7 +54,7 @@
                         show: false,
                         width: 0,
                     },
-                    labels: Object.keys(graphData),
+                    labels: dates,
                     legend: {
                         position: 'bottom',
                     },
@@ -99,16 +100,23 @@
                 chart.render();
 
                 // Bar Chart
-
                 var barSeries = [];
-                var barX = graphData[Object.keys(graphData)[0]].map(entry => entry.date);
+                var barX = [];
+                Object.keys(graphData).forEach(function (subject) {
+                    // Push the subject names to the X-axis categories
+                    var dates = graphData[subject].data.map(function (entry) {
+                        return entry.date;
+                    });
 
-                // Fill the series data and x-axis categories from your JSON
-                Object.keys(graphData).forEach(subject => {
-                    // Extract the attendance values for the subject
-                    let attendanceData = graphData[subject].map(entry => entry.attendance);
+                    // Use the extracted dates as categories for the x-axis
+                    barX = [...new Set([...barX, ...dates])];
 
-                    // Push attendance data as a series object
+                    // Extract the attendance data for the current subject
+                    var attendanceData = graphData[subject].data.map(function (entry) {
+                        return entry.attendance;
+                    });
+
+                    // Push the attendance data as a series object
                     barSeries.push({
                         name: subject,
                         data: attendanceData
@@ -174,14 +182,15 @@
                 var bChart = new ApexCharts(document.querySelector("#bar-chart"), barChart);
                 bChart.render();
 
+
                 // Line Graph
                 var lineSeries = [];
-                var lineX = graphData[Object.keys(graphData)[0]].map(entry => entry.date);
+                var lineX = graphData[Object.keys(graphData)[0]].data.map(entry => entry.date);
 
                 // Fill the series data from your JSON
                 Object.keys(graphData).forEach(subject => {
                     // Extract the attendance values for the subject
-                    let attendanceData = graphData[subject].map(entry => entry.attendance);
+                    let attendanceData = graphData[subject].data.map(entry => entry.attendance);
 
                     // Push attendance data as a series object
                     lineSeries.push({
@@ -221,9 +230,6 @@
                             right: 2,
                             top: 0
                         },
-                    },
-                    yaxis: {
-
                     },
                     xaxis: {
                         categories: lineX,
@@ -563,11 +569,11 @@
         </div>
 
         <div class="px-96 py-10 w-full">
-            <p class="text-3xl mb-10">Inputs</p>
-            <div class="text-black px-10 py-10 w-full bg-white text-left  shadow-panel">
+            <p class="text-3xl pb-10">Inputs</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left shadow-panel">
                 <p class="text-2xl pb-4">Text Inputs</p>
                 <div class="grid gap-10 pb-10">
-                    <div>
+                    <div class="flex gap-5">
                         <input class="textInput mr-10" placeholder="Unfocused">
                         <input class="textInput outline outline-2 outline-accent" placeholder="Focused">
                     </div>
@@ -608,8 +614,8 @@
 
                 </div>
 
-                <p class="text-2xl pb-4">Checkboxes</p>
                 <div>
+                    <p class="text-2xl pb-4">Checkboxes</p>
                     <div class="flex flex-wrap gap-10 pb-10">
                         <input type="checkbox" class="cursor-not-allowed bg-textAccent rounded-md pl-2 p-1" disabled />
                         <input type="checkbox" class="rounded-md pl-2 p-1" />
@@ -620,8 +626,8 @@
                     </div>
                 </div>
 
-                <p class="text-2xl pb-4">Toggles</p>
                 <div>
+                    <p class="text-2xl pb-4">Toggles</p>
                     <div class="flex flex-wrap gap-10 pb-10">
                         <label class="inline-flex items-center cursor-pointer">
                             <input type="checkbox" value="" class="sr-only peer" disabled>
@@ -647,53 +653,30 @@
                     </div>
                 </div>
 
-                <p class="text-2xl pb-4">Radio Buttons</p>
-                <div class="flex flex-wrap gap-10 pb-10">
-                    <input type="radio" class="cursor-not-allowed bg-textAccent rounded-full pl-2 p-1" disabled>
-                    <input type="radio" class="rounded-full pl-2 p-1" disabled>
-                    <input type="radio" class="rounded-full pl-2 p-1" checked disabled>
-                    <input type="radio" class="outline outline-2 outline-offset-2 outline-accent rounded-full pl-2 p-1"
-                        checked disabled>
-                </div>
-
-                <p class="text-2xl pb-4">Sliders</p>
-                <div class="flex flex-wrap gap-10 pb-10">
-                    <div class="relative w-40">
-                        <label for="labels-range-input" class="sr-only">Labels range</label>
-                        <input disabled id="labels-range-input" type="range" value="70" min="1" max="100"
-                            class="w-full h-2 bg-gray-200  rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                    </div>
-                    <div class="relative w-40">
-                        <label for="labels-range-input" class="sr-only">Labels range</label>
-                        <input id="labels-range-input" type="range" value="70" min="1" max="100"
-                            class="w-full h-2 bg-gray-200  rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                <div class="flex flex-col flex-wrap pb-10">
+                    <p class="text-2xl pb-4">Radio Buttons</p>
+                    <div class="flex gap-10">
+                        <input type="radio" class="cursor-not-allowed bg-textAccent rounded-full pl-2 p-1" disabled>
+                        <input type="radio" class="rounded-full pl-2 p-1" disabled>
+                        <input type="radio" class="rounded-full pl-2 p-1" checked disabled>
+                        <input type="radio"
+                            class="outline outline-2 outline-offset-2 outline-accent rounded-full pl-2 p-1" checked
+                            disabled>
                     </div>
                 </div>
 
-                <p class="text-2xl pb-4">Progress Bars</p>
-                <div class="flex flex-wrap gap-10 pb-10">
-                    <div class="progressBarBig">
-                        <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
-                            aria-valuemax="100"><span>25%</span>
+                <div class="flex flex-wrap flex-col">
+                    <p class="text-2xl pb-4">Sliders</p>
+                    <div class="flex gap-10">
+                        <div class="relative w-40">
+                            <label for="labels-range-input" class="sr-only">Labels range</label>
+                            <input disabled id="labels-range-input" type="range" value="70" min="1" max="100"
+                                class="w-full h-2 bg-gray-200  rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
                         </div>
-                    </div>
-
-                    <div class="progressBarSmall">
-                        <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
-                            aria-valuemax="100"><span class="text-transparent">Value</span>
-                        </div>
-                        <label>25%</label>
-                    </div>
-
-                    <div class="progressBarSmall">
-                        <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
-                            aria-valuemax="100"><span class="text-transparent">Value</span>
-                        </div>
-                    </div>
-
-                    <div class="progressBarTiny">
-                        <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
-                            aria-valuemax="100"><span class="text-transparent">Value</span>
+                        <div class="relative w-40">
+                            <label for="labels-range-input" class="sr-only">Labels range</label>
+                            <input id="labels-range-input" type="range" value="70" min="1" max="100"
+                                class="w-full h-2 bg-gray-200  rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
                         </div>
                     </div>
                 </div>
@@ -839,7 +822,7 @@
 
         <div class="px-96 py-10 w-full">
             <p class="text-3xl mb-10">Alerts</p>
-            <div class="text-black px-10 py-10 w-full bg-white text-left  shadow-panel">
+            <div class="text-black px-10 py-10 w-full bg-white text-left shadow-panel">
                 <p class="text-2xl pb-4">Banner Alert</p>
                 <div class="flex flex-wrap gap-10 pb-10">
                     <div id="alert-banner-1" class="w-full relative alertBanner alertBannerDefault">
@@ -941,6 +924,878 @@
                                 <i class="bx bx-x"></i>
                             </a>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Navigation</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left shadow-panel">
+                <div class="flex flex-row justify-between">
+                    <div class="flex flex-col">
+                        <p class="text-2xl pb-4">Sidebar</p>
+                        <div>
+                            <div class="flex items-center flex-col p-4 bg-background w-280">
+                                <a href="#" class="flex items-center w-full text-3xl pl-1">
+                                    <i class="pr-4">
+                                        <object class="h-10 w-10" data="./Images/test_logo2_lightpurple.svg"
+                                            type="image/svg+xml">
+                                        </object>
+                                    </i>
+                                    <span class="text-textColour">LECTORO</span>
+                                </a>
+
+                                <hr class="my-4 opacity-25 w-full">
+
+                                <ul class="text-md flex flex-col flex-grow w-240">
+                                    <li class="my-1">
+                                        <button href="#" class="componentButton componentButtonActive ">
+                                            <i class="bx bxs-home"></i>
+                                            <span>Dashboard</span>
+                                        </button>
+                                    </li>
+                                    <li class="my-1">
+                                        <button href="#" class="componentButton">
+                                            <i class="bx bxs-message"></i>
+                                            <span>Messages</span>
+                                        </button>
+                                    </li>
+                                    <li class="my-1">
+                                        <button href="#" class="componentButton">
+                                            <i class="bx bxs-book-alt"></i>
+                                            <span>Subjects</span>
+                                        </button>
+                                    </li>
+                                    <li class="my-1">
+                                        <button href="#" class="componentButton">
+                                            <i class="bx bxs-user"></i>
+                                            <span>Students</span>
+                                        </button>
+                                    </li>
+                                    <li class="my-1">
+                                        <button href="#" class="componentButton">
+                                            <i class="bx bxs-bar-chart-alt-2"></i>
+                                            <span>Reports</span>
+                                        </button>
+                                    </li>
+                                </ul>
+
+                                <hr class="my-4 opacity-25 w-full">
+
+                                <div class="text-textColour flex text-left w-full">
+                                    <div class="flex-grow">
+                                        <button type="button" class="group w-full flex items-center">
+                                            <!-- Will have to change to an img -->
+                                            <i class="bx bxs-user text-2xl pr-1.5"></i>
+                                            <span id="username" class="align-top">user</span>
+                                            <i id="dropdown-arrow"
+                                                class="group-hover:text-accent transition-color ease-out duration-300 bx bx-chevron-down pl-1.5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <p class="text-2xl pb-4">Narrow Sidebar</p>
+                        <div>
+                            <div class="text-textColour flex items-center flex-col p-4 bg-background w-20">
+                                <a href="#" class="text-3xl">
+                                    <i>
+                                        <object class="h-10 w-10" data="./Images/test_logo2_lightpurple.svg"
+                                            type="image/svg+xml">
+                                            <img src="${data.logoSVG}">
+                                        </object>
+                                    </i>
+                                </a>
+
+                                <hr class="my-4 opacity-25 w-full">
+
+                                <ul class="text-2xl flex flex-col items-center flex-grow w-20">
+                                    <li class="my-1">
+                                        <button href="#" class="componentButtonSmall componentButtonSmallActive">
+                                            <i class="bx bxs-home"></i>
+                                        </button>
+                                    </li>
+                                    <li class="my-1">
+                                        <button href="#" class="componentButtonSmall">
+                                            <i class="bx bxs-message"></i>
+                                        </button>
+                                    </li>
+                                    <li class="my-1">
+                                        <button href="#" class="componentButtonSmall">
+                                            <i class="bx bxs-book-alt"></i>
+                                        </button>
+                                    </li>
+                                    <li class="my-1">
+                                        <button href="#" class="componentButtonSmall">
+                                            <i class="bx bxs-user"></i>
+                                        </button>
+                                    </li>
+                                    <li class="my-1">
+                                        <button href="#" class="componentButtonSmall">
+                                            <i class="bx bxs-bar-chart-alt-2"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+
+                                <hr class="my-4 opacity-25 w-full">
+
+                                <div class="flex items-center">
+                                    <div>
+                                        <button type="button" class="group w-full flex items-center"
+                                            id="dropdown-button-small">
+                                            <!-- Will have to change to an img -->
+                                            <i
+                                                class="group-hover:text-accent transition-color ease-out duration-300 bx bxs-user text-2xl"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <p class="text-2xl pb-4">Breadcrumbs</p>
+                        <div>
+                            <nav class="flex py-3" aria-label="Breadcrumb">
+                                <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                                    <li class="inline-flex items-center">
+                                        <a href="#"
+                                            class="inline-flex items-center text-sm font-medium text-accent hover:text-accentDark">
+                                            <svg class="w-3 h-3 me-2.5" aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path
+                                                    d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
+                                            </svg>
+                                            Home
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <div class="flex items-center">
+                                            <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                <path stroke="currentColor" stroke-linecap="round"
+                                                    stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                                            </svg>
+                                            <a href="#"
+                                                class="ms-1 text-sm font-medium text-accent md:ms-2 hover:text-accentDark">Students</a>
+                                        </div>
+                                    </li>
+                                    <li aria-current="page">
+                                        <div class="flex items-center">
+                                            <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                <path stroke="currentColor" stroke-linecap="round"
+                                                    stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                                            </svg>
+                                            <span class="ms-1 text-sm font-medium text-textAccent md:ms-2">Report</span>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </nav>
+
+                            <hr class="py-3 border-t-[1px]" />
+                        </div>
+
+                        <div>
+                            <nav class="flex px-5 py-3 text-gray-700 border bg-menu rounded-lg border-gray-700 shadow-lg"
+                                aria-label="Breadcrumb">
+                                <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                                    <li class="inline-flex items-center">
+                                        <a href="#"
+                                            class="inline-flex items-center text-sm font-medium text-accent hover:text-accentBold">
+                                            <svg class="w-3 h-3 me-2.5" aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path
+                                                    d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
+                                            </svg>
+                                            Home
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <div class="flex items-center">
+                                            <svg class="rtl:rotate-180 block w-3 h-3 mx-1 text-gray-400 "
+                                                aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                viewBox="0 0 6 10">
+                                                <path stroke="currentColor" stroke-linecap="round"
+                                                    stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                                            </svg>
+                                            <a href="#"
+                                                class="ms-1 text-sm font-medium text-accent md:ms-2 hover:text-accentBold">Students</a>
+                                        </div>
+                                    </li>
+                                    <li aria-current="page">
+                                        <div class="flex items-center">
+                                            <svg class="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400" aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                <path stroke="currentColor" stroke-linecap="round"
+                                                    stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                                            </svg>
+                                            <span class="ms-1 text-sm font-medium text-textAccent md:ms-2">Report</span>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </nav>
+
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <p class="text-2xl pb-4">Pagination</p>
+                        <div>
+                            <nav aria-label="Page navigation example">
+                                <ul class="flex items-center -space-x-px h-8 text-sm">
+                                    <li>
+                                        <a href="#"
+                                            class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-textColour bg-menu rounded-s-lg hover:bg-gray-900 hover:text-textAccent">
+                                            <span class="sr-only">Previous</span>
+                                            <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                <path stroke="currentColor" stroke-linecap="round"
+                                                    stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4" />
+                                            </svg>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#"
+                                            class="flex items-center justify-center px-3 h-8 leading-tight text-textColour bg-menu hover:bg-gray-900">1</a>
+                                    </li>
+                                    <li>
+                                        <a href="#"
+                                            class="flex items-center justify-center px-3 h-8 leading-tight text-textColour bg-menu hover:bg-gray-900">2</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" aria-current="page"
+                                            class="z-10 flex items-center justify-center px-3 h-8 leading-tight text-textColour bg-accent hover:bg-accentDark">3</a>
+                                    </li>
+                                    <li>
+                                        <a href="#"
+                                            class="flex items-center justify-center px-3 h-8 leading-tight text-textColour bg-menu hover:bg-gray-900">4</a>
+                                    </li>
+                                    <li>
+                                        <a href="#"
+                                            class="flex items-center justify-center px-3 h-8 leading-tight text-textColour bg-menu hover:bg-gray-900">5</a>
+                                    </li>
+                                    <li>
+                                        <a href="#"
+                                            class="flex items-center justify-center px-3 h-8 leading-tight text-textColour bg-menu rounded-e-lg hover:bg-gray-900">
+                                            <span class="sr-only">Next</span>
+                                            <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                <path stroke="currentColor" stroke-linecap="round"
+                                                    stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                                            </svg>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                            <hr class="my-4" />
+
+                            <div class="flex flex-col items-center">
+                                <!-- Help text -->
+                                <span class="text-sm text-gray-700">
+                                    Showing <span class="font-semibold text-gray-900">1</span> to <span
+                                        class="font-semibold text-gray-900">10</span> of <span
+                                        class="font-semibold text-gray-900">100</span> Entries
+                                </span>
+                                <!-- Buttons -->
+                                <div class="inline-flex mt-2 xs:mt-0">
+                                    <button
+                                        class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-menu rounded-s-lg hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                        Prev
+                                    </button>
+                                    <button
+                                        class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-menu border-0 border-s border-gray-700 rounded-e-lg hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <p class="text-2xl pb-4">Tabs</p>
+                        <div>
+                            <div
+                                class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+                                <ul class="flex flex-wrap -mb-px">
+                                    <li class="me-2">
+                                        <a href="#"
+                                            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Profile</a>
+                                    </li>
+                                    <li class="me-2">
+                                        <a href="#"
+                                            class="inline-block p-4 text-accent border-b-2 border-blue-600 rounded-t-lg active dark:text-accentDark dark:border-blue-500"
+                                            aria-current="page">Notification History</a>
+                                    </li>
+                                    <li class="me-2">
+                                        <a href="#"
+                                            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Settings</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="pt-8">
+                            <ul class="flex flex-wrap text-sm font-medium text-center text-black dark:text-gray-400">
+                                <li class="me-2">
+                                    <a href="#" class="inline-block px-4 py-3 text-white bg-blue-600 rounded-lg active"
+                                        aria-current="page">Tab 1</a>
+                                </li>
+                                <li class="me-2">
+                                    <a href="#"
+                                        class="inline-block px-4 py-3 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white">Tab
+                                        2</a>
+                                </li>
+                                <li class="me-2">
+                                    <a href="#"
+                                        class="inline-block px-4 py-3 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white">Tab
+                                        3</a>
+                                </li>
+                                <li class="me-2">
+                                    <a href="#"
+                                        class="inline-block px-4 py-3 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white">Tab
+                                        4</a>
+                                </li>
+                                <li>
+                                    <a class="inline-block px-4 py-3 text-black cursor-not-allowed dark:text-gray-500">Tab
+                                        5</a>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Modals</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left shadow-panel">
+                <div class="flex flex-row justify-evenly">
+                    <div class="flex flex-col flex-wrap gap-10 items-center">
+                        <p class="text-2xl pb-4">Basic Modal</p>
+                        <div class="relative w-full max-w-md max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-menu rounded-lg shadow-lg dark:bg-gray-700">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-accentBold dark:border-gray-600">
+                                    <h3 class="flex items-center text-xl font-medium text-textColour">
+                                        Updates <span class="pl-4 text-base text-accentBold">11/05/2024</span>
+                                    </h3>
+                                    <button type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        data-modal-hide="small-modal">
+                                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                            fill="none" viewBox="0 0 14 14">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-4 md:p-5 space-y-4">
+                                    <p class="text-base leading-relaxed text-textColour">
+                                        We're pleased to announce some recent improvements to our project. Our team has
+                                        been hard at work implementing new features and addressing reported issues.
+                                    </p>
+                                    <ul class="pl-4 list-disc text-textColour">
+                                        <li>Enhanced user interface</li>
+                                        <li>Implemented new features</li>
+                                        <li>Optimized performance</li>
+                                        <li>Addressed reported issues</li>
+                                        <li>Updated security measures</li>
+                                    </ul>
+                                </div>
+                                <!-- Modal footer -->
+                                <div class="flex items-center p-4 md:p-5 border-t rounded-b border-accentBold">
+                                    <button data-modal-hide="small-modal" type="button"
+                                        class="text-white bg-accentBold hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Dismiss</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col flex-wrap gap-10 items-center">
+                        <p class="text-2xl pb-4">Modal with Form</p>
+                        <div class="relative bg-menu text-textColour rounded-lg shadow-lg">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-center justify-between p-4 md:p-5 border-b border-accentBold rounded-t">
+                                <h3 class="text-lg font-semibold text-textColour">
+                                    Create New Subject
+                                </h3>
+                                <button type="button"
+                                    class="bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                    data-modal-toggle="crud-modal">
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 14 14">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+                            <!-- Modal body -->
+                            <form class="p-4 md:p-5">
+                                <div class="grid gap-4 mb-4 grid-cols-2">
+                                    <div class="col-span-2">
+                                        <div class="grid grid-cols-2 gap-x-4">
+                                            <label for="from"
+                                                class="mb-2 text-sm font-medium text-textColour dark:text-white">Subject
+                                                Name</label>
+
+                                            <label for="to"
+                                                class="mb-2 text-sm font-medium text-textColour dark:text-white">Subject
+                                                Code</label>
+
+                                            <input type="text" name="from" id="from"
+                                                class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                                placeholder="Type subject name" required="">
+
+                                            <input type="text" name="to" id="to"
+                                                class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                                placeholder="Type subject code" required="">
+                                        </div>
+                                    </div>
+                                    <div class="col-span-2 sm:col-span-1">
+                                        <label for="category"
+                                            class="block mb-2 text-sm font-medium text-textColour">Assigned
+                                            Lecturer(s)</label>
+                                        <select id="category"
+                                            class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                            <option value="DD">Dr. Fenghui Ren +2</option>
+                                            <option value="TV">Dr. Partha Roy</option>
+                                            <option value="PC">Dr. John Lee</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2 sm:col-span-1">
+                                        <label for="category"
+                                            class="block mb-2 text-sm font-medium text-textColour">Available</label>
+                                        <select id="category"
+                                            class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                            <option selected="">Spring</option>
+                                            <option value="">Autumn</option>
+                                            <option value="">Summer</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label for="price"
+                                            class="items-center flex mb-2 text-sm font-medium text-textColour">Student
+                                            List<i class="pl-1 bx bx-info-circle"></i></label>
+                                        <div class="flex items-center justify-center w-full">
+                                            <label for="dropzone-file"
+                                                class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-500 border-dashed rounded-lg cursor-pointer bg-menu">
+                                                <div class="flex flex-col items-center justify-center ">
+                                                    <p class="mb-2 text-sm text-textAccent dark:text-gray-400"><span
+                                                            class="font-semibold">Click to upload</span> or drag and
+                                                        drop</p>
+                                                    <p class="text-xs text-textAccent dark:text-gray-400">TXT, CSV,
+                                                        JSON, JSN</p>
+                                                </div>
+                                                <input id="dropzone-file" type="file" class="hidden" />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit"
+                                    class="text-white inline-flex items-center bg-accentBold focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    Create Subject
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col flex-wrap gap-10 items-center">
+                        <p class="text-2xl pb-4">Modal with Buttons</p>
+                        <div class="relative p-4 w-full max-w-md max-h-full">
+                            <div class="relative bg-menu rounded-lg shadow-lg">
+                                <button type="button"
+                                    class="absolute top-3 end-2.5 text-textColour bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                    data-modal-hide="popup-modal">
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 14 14">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                                <div class="p-4 md:p-5 text-center items-center flex flex-col">
+                                    <i class="bx bx-error-circle text-textColour text-4xl"></i>
+                                    <span
+                                        class="text-center block w-52 my-5 text-lg font-normal text-textColour dark:text-gray-400">Are
+                                        you sure you want to delete this subject?</span>
+                                    <div>
+
+                                        <button data-modal-hide="popup-modal" type="button"
+                                            class="text-textColour bg-errorBold hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                                            Yes, I'm sure
+                                        </button>
+                                        <button data-modal-hide="popup-modal" type="button"
+                                            class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">No,
+                                            cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Forms</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left shadow-panel">
+                <div class="flex flex-row justify-evenly">
+                    <div class="flex flex-col gap-10">
+                        <p class="text-2xl pb-4">Login Form</p>
+                        <div class="relative bg-menu text-textColour rounded-lg shadow-lg">
+                            <form class="flex flex-col p-8">
+                                <div class="flex flex-col items-center gap-4">
+                                    <div>
+                                        <label for="subject"
+                                            class="block mb-2 text-sm font-medium text-textColour">Username</label>
+                                        <input type="text" name="username"
+                                            class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                            placeholder="js651" required="">
+                                    </div>
+                                    <div>
+                                        <label for="category"
+                                            class="block mb-2 text-sm font-medium text-textColour">Password</label>
+                                        <input type="text" name="password"
+                                            class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                            placeholder="******" required="">
+                                    </div>
+                                    <button type="submit"
+                                        class="text-white w-20 bg-accentBold rounded-lg text-sm px-5 py-2.5 text-center">
+                                        Login
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col flex-wrap gap-10">
+                        <p class="text-2xl pb-4">Report Form</p>
+                        <div class="relative bg-menu text-textColour rounded-lg shadow-lg">
+                            <form class="p-4 md:p-5">
+                                <div class="grid gap-4 mb-4 grid-cols-2">
+                                    <div class="col-span-2">
+                                        <div class="grid grid-cols-2 gap-x-4">
+                                            <label for="from"
+                                                class="mb-2 text-sm font-medium text-textColour dark:text-white">From</label>
+
+                                            <label for="to"
+                                                class="mb-2 text-sm font-medium text-textColour dark:text-white">To</label>
+
+                                            <input type="date" name="from" id="from"
+                                                class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                                placeholder="Type product name" required="">
+
+                                            <input type="date" name="to" id="to"
+                                                class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                                placeholder="Type product name" required="">
+                                        </div>
+                                    </div>
+                                    <div class="col-span-2 sm:col-span-1">
+                                        <label for="category"
+                                            class="block mb-2 text-sm font-medium text-textColour">Subject</label>
+                                        <select id="category"
+                                            class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                            <option selected="">CSIT111</option>
+                                            <option value="TV">TV/Monitors</option>
+                                            <option value="PC">PC</option>
+                                            <option value="GA">Gaming/Console</option>
+                                            <option value="PH">Phones</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2 sm:col-span-1">
+                                        <label for="category"
+                                            class="block mb-2 text-sm font-medium text-textColour">File Type</label>
+                                        <select id="category"
+                                            class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                            <option selected="">PDF</option>
+                                            <option value="TV">TV/Monitors</option>
+                                            <option value="PC">PC</option>
+                                            <option value="GA">Gaming/Console</option>
+                                            <option value="PH">Phones</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label for="price" class="block mb-2 text-sm font-medium text-textColour">Report
+                                            Name</label>
+                                        <input type="text" name="price" id="price"
+                                            class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                            placeholder="CSIT111-Spring-2024" required="">
+                                    </div>
+                                </div>
+                                <button type="submit"
+                                    class="text-white inline-flex items-center bg-accentBold focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    Create Report
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Icons</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left shadow-panel">
+                <div
+                    class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-10 [&_i]:text-3xl [&_i_span]:text-base [&_i_span]:font-quicksand [&_i_span]:whitespace-nowrap">
+                    <i class="bx bx-chevron-left flex flex-col items-center"><span>bx-chevron-left</span></i>
+                    <i class="bx bx-chevron-up flex flex-col items-center"><span>bx-chevron-up</span></i>
+                    <i class="bx bx-chevron-right flex flex-col items-center"><span>bx-chevron-right</span></i>
+                    <i class="bx bx-chevron-down flex flex-col items-center"><span>bx-chevron-down</span></i>
+                    <i class="bx bx-x flex flex-col items-center"><span>bx-x</span></i>
+                    <i class="bx bx-x-circle flex flex-col items-center"><span>bx-x-circle</span></i>
+                    <i class="bx bx-error flex flex-col items-center"><span>bx-error</span></i>
+                    <i class="bx bx-error-circle flex flex-col items-center"><span>bx-error-circle</span></i>
+                    <i class="bx bx-info-circle flex flex-col items-center"><span>bx-info-circle</span></i>
+                    <i class="bx bx-check-circle flex flex-col items-center"><span>bx-check-circle</span></i>
+                    <i class="bx bxs-home flex flex-col items-center"><span>bxs-home</span></i>
+                    <i class="bx bxs-message flex flex-col items-center"><span>bxs-message</span></i>
+                    <i class="bx bxs-book-alt flex flex-col items-center"><span>bxs-book-alt</span></i>
+                    <i class="bx bxs-user flex flex-col items-center"><span>bxs-user</span></i>
+                    <i class="bx bxs-bar-chart-alt-2 flex flex-col items-center"><span>bxs-bar-chart-alt-2</span></i>
+                    <i class="bx bxs-user flex flex-col items-center"><span>bxs-user</span></i>
+                    <i class="bx bx-left-arrow flex flex-col items-center"><span>bx-left-arrow</span></i>
+                    <i class="bx bx-up-arrow flex flex-col items-center"><span>bx-up-arrow</span></i>
+                    <i class="bx bx-right-arrow flex flex-col items-center"><span>bx-right-arrow</span></i>
+                    <i class="bx bx-down-arrow flex flex-col items-center"><span>bx-down-arrow</span></i>
+                    <i class="bx bx-expand-horizontal flex flex-col items-center"><span>bx-expand-horizontal</span></i>
+                    <i
+                        class="bx bx-dots-horizontal-rounded flex flex-col items-center"><span>bx-dots-horizontal-rounded</span></i>
+                    <i class="bx bx-search flex flex-col items-center"><span>bx-search</span></i>
+                    <i class="bx bx-paperclip flex flex-col items-center"><span>bx-paperclip</span></i>
+                    <i class="bx bx-image flex flex-col items-center"><span>bx-image</span></i>
+                    <i class="bx bx-send flex flex-col items-center"><span>bx-send</span></i>
+                    <i class="bx bx-camera flex flex-col items-center"><span>bx-camera</span></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-96 py-10 w-full">
+            <p class="text-3xl mb-10">Miscellaneous</p>
+            <div class="text-black px-10 py-10 w-full bg-white text-left shadow-panel">
+                <div class="flex flex-row justify-between">
+                    <div class="flex flex-col flex-wrap gap-10">
+                        <p class="text-2xl">Progress Bar</p>
+                        <div class="progressBarBig">
+                            <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
+                                aria-valuemax="100"><span>25%</span>
+                            </div>
+                        </div>
+
+                        <div class="progressBarSmall">
+                            <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
+                                aria-valuemax="100"><span class="text-transparent">Value</span>
+                            </div>
+                            <label>25%</label>
+                        </div>
+
+                        <div class="progressBarSmall">
+                            <div style="width: 25%;" role="progressbar" aria-valuenow="25" aria-valuemin="0"
+                                aria-valuemax="100"><span class="text-transparent">Value</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col flex-wrap gap-10 items-center">
+                        <p class="text-2xl">Loading Spinner</p>
+                        <div class="flex gap-2 items-center">
+                            <div role="status">
+                                <svg aria-hidden="true"
+                                    class="inline w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                                    viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                        fill="currentColor" />
+                                    <path
+                                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                        fill="currentFill" />
+                                </svg>
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div role="status">
+                                <svg aria-hidden="true"
+                                    class="inline w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                                    viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                        fill="currentColor" />
+                                    <path
+                                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                        fill="currentFill" />
+                                </svg>
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div role="status">
+                                <svg aria-hidden="true"
+                                    class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                                    viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                        fill="currentColor" />
+                                    <path
+                                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                        fill="currentFill" />
+                                </svg>
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div role="status">
+                                <svg aria-hidden="true"
+                                    class="inline w-10 h-10 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                                    viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                        fill="currentColor" />
+                                    <path
+                                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                        fill="currentFill" />
+                                </svg>
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Processing Attendance
+                                Report:
+                            </h2>
+                            <ul class="max-w-md space-y-2 text-gray-500 list-inside dark:text-gray-400">
+                                <li class="flex items-center">
+                                    <svg class="w-4 h-4 me-2 text-successBold dark:text-green-400 flex-shrink-0"
+                                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                        viewBox="0 0 20 20">
+                                        <path
+                                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                    </svg>
+                                    Fetching subject data
+                                </li>
+                                <li class="flex items-center">
+                                    <svg class="w-4 h-4 me-2 text-successBold dark:text-green-400 flex-shrink-0"
+                                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                        viewBox="0 0 20 20">
+                                        <path
+                                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                    </svg>
+                                    Extracting attendance data
+                                </li>
+                                <li class="flex items-center">
+                                    <div role="status">
+                                        <svg aria-hidden="true"
+                                            class="w-4 h-4 me-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                                            viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                                fill="currentColor" />
+                                            <path
+                                                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                                fill="currentFill" /></svg>
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                    Preparing report
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col flex-wrap items-center">
+                        <p class="text-2xl mb-20">Tooltip</p>
+                        <div>
+                            <button data-tooltip-target="tooltip-default" type="button"
+                                class="text-white bg-accent hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Default
+                                tooltip</button>
+
+                            <div id="tooltip-default" role="tooltip"
+                                class="absolute z-10 inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-menu rounded-lg shadow-sm opacity-100 tooltip dark:bg-gray-700">
+                                Tooltip content
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col flex-wrap items-center">
+                        <p class="text-2xl pb-10">Accordion</p>
+
+                        <div class="w-fit" id="accordion-collapse" data-accordion="collapse">
+                            <h2 id="accordion-collapse-heading-1">
+                                <button type="button"
+                                    class="w-[400px] flex items-center justify-between p-5 font-medium rtl:text-right bg-menu border border-b border-buttonDisabled rounded-t-xl"
+                                    data-accordion-target="#accordion-collapse-body-1" aria-expanded="true"
+                                    aria-controls="accordion-collapse-body-1">
+                                    <span class="text-accent">What is Lectoro?</span>
+                                    <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                        <path stroke="rgb(0,123,255)" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M9 5 5 1 1 5" />
+                                    </svg>
+                                </button>
+                            </h2>
+                            <div id="accordion-collapse-body-1" class="hidden"
+                                aria-labelledby="accordion-collapse-heading-1">
+                                <div class="w-[400px] p-5 bg-menu">
+                                    <p class="mb-2 text-textAccent">
+                                        Lectoro is an innovative web-based platform designed to streamline attendance
+                                        tracking and management processes within educational institutions, providing
+                                        educators with a comprehensive solution for monitoring student attendance,
+                                        analyzing trends, and generating insightful reports.</p>
+                                </div>
+                            </div>
+                            <h2 id="accordion-collapse-heading-2">
+                                <button type="button"
+                                    class="flex items-center justify-between w-[400px] p-5 font-medium rtl:text-right bg-menu border border-b border-buttonHover"
+                                    data-accordion-target="#accordion-collapse-body-2" aria-expanded="false"
+                                    aria-controls="accordion-collapse-body-2">
+                                    <span class="text-textColour">Who benefits from Lectoro</span>
+                                    <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M9 5 5 1 1 5" />
+                                    </svg>
+                                </button>
+                            </h2>
+                            <div id="accordion-collapse-body-2" class="hidden"
+                                aria-labelledby="accordion-collapse-heading-2">
+                            </div>
+                            <h2 id="accordion-collapse-heading-3">
+                                <button type="button"
+                                    class="flex text-left items-center justify-between w-[400px] p-5 font-medium rtl:text-right bg-menu"
+                                    data-accordion-target="#accordion-collapse-body-3" aria-expanded="false"
+                                    aria-controls="accordion-collapse-body-3">
+                                    <span class="text-textColour">How does Lectoro ensure data privacy and
+                                        security?</span>
+                                    <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M9 5 5 1 1 5" />
+                                    </svg>
+                                </button>
+                            </h2>
+                            <div id="accordion-collapse-body-3" class="hidden"
+                                aria-labelledby="accordion-collapse-heading-3">
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>

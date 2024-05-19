@@ -425,13 +425,26 @@
     .sidebar {
         @apply fixed flex top-0 left-0 transition-transform duration-300 ease-out;
     }
+
+    ::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
 }
 
-/* Define the gradient transition for the button hover state */
 .componentButton::before {
     content: '';
 }
 
 a {
     text-decoration: none;
+}
+
+:root {
+    --fc-button-bg-color: #0d6efd;
+    --fc-event-bg-color: transparent;
+    --fc-event-border-color: #0d6efd;
+    --fc-border-color: #b3b4b650;
+    --fc-today-bg-color: #0d6efd20;
+    --fc-neutral-bg-color: #00000020;
+    --fc-page-bg-color: #343a40;
 }

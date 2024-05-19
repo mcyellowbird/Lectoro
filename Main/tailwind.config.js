@@ -1,13 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 const colors = require('tailwindcss/colors')
 module.exports = {
-  content: [
-    './*.html',
-    './src/components/*.{html,js}',
-    './src/css/*.css',
-    './src/includes/*.js',
-    './node_modules/flowbite/**/*.js',
-  ],
+  content: ["./*.{html,php}"],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -60,7 +55,9 @@ module.exports = {
     }
   },
   plugins: [
-    require('flowbite/plugin'),
+    require('flowbite/plugin')({
+      charts: true,
+    }),
     require('tailwindcss-3d'),
   ]
 };
