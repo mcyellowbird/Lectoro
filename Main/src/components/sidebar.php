@@ -111,7 +111,7 @@ function generateSidebar($data, $currentPage) {
                         <a href="#"
                             class="hover:bg-buttonHover transition ease-out duration-300 block px-4 py-2 text-md">Profile</a>
                         <hr class="opacity-20">
-                        <a href="#"
+                        <a href="./src/events/signout.php"
                             class="hover:bg-buttonHover transition ease-out duration-300 block px-4 py-2 text-md">Sign
                             out</a>
                     </div>
@@ -188,7 +188,7 @@ function generateSidebar($data, $currentPage) {
                     <a href="#"
                         class="hover:bg-buttonHover transition ease-out duration-300 block px-4 py-2 text-md">Profile</a>
                     <hr class="opacity-20">
-                    <a href="#"
+                    <a href="./src/events/signout.php"
                         class="hover:bg-buttonHover transition ease-out duration-300 block px-4 py-2 text-md">Sign
                         out</a>
                 </div>

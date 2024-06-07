@@ -1,4 +1,4 @@
-Running the server without install it first:
+Running the server without installing it first:
 	1. Open a Command Prompt terminal
 	2. Navigate to the appropriate directory
 	3. Run:

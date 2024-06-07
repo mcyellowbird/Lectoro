@@ -12,4 +12,10 @@ If you want to use TailwindCSS styles (Which you should for consistency), then d
         @apply text-2xl;
     }
 
-Everything should update automatically, ready for production.
+Everything should update automatically.
+
+For production,  you will want to do:
+    
+    npm run build:css
+    
+This will do the same thing as TailwindCSS,  but will make it work with PHP

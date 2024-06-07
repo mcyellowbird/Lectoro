@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="svg" href="/Images/NexTech_logo.svg">
+
+    <!-- Styles -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+
+    <link href="./dist/output.css" rel="stylesheet">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./tailwind.config.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            Highcharts.setOptions({
+                chart: {
+                    backgroundColor: {
+                        linearGradient: [0, 0, 500, 500],
+                        stops: [
+                            [0, 'rgb(255, 255, 255)'],
+                            [1, 'rgb(240, 240, 255)']
+                        ]
+                    },
+                    borderWidth: 2,
+                    plotBackgroundColor: '#212529',
+                    plotShadow: true,
+                    plotBorderWidth: 1
+                }
+            });
+            
+            const chart1 = Highcharts.chart('chart1', {
+                xAxis: {
+                    type: 'datetime'
+                },
+                series: [{
+                    data: [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4],
+                    pointStart: Date.UTC(2010, 0, 1),
+                    pointInterval: 3600 * 1000 // one hour
+                }]
+            });
+            const chart2 = Highcharts.chart('chart2', {
+                chart: {
+                    type: 'column'
+                },
+                xAxis: {
+                    type: 'datetime'
+                },
+                series: [{
+                    data: [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4],
+                    pointStart: Date.UTC(2010, 0, 1),
+                    pointInterval: 3600 * 1000 // one hour
+                }]
+            });
+        });
+    </script>
+</head>
+
+<body class="bg-background p-0 m-0">
+    <div id="main-content" class="flex flex-col h-screen justify-center items-center">
+        <div class="absolute top-20 gap-20 flex flex-col items-center">
+            <div id="chart1" style="width:400px; height:400px;"></div>
+            <div id="chart2" style="width:400px; height:400px;"></div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+
+</html>
