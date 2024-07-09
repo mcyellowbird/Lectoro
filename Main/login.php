@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="svg" href="/Images/NexTech_logo.svg">
+    <link rel="icon" type="svg" href="./src/assets/favicon.ico">
 
     <!-- Styles -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -54,39 +54,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body class="bg-background p-0 m-0">
-    <div id="main-content" class="flex flex-col h-screen justify-center items-center">
-        <div class="absolute top-20 flex flex-col items-center">
-            <img class="h-80" src="./src/assets/logo_text.png" />
+    <div class="flex flex-col h-screen items-center">
+        <div class="mt-20 flex-1">
+            <img class="max-h-80" src="./src/assets/logo_text.png" />
         </div>
-        <div>
-            <div class="w-fit h-fit bg-menu text-textColour rounded-lg shadow-lg">
+        <div class="flex items-center flex-1">
+            <div class="bg-menu text-textColour rounded-lg shadow-lg">
                 <form class="py-6 px-10" method="post">
                     <div class="flex flex-col items-center gap-4">
-                    <span class="text-center text-2xl">Login</span>
-                    <div class="relative">
-                        <i class="absolute inset-y-0 start-2 flex items-center bx bxs-user"></i>
-                        <input type="text" name="username"
-                            class="pl-8 bg-buttonHover border border-menu text-textColour placeholder-textAccent text-sm rounded-lg block w-full p-2.5"
-                            placeholder="Username" required>
-                    </div>
-                    <div class="relative">
-                        <i class="absolute inset-y-0 start-2 flex items-center bx bxs-lock-open"></i>
-                        <input type="password" name="password"
-                            class="pl-8 bg-buttonHover border border-menu text-textColour placeholder-textAccent text-sm rounded-lg block w-full p-2.5"
-                            placeholder="Password" required>
-                    </div>
-                        <a href="#nothing" class="text-accentBold hover:text-accentDark">Forgot password?</a>
-                        <button type="submit"
-                            class="text-textColour w-20 bg-accentBold hover:bg-accentDark rounded-xl text-sm px-5 py-2.5 text-center">Login</button>
+                        <span class="text-center text-2xl">Login</span>
+                        <div class="relative">
+                            <i class="absolute inset-y-0 start-2 flex items-center bx bxs-user"></i>
+                            <input type="text" name="username"
+                                class="pl-8 bg-buttonHover border border-menu text-textColour placeholder-textAccent text-sm rounded-lg block w-full p-2.5"
+                                placeholder="Username" required>
+                        </div>
+                        <div class="relative">
+                            <i class="absolute inset-y-0 start-2 flex items-center bx bxs-lock-open"></i>
+                            <input type="password" name="password"
+                                class="pl-8 bg-buttonHover border border-menu text-textColour placeholder-textAccent text-sm rounded-lg block w-full p-2.5"
+                                placeholder="Password" required>
+                        </div>
+                            <a href="#nothing" class="text-accentBold hover:text-accentDark">Forgot password?</a>
+                            <button type="submit"
+                                class="text-textColour w-20 bg-accentBold hover:bg-accentDark rounded-xl text-sm px-5 py-2.5 text-center">Login</button>
                     </div>
                 </form>
             </div>
-            <div class="pt-4">
+            <div class="mt-4 h-8">
                 <?php if (isset($error_message)) : ?>
                     <p class="text-center text-error"><?php echo $error_message; ?></p>
                 <?php endif; ?>
             </div>
         </div>
+        <div class="flex-1"></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 </body>

@@ -32,8 +32,10 @@ module.exports = {
         '240': '240px',
         '120': '120px',
         '80': '80px',
+        'graph': '380px',
         'sidebarLarge': '304px',
         'sidebarSmall': '104px',
+        'tableWithTabs': '480px',
       },
       scale: {
         '101': '1.01',
