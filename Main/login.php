@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
 
-    <link href="./src/css/index.css" rel="stylesheet">
+    <link href="./dist/output.css" rel="stylesheet">
 
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
