@@ -29,7 +29,7 @@ function generateMessages() {
         <link href="./dist/output.css" rel="stylesheet">
 
         <!-- Scripts -->
-        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- <script src="https://cdn.tailwindcss.com"></script> -->
         <script src="./tailwind.config.js"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>

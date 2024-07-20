@@ -1,21 +1,1 @@
-To add a custom style like regular CSS, 
-
-open a cmd prompt in the main folder, then run the following command:
-    
-    npx tailwindcss -i src/css/base.css -o src/css/index.css --watch
-
-After that, go into base.css and add any styles you want.
-If you want to use TailwindCSS styles (Which you should for consistency), then do as you normally would, but use '@apply style;' instead of normal CSS, like so:
-    
-    .example {
-        @apply bg-sky-400;
-        @apply text-2xl;
-    }
-
-Everything should update automatically.
-
-For production,  you will want to do:
-    
-    npm run build:css
-    
-This will do the same thing as TailwindCSS,  but will make it work with PHP
+To add a custom style like regular CSS, open a cmd prompt in the main folder, then run the following command:        npx tailwindcss -i src/css/base.css -o src/css/index.css --watchAfter that, go into base.css and add any styles you want.If you want to use TailwindCSS styles (Which you should for consistency), then do as you normally would, but use '@apply style;' instead of normal CSS, like so:        .example {        @apply bg-sky-400;        @apply text-2xl;    }Everything should update automatically.---= UPDATE =---For development:    npm run watch:cssFor production,  you will want to do:        npm run build:css    This will do the same thing as TailwindCSS,  but will make it work with PHP

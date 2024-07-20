@@ -1,1 +1,1 @@
-npm install -D tailwindcssnpm install -D tailwindcss-3dnpm install flowbitenpm install postcss-cli
+npm install --save-dev tailwindcss tailwindcss-3d flowbite postcss postcss-cli autoprefixer highcharts
