@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 else{
-    $_SESSION['currentPage'] = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+    $_SESSION['currentPage'] = 'dashboard';
 }
 
 require 'vendor/autoload.php';
@@ -29,6 +29,7 @@ function generateDashboard($lectureData) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="svg" href="./src/assets/favicon.ico">
+        <title>Dashboard</title>
 
         <!-- Styles -->
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>

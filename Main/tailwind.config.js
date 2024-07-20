@@ -2,7 +2,6 @@
 const colors = require('tailwindcss/colors');
 module.exports = {
   content: ['./src/**/*.{html,js,php,css}', './*.{php,html}'],
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -36,6 +35,8 @@ module.exports = {
         'sidebarLarge': '304px',
         'sidebarSmall': '104px',
         'tableWithTabs': '480px',
+        '40p': '40%',
+        '60p': '60%',
       },
       scale: {
         '101': '1.01',
@@ -45,6 +46,7 @@ module.exports = {
       },
       boxShadow: {
         'divider': 'inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15)',
+        'chatWindow': '0px 0px 15px 1px rgba(0,0,0,0.6) inset',
         // 'panel': '0 .4em 1em rgba(0, 0, 0, .6)',
       },
       transitionProperty: {

@@ -1,99 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+else{
+    $_SESSION['currentPage'] = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="image/jpg" href="./src/assets/favicon.ico">
-    <title>Lectoro</title>
+require 'vendor/autoload.php';
 
-    <!-- Styles -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&family=Quicksand:wght@300..700&display=swap"
-        rel="stylesheet">
+function fetchLectureData() {
+    $mongoClient = new MongoDB\Client("mongodb://localhost:27017");
+    $database = $mongoClient->selectDatabase("CSIT321Development");
+    $lecturesCollection = $database->selectCollection("lectures");
 
-    <link href="./src/css/index.css" rel="stylesheet">
+    return $lecturesCollection->find()->toArray();
+}
 
-    <!-- Scripts -->
-    <!-- <script src="tailwind.config.js"></script> -->
-    <script src="https://code.jquery.com/jquery-3.7.1.js"
-        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    <!-- <script src="./src/js/includes.js" type="module"></script> -->
-    <script src="./src/components/sidebar.js"></script>
-    <script src="./src/components/skeleton.js"></script>
-    <script>
-        $(document).ready(function () {
-            const data = {
-                "logoPNG": "./src/assets/logo.png",
-                "logoSVG": "./src/assets/logo.svg",
-                "user": {
-                    "id": 1,
-                    "username": "jd652",
-                    "firstName": "John",
-                    "lastName": "Doe",
-                    "email": "jd652@uow.edu.au",
-                    "role": "admin",
-                    "createdAt": "2024-04-09T12:00:00Z",
-                    "updatedAt": "2024-04-09T12:00:00Z"
-                }
-            };
+function generateDashboard($lectureData) {
+    // Generate dashboard content based on lecture data
+    ob_start();
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
 
-            const mainContent = $('#main-content');
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="svg" href="./src/assets/favicon.ico">
 
-            $("#sidebar").append(generateSidebar(data));
-            $("#main-content").append(generateSkeleton());
+        <!-- Styles -->
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
 
-            // Add event listener to the drawer for when it's shown or hidden
-            $('#sidebar-large-button').click(function () {
-                mainContent.addClass('ml-sidebarSmall');
-                mainContent.removeClass('ml-sidebarLarge');
-            });
+        <link href="./dist/output.css" rel="stylesheet">
 
-            $('#sidebar-small-button').click(function () {
-                mainContent.addClass('ml-sidebarLarge');
-                mainContent.removeClass('ml-sidebarSmall');
-            });
+        <!-- Scripts -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="./tailwind.config.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.js"
+            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
+    </head>
 
-            $('#dropdown-button').click(function () {
-                $('#dropdown-arrow').toggleClass('bx-chevron-down');
-                $('#dropdown-arrow').toggleClass('bx-chevron-up');
-            });
+    <body class="bg-background p-0 m-0">
+        <div id="sidebar"><?php include './src/components/sidebar.php'; ?></div>
 
-            // Testing alerts
-            const testBanner = {
-                "alert": {
-                    "id": "1",
-                    "type": "banner",
-                    "level": "Info",
-                    "message": "Info alert telling you about stuff!",
-                    "buttonMessage": "Dismiss",
-                }
-            }
-            const testPopup = {
-                "alert": {
-                    "id": "2",
-                    "type": "popup",
-                    "level": "Success",
-                    "message": "Congratulations! This is a good alert",
-                }
-            }
-            
-            $("#banner").append(pushAlert(testBanner));
-            $("#popup").append(pushAlert(testPopup));
-        });
-    </script>
-</head>
+        <div id="main-content" class="p-20 ml-304 flex flex-col h-screen justify-between"><?php include './src/components/dash.php'; ?></div>
+    </body>
 
-<body>
-    <div id="banner" class="bannerContainer"></div>
-    <div id="popup" class="popupContainer"></div>
-    <div id="sidebar"></div>
-    <div class="hidden"></div>
-    <div id="main-content" class="ml-304">
-    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-</body>
+    </html>
+<?php
+    return ob_get_clean();
+}
 
-</html>
+$lectureData = fetchLectureData();
+echo generateDashboard($lectureData);
+?>

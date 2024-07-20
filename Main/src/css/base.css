@@ -329,7 +329,7 @@
     }
 
     .searchInput {
-        @apply block w-full p-4 pl-10 text-sm placeholder-textAccent rounded-lg bg-gray-50;
+        @apply block w-full p-4 pl-10 text-sm placeholder-textAccent rounded-lg bg-menu border-none;
     }
 
     .searchButton {
@@ -345,6 +345,18 @@
     }
 
     /* Message Box */
+
+    .message-from-user {
+        @apply bg-accentBold p-2 rounded-lg rounded-tr-none max-w-fit self-end;
+    }
+
+    .message-to-user {
+        @apply bg-menu p-2 rounded-lg rounded-tl-none max-w-fit self-start;
+    }
+
+    .activeConversation {
+        @apply bg-buttonHover;
+    }
 
     .messageBox {
         @apply w-96 mb-4 rounded-lg bg-white border border-gray-600;

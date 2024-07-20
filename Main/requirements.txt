@@ -1,1 +1,1 @@
-npm install -D tailwindcssnpm install flowbitenpm install -D tailwindcss-3d
+npm install -D tailwindcssnpm install -D tailwindcss-3dnpm install flowbitenpm install postcss-cli

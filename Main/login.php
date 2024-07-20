@@ -19,7 +19,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($user) {
             $_SESSION['user_type'] = $user['user_type'];
-            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['user_id'] = $user['user_id']; // Ensure _id is used
+            $_SESSION['_id'] = (string) $user['_id']; // Ensure _id is used
+            $_SESSION['username'] = $user['username'];
             // Redirect to dashboard
             header("Location: dashboard.php");
             exit;
@@ -30,6 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
