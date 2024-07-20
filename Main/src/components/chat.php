@@ -15,7 +15,7 @@ $loggedInUserId = $_SESSION['_id'];
 
 <body>
     <div id="chatInterface" class="flex flex-row w-full h-full">
-        <div id="conversationList" class="w-1/4 border-r border-r-textAccent p-2.5 overflow-y-auto">
+        <div id="conversationList" class="w-1/4 p-2.5 overflow-y-auto">
             <div class="searchBar">
                 <i class="searchIcon bx bx-search"></i>
                 <input type="text" id="searchBar" placeholder="Search for users..." class="searchInput">
@@ -26,12 +26,13 @@ $loggedInUserId = $_SESSION['_id'];
 
             </div>
         </div>
-        <div id="chatWindow" class="shadow-chatWindow flex flex-1 p-8 flex-col">
+        <div id="chatWindow" class="shadow-chatWindow border border-menu flex flex-1 p-8 flex-col">
             <div id="selectedUserName"></div>
-            <div id="messages" class="flex flex-1 flex-col mb-2.5 overflow-y-auto"></div>
-            <div id="messageBox" class="flex flex-row mt-2.5 border-b-text">
-                <input type="text" id="messageInput" placeholder="Type a message..." class="flex-1 p-2">
-                <button id="sendMessageButton" class="p-2">Send</button>
+            <div id="messages" class="messageContainer"></div>
+            <div id="messageBox" class="searchBar">
+                <i class="searchIcon bx bxs-message text-textAccent"></i>
+                <input type="text" id="messageInput" placeholder="Type a message..." class="searchInput">
+                <button id="sendMessageButton" class="searchButton">Send</button>
             </div>
         </div>
     </div>
@@ -39,6 +40,37 @@ $loggedInUserId = $_SESSION['_id'];
     <script>
         $(document).ready(function () {
             const loggedInUserId = '<?php echo $loggedInUserId; ?>';
+            // const socket = new WebSocket('ws://localhost:8080'); // Update if server runs on a different address
+            // socket.onopen = function () {
+            //     console.log('WebSocket connection established');
+            // };
+            // socket.onmessage = function (event) {
+            //     const data = JSON.parse(event.data);
+
+            //     // Ensure data contains necessary fields
+            //     if (data.conversation_id && data.sender_id && data.message) {
+            //         const conversationId = data.conversation_id;
+            //         const senderId = data.sender_id;
+            //         const message = data.message;
+
+            //         // If the active conversation is the one where the message was sent, load messages
+            //         const activeConversation = $('.activeConversation').data('conversationId');
+            //         if (conversationId === activeConversation) {
+            //             loadMessages(conversationId);
+            //         } else {
+            //             // Update the conversation list to mark the conversation as active if necessary
+            //             refreshConversations();
+            //         }
+            //     }
+            // };
+
+            // socket.onerror = function (error) {
+            //     console.error('WebSocket Error:', error);
+            // };
+
+            // socket.onclose = function () {
+            //     console.log('WebSocket connection closed');
+            // };
 
             function searchUsers() {
                 const query = $('#searchBar').val();
@@ -88,9 +120,13 @@ $loggedInUserId = $_SESSION['_id'];
                             } else {
                                 console.error('User not found in conversation list:', userId);
                             }
+
+                            // Initialize WebSocket connection
+                            // initializeWebSocket(data.conversation_id);
                         } else {
                             createConversation(userId).then(conversationId => {
                                 loadMessages(conversationId);
+                                // initializeWebSocket(conversationId);
                             }).catch(error => console.error('Error creating conversation:', error));
                         }
                     })
@@ -128,12 +164,18 @@ $loggedInUserId = $_SESSION['_id'];
                         data.forEach(message => {
                             // Convert UTC timestamp to local time
                             const utcDate = new Date(message.timestamp);
-                            const options = { hour: '2-digit', minute: '2-digit', hour12: true };
-                            const timeString = utcDate.toLocaleTimeString('en-US', options);
-                            const dateString = utcDate.toLocaleDateString('en-US', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+                            
+                            // Local time conversion
+                            const localDate = new Date(utcDate.getTime() - (utcDate.getTimezoneOffset() * 60000));
+
+                            const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true };
+                            const timeString = localDate.toLocaleTimeString('en-US', optionsTime);
+                            
+                            const optionsDate = { weekday: 'short', month: 'short', day: 'numeric' };
+                            const dateString = localDate.toLocaleDateString('en-US', optionsDate);
 
                             // Check if the message date is different from the last one
-                            const messageDate = utcDate.toLocaleDateString();
+                            const messageDate = localDate.toLocaleDateString();
                             if (lastDate !== messageDate) {
                                 // Add day separator
                                 $('<div></div>')
@@ -175,7 +217,7 @@ $loggedInUserId = $_SESSION['_id'];
                                 
                                 parentContainer.append(emptyContainer);
                                 parentContainer.append(messageContainer);
-                                parentContainer.append($('<i class="bx bxs-user pl-1.5 text-xl"></i>'));
+                                parentContainer.append($('<i class="bx bxs-user pl-1.5 pr-1.5 text-xl"></i>'));
                             } else {
                                 timeDiv.addClass('ml-2')
                                 messageInner.append(messageDiv);
@@ -196,21 +238,51 @@ $loggedInUserId = $_SESSION['_id'];
                     });
             }
 
-
-
-            // setInterval(() => {
-            //     const activeConversation = $('.activeConversation').data('conversationId');
-            //     if (activeConversation) {
-            //         loadMessages(activeConversation);
+            // function initializeWebSocket(conversationId) {
+            //     // Close any existing connection
+            //     if (socket) {
+            //         socket.close();
             //     }
-            // }, 5000);
+
+            //     // Open new connection
+            //     socket = new WebSocket('ws://localhost:8080');
+
+            //     socket.onopen = () => {
+            //         console.log('WebSocket connection opened');
+            //         // Send initial message or subscribe to conversation if needed
+            //         socket.send(JSON.stringify({ action: 'subscribe', conversation_id: conversationId }));
+            //     };
+
+            //     socket.onmessage = (event) => {
+            //         const data = JSON.parse(event.data);
+            //         console.log('WebSocket message received:', data);
+
+            //         if (data.action === 'message') {
+            //             loadMessages(conversationId); // Reload messages when a new one arrives
+            //         }
+            //     };
+
+            //     socket.onerror = (error) => {
+            //         console.error('WebSocket Error:', error);
+            //     };
+
+            //     socket.onclose = () => {
+            //         console.log('WebSocket connection closed');
+            //     };
+            // }
+
+            setInterval(() => {
+                const activeConversation = $('.activeConversation').data('conversationId');
+                if (activeConversation) {
+                    loadMessages(activeConversation);
+                }
+            }, 5000);
 
             $('#sendMessageButton').click(function () {
                 const message = $('#messageInput').val();
                 const activeConversation = $('.activeConversation').data('conversationId');
 
                 if (activeConversation) {
-
                     $.post('./src/events/chat/sendMessage.php', {
                         conversation_id: activeConversation,
                         message: message
@@ -218,7 +290,14 @@ $loggedInUserId = $_SESSION['_id'];
                     .done(function (data) {
                         try {
                             if (data.success) {
-                                loadMessages(activeConversation);
+                                // Send message over WebSocket
+                                // if (socket) {
+                                //     socket.send(JSON.stringify({
+                                //         action: 'message',
+                                //         conversation_id: activeConversation,
+                                //         message: message
+                                //     }));
+                                // }
                                 $('#messageInput').val('');
                             } else {
                                 console.error('Failed to send message:', data.error);
@@ -235,6 +314,40 @@ $loggedInUserId = $_SESSION['_id'];
                     console.error('No conversation selected');
                 }
             });
+
+            function refreshConversations() {
+                $.get('./src/events/chat/getConversationList.php')
+                    .done(function (data) {
+                        data = JSON.parse(data);
+                        const conversationsDiv = $('#conversations');
+                        if (conversationsDiv) {
+                            const searchBar = $('#searchBar');
+                            data.forEach(conversation => {
+                                const userDiv = $('<div></div>')
+                                    .addClass('flex items-center rounded-md cursor-pointer p-1.5 hover:bg-buttonHover/60')
+                                    .text(conversation.display_name)
+                                    .data('userId', conversation.user_id)
+                                    .data('conversationId', conversation.conversation_id)
+                                    .click(() => openChat(conversation.user_id));
+                                
+                                if (lastMessageTimestamps[conversation.conversation_id] &&
+                                    (!$('.activeConversation').data('conversationId') || 
+                                    new Date(lastMessageTimestamps[conversation.conversation_id]) > new Date(lastMessageTimestamps[$('.activeConversation').data('conversationId')]))) {
+                                    $('.activeConversation').removeClass('activeConversation');
+                                    userDiv.addClass('activeConversation');
+                                }
+
+                                conversationsDiv.append(userDiv);
+                                userDiv.prepend($('<i class="bx bxs-user pr-1.5 text-xl"></i>'));
+                            });
+
+                            $('#searchBar').on('input', searchUsers);
+                        }
+                    })
+                    .fail(function (error) {
+                        console.error('Error:', error);
+                    });
+            }
 
             $.get('./src/events/chat/getConversationList.php')
                 .done(function (data) {

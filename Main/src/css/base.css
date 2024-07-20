@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&family=Quicksand:wght@300..700&display=swap');
 
 @layer components {
 
@@ -341,13 +342,21 @@
     }
 
     .searchButton:focus {
-        @apply ring-4 outline-none ring-blue-300;
+        @apply ring-1 outline-none ring-accent;
     }
 
     /* Message Box */
 
+    .messageContainer {
+        @apply flex flex-1 flex-col mb-2.5 overflow-y-auto relative;
+    }
+
+    .messageContainer span {
+        @apply font-assistant;
+    }
+
     .message-from-user {
-        @apply bg-accentBold p-2 rounded-lg rounded-tr-none max-w-fit self-end;
+        @apply relative bg-gradient-to-b from-accentDark to-secondaryAccent p-2 rounded-lg rounded-tr-none max-w-fit self-end;
     }
 
     .message-to-user {
@@ -459,4 +468,8 @@ a {
     --fc-today-bg-color: #0d6efd20;
     --fc-neutral-bg-color: #00000020;
     --fc-page-bg-color: #343a40;
+}
+
+.message-from-user {
+    background-attachment: fixed;
 }

@@ -10,9 +10,10 @@ $usersCollection = $database->selectCollection("users");
 $loggedInUserId = $_SESSION['_id'];
 
 try {
-    $conversations = $conversationsCollection->find([
-        'participants' => $loggedInUserId
-    ]);
+    $conversations = $conversationsCollection->find(
+        ['participants' => $loggedInUserId],
+        ['sort' => ['last_message_timestamp' => -1]]
+    );
 
     $result = [];
     foreach ($conversations as $conversation) {
@@ -30,11 +31,15 @@ try {
         // Fetch user details
         $user = $usersCollection->findOne(['_id' => new MongoDB\BSON\ObjectId($userId)]);
 
+        $lastMessage = $conversation['last_message'] ?? null;
+        $lastMessageTimestamp = $lastMessage['timestamp'] ?? null;
+
         $result[] = [
             'conversation_id' => (string) $conversation['_id'],
             'user_id' => (string) $user['_id'],
             'display_name' => $user['first_name'] . " " . $user['last_name'] . " (" . $user['username'] . ")", // Assuming 'username' is stored as 'username'
             'user_type' => (string) $user['user_type'],
+            'last_message_timestamp' => $lastMessageTimestamp,
         ];
     }
 

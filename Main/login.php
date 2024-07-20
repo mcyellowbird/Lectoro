@@ -58,9 +58,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body class="bg-background p-0 m-0">
     <div class="flex flex-col h-screen items-center">
         <div class="mt-20 flex-1">
-            <img class="max-h-80" src="./src/assets/logo_text.png" />
+            <img class="max-h-96" src="./src/assets/logo_text.png" />
         </div>
-        <div class="flex items-center flex-1">
+        <div class="flex flex-col items-center flex-1">
             <div class="bg-menu text-textColour rounded-lg shadow-lg">
                 <form class="py-6 px-10" method="post">
                     <div class="flex flex-col items-center gap-4">
