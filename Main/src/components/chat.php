@@ -14,8 +14,8 @@ $loggedInUserId = $_SESSION['_id'];
 <html lang="en">
 
 <body>
-    <div id="chatInterface" class="flex flex-row w-full h-full">
-        <div id="conversationList" class="w-1/4 p-2.5 overflow-y-auto">
+    <div id="chatInterface" class="flex justify-center flex-row w-full h-full">
+        <div id="conversationList" class="min-w-1/4 w-1/4 p-2.5 overflow-y-auto">
             <div class="searchBar">
                 <i class="searchIcon bx bx-search"></i>
                 <input type="text" id="searchBar" placeholder="Search for users..." class="searchInput">
@@ -26,13 +26,13 @@ $loggedInUserId = $_SESSION['_id'];
 
             </div>
         </div>
-        <div id="chatWindow" class="shadow-chatWindow border border-menu flex flex-1 p-8 flex-col">
+        <div id="chatWindow" class="shadow-chatWindow rounded-lg border border-menu flex flex-1 p-8 flex-col max-w-[74%]">
             <div id="selectedUserName"></div>
             <div id="messages" class="messageContainer"></div>
             <div id="messageBox" class="searchBar">
-                <i class="searchIcon bx bxs-message text-textAccent"></i>
-                <input type="text" id="messageInput" placeholder="Type a message..." class="searchInput">
-                <button id="sendMessageButton" class="searchButton">Send</button>
+                <i class="searchIcon bx bxs-message text-textAccent self-start pt-3"></i>
+                <textarea type="text" id="messageInput" placeholder="Type a message..." class="searchInput"></textarea>
+                <button id="sendMessageButton" class="sendButton"><i class="sendIcon bx bx-send"></i></button>
             </div>
         </div>
     </div>
@@ -40,6 +40,7 @@ $loggedInUserId = $_SESSION['_id'];
     <script>
         $(document).ready(function () {
             const loggedInUserId = '<?php echo $loggedInUserId; ?>';
+            var conversationIdentifier;
             // const socket = new WebSocket('ws://localhost:8080'); // Update if server runs on a different address
             // socket.onopen = function () {
             //     console.log('WebSocket connection established');
@@ -107,7 +108,14 @@ $loggedInUserId = $_SESSION['_id'];
                         const conversationDiv = $('#conversations');
 
                         if (data.conversation_id) {
-                            loadMessages(data.conversation_id);
+                            conversationIdentifier = data.conversation_id;
+                            loadMessages(data.conversation_id, function () {
+                                const messagesDiv = $('#messages');
+                                messagesDiv.scrollTop(messagesDiv[0].scrollHeight);
+                            })
+                            
+                            const messagesDiv = $('#messages');
+                            messagesDiv.scrollTop(messagesDiv[0].scrollHeight);
 
                             $('.activeConversation').removeClass('activeConversation');
 
@@ -152,7 +160,7 @@ $loggedInUserId = $_SESSION['_id'];
                     });
             }
 
-            function loadMessages(conversationId) {
+            function loadMessages(conversationId, callback) {
                 $.get('./src/events/chat/getMessages.php', { conversation_id: conversationId })
                     .done(function (data) {
                         data = JSON.parse(data);
@@ -231,7 +239,11 @@ $loggedInUserId = $_SESSION['_id'];
 
                             messagesDiv.append(parentContainer);
                         });
-                        messagesDiv.scrollTop(messagesDiv[0].scrollHeight);
+                    })
+                    .done(function() {
+                        if (typeof callback === 'function') {
+                            callback();
+                        }
                     })
                     .fail(function (error) {
                         console.error('Error:', error);
@@ -278,11 +290,15 @@ $loggedInUserId = $_SESSION['_id'];
                 }
             }, 5000);
 
-            $('#sendMessageButton').click(function () {
-                const message = $('#messageInput').val();
+            const sendMessageButton = $('#sendMessageButton');
+            
+            const messageInput = $('#messageInput');
+
+            function sendMessage() {
+                const message = messageInput.val().trim();
                 const activeConversation = $('.activeConversation').data('conversationId');
 
-                if (activeConversation) {
+                if (activeConversation && message.length > 0) {
                     $.post('./src/events/chat/sendMessage.php', {
                         conversation_id: activeConversation,
                         message: message
@@ -299,6 +315,10 @@ $loggedInUserId = $_SESSION['_id'];
                                 //     }));
                                 // }
                                 $('#messageInput').val('');
+                                loadMessages(conversationIdentifier, function () {
+                                    const messagesDiv = $('#messages');
+                                    messagesDiv.scrollTop(messagesDiv[0].scrollHeight);
+                                });
                             } else {
                                 console.error('Failed to send message:', data.error);
                             }
@@ -312,6 +332,15 @@ $loggedInUserId = $_SESSION['_id'];
                     });
                 } else {
                     console.error('No conversation selected');
+                }
+            };
+            
+            sendMessageButton.click(function() {sendMessage();});
+
+            messageInput.on('keypress', function(e) {
+                if(e.which === 13 && !e.shiftKey) {
+                    e.preventDefault(); // Prevent the default action (new line)
+                    sendMessage();
                 }
             });
 

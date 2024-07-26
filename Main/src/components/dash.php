@@ -302,14 +302,14 @@ if (isset($_SESSION['user_id'])) {
 
         <!-- Lessons Table -->
         <div class="flex flex-col bg-menu p-4 w-auto rounded-lg h-tableWithTabs">
-            <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+            <div class="text-sm font-medium text-center border-b border-textAccent text-textAccent">
                 <ul class="flex flex-wrap text-lg" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
                     <li class="me-2" role="presentation">
-                        <button href="#" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg <?php echo $tab === 'upcoming' ? 'dark:text-accentDark dark:border-blue-500' : 'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'; ?>"
+                        <button href="#" class="inline-block p-4 border-b-2 rounded-t-lg <?php echo $tab === 'upcoming' ? 'text-accentDark border-accent' : 'border-transparent hover:border-textAccent hover:text-textAccent'; ?>"
                             id="upcomingLessons-tab" data-tabs-target="#upcomingLessons" type="button" role="tab" aria-controls="upcoming" aria-selected="<?php echo $tab === 'upcoming' ? 'true' : 'false'; ?>">Upcoming Lessons</button>
                     </li>
                     <li class="me-2" role="presentation">
-                        <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg <?php echo $tab === 'previous' ? 'dark:text-accentDark dark:border-blue-500' : 'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'; ?>"
+                        <button class="inline-block p-4 border-b-2 rounded-t-lg <?php echo $tab === 'previous' ? 'text-accentDark border-accent' : 'border-transparent hover:border-textAccent hover:text-textAccent'; ?>"
                             id="previousLessons-tab" data-tabs-target="#previousLessons" type="button" role="tab" aria-controls="previous" aria-selected="<?php echo $tab === 'previous' ? 'true' : 'false'; ?>">Previous Lessons</button>
                     </li>
                 </ul>

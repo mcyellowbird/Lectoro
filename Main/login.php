@@ -2,7 +2,7 @@
 require 'vendor/autoload.php';
 session_start();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['username']) && isset($_POST['password'])) {
         $username = $_POST['username'];
         $password = $_POST['password'];
@@ -32,8 +32,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
