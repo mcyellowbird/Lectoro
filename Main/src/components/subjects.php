@@ -88,6 +88,9 @@ $userType = $data['user_type'];
                         if ('<?php echo $userType; ?>' === 'Admin') {
                             actions.append(`<a class="cursor-pointer"><i class="bx bxs-edit-alt text-accentDark hover:text-accent text-2xl"></i></a>`);
                         }
+                        if ('<?php echo $userType; ?>' != 'Admin') {
+                            actions.append(`<a class="cursor-pointer"><i class="bx bxs-bullseye text-accentDark hover:text-accent text-2xl"></i></a>`);
+                        }
 
                         actions.append(`<a class="cursor-pointer"><i class="bx bxs-report text-accentDark hover:text-accent text-2xl"></i></a>`);
                         actionContainer.append(actions);
