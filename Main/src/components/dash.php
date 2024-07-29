@@ -40,6 +40,7 @@ function getDashboardData($userId)
                 'lecturer_id' => $lecturer['lecturer_id'],
                 'subject_id' => $subjectId
             ]);
+
             foreach ($lectures as $lecture) {
                 $totalLectures++;
                 $totalAttendance += count($lecture['attended_students']);
@@ -209,8 +210,6 @@ if (isset($_SESSION['user_id'])) {
             // Donut Graph
             var donutSeries = [];
             var donutLabels = [];
-
-            // Calculate average attendance for each subject
 
             <?php foreach ($data['subjects'] as $subject) { ?>
                 donutSeries.push(<?php echo $subject['attendance_rate']; ?>);

@@ -8,6 +8,7 @@ function getSidebarData($userId) {
 
     // Find user details
     $user = $usersCollection->findOne(['user_id' => $userId]);
+    $userType = $user ? $user['user_type'] : 'Lecturer';
     if (!$user) {
         return [];
     }
@@ -20,7 +21,8 @@ function getSidebarData($userId) {
             'firstName' => $user['first_name'],
             'lastName' => $user['last_name'],
             'email' => $user['email']
-        ]
+        ],
+        'userType' => $userType
     ];
 }
 
@@ -52,6 +54,22 @@ function generateSidebar($data, $currentPage) {
             'href' => 'reports.php'
         )
     );
+    
+    if ($data['userType'] === "Admin") {
+        $lecturers = array(
+            'lecturers' => array(
+                'text' => 'Lecturers',
+                'icon' => 'bx bxs-user-voice',
+                'href' => 'lecturers.php'
+            )
+        );
+    
+        // Split the array and merge the new element
+        $pages = array_slice($pages, 0, 4, true) +
+                $lecturers +
+                array_slice($pages, 4, null, true);
+    }
+
     $buttonsHTML = '<ul class="text-md flex flex-col flex-grow w-240">';
     foreach ($pages as $pageId => $page) {
         $activeClass = ($currentPage === $pageId) ? 'componentButtonActive' : '';
@@ -66,7 +84,7 @@ function generateSidebar($data, $currentPage) {
     $buttonsHTML .= '</ul>';
     
     return '
-        <div id="sidebar-content" class="sidebar z-50" tabindex="-1">
+        <div id="sidebar-content" class="sidebar z-20" tabindex="-1">
         <div class="flex items-center flex-col p-4 bg-background h-screen w-280">
             <a href="#" class="flex items-center w-full text-3xl pl-1">
                 <i class="pr-4">
@@ -119,7 +137,7 @@ function generateSidebar($data, $currentPage) {
         <div class="shadow-divider bg-blackOpaque w-6 h-screen z-10"></div>
     </div>
 
-    <div id="sidebar-content-small" class="sidebar z-40" tabindex="-2">
+    <div id="sidebar-content-small" class="sidebar z-10" tabindex="-2">
         <div class="flex items-center flex-col p-4 bg-background h-screen w-20">
             <a href="#" class="text-3xl">
                 <i>
