@@ -29,7 +29,7 @@ A comprehensive facial recognition-based attendance system designed to manage an
 
 1. **User Registration and Login**:
    - Register a new user or login with existing credentials.
-   - Users can be administrators, lecturers, or students.
+   - Users can be administrators or lecturers.
 
 2. **Managing Subjects and Timetables**:
    - Administrators can add and manage subjects.
