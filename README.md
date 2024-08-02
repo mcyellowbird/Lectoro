@@ -6,10 +6,7 @@ A comprehensive facial recognition-based attendance system designed to manage an
 
 - [Features](#features)
 - [Technologies Used](#technologies-used)
-- [Installation](#installation)
 - [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [License](#license)
 
 ## Features
 
