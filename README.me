@@ -1,6 +1,3 @@
-Certainly! Here's a sample `README.md` file for your Facial Recognition Attendance System project:
-
-```markdown
 # Facial Recognition Attendance System
 
 A comprehensive facial recognition-based attendance system designed to manage and track attendance for lectures efficiently. This system includes features for managing subjects, timetables, lectures, and student attendance.
@@ -52,23 +49,3 @@ A comprehensive facial recognition-based attendance system designed to manage an
 5. **Chat System**:
    - Real-time chat system for communication between users.
    - Dynamic search and message functionalities.
-
-## API Endpoints
-
-- **User Authentication**:
-  - `POST /api/login`
-  - `POST /api/register`
-
-- **Subjects and Timetables**:
-  - `GET /api/subjects`
-  - `POST /api/subjects`
-  - `GET /api/timetable`
-  - `POST /api/timetable`
-
-- **Attendance**:
-  - `GET /api/attendance`
-  - `POST /api/attendance`
-
-- **Chat**:
-  - `GET /api/conversations`
-  - `POST /api/messages`
