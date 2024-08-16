@@ -19,10 +19,9 @@ function getNextSubjectId($subjectsCollection) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $subjectName = $_POST['subjectName'];
     $subjectCode = $_POST['subjectCode'];
-    $students = $_POST['students'];
-    $lecturerId = $_POST['lecturerId']; // lecturerId should be obtained from the form
+    $students = $_POST['studentIds']; // 'studentIds' should be obtained from the form
+    $lecturerIds = $_POST['lecturerIds']; // 'lecturerIds' should be obtained from the form
 
-    //
     $dateTime = new DateTime(); // or however you get your DateTime
     $currentTimestamp = $dateTime->format('Y-m-d\TH:i:s\Z');
 
@@ -42,11 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $insertResult = $subjectsCollection->insertOne($subjectData);
 
     if ($insertResult->getInsertedCount() > 0) {
-        // Update the lecturer's assigned_subjects list
-        $lecturersCollection->updateOne(
-            ['user_id' => $lecturerId],
-            ['$addToSet' => ['assigned_subjects' => $subjectId]]
-        );
+        // Update the lecturers' assigned_subjects list
+        // foreach ($lecturerIds as $lecturerId) {
+            $lecturersCollection->updateOne(
+                ['user_id' => $lecturerIds],
+                ['$addToSet' => ['assigned_subjects' => $subjectId]]
+            );
+        // }
 
         echo json_encode(['success' => true, 'message' => 'Subject added successfully!']);
     } else {

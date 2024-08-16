@@ -2545,6 +2545,10 @@ body {
   max-height: 120px;
 }
 
+.max-h-20 {
+  max-height: 5rem;
+}
+
 .max-h-240 {
   max-height: 240px;
 }
@@ -2567,6 +2571,22 @@ body {
 
 .max-h-svh {
   max-height: 100svh;
+}
+
+.max-h-32 {
+  max-height: 8rem;
+}
+
+.max-h-28 {
+  max-height: 7rem;
+}
+
+.max-h-24 {
+  max-height: 6rem;
+}
+
+.max-h-\[84px\] {
+  max-height: 84px;
 }
 
 .w-1 {
@@ -2758,6 +2778,14 @@ body {
   max-width: 100%;
 }
 
+.max-w-\[500px\] {
+  max-width: 500px;
+}
+
+.\!max-w-\[500px\] {
+  max-width: 500px !important;
+}
+
 .flex-1 {
   flex: 1 1 0%;
 }
@@ -2820,6 +2848,10 @@ body {
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
+}
+
+.resize-none {
+  resize: none;
 }
 
 .resize {
@@ -3088,6 +3120,10 @@ body {
 
 .border-t {
   border-top-width: 1px;
+}
+
+.border-solid {
+  border-style: solid;
 }
 
 .border-dashed {
@@ -3878,10 +3914,6 @@ a {
 
 .searchInput {
   field-sizing: content;
-}
-
-.hover\:inline:hover {
-  display: inline;
 }
 
 .hover\:border-textAccent:hover {

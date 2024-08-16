@@ -179,40 +179,23 @@ $userType = $data['user_type'];
                 $("#addSubjectForm").submit(function(event) {
                     event.preventDefault(); // Prevent the default form submission
                     
-                    var jsonFile = $("#fileUpload")[0].files[0];
-                    if (jsonFile) {
-                        var reader = new FileReader();
-                        reader.onload = function(e) {
-                            var contents = e.target.result;
-                            try {
-                                var jsonData = JSON.parse(contents);
-                                
-                                $.ajax({
-                                    url: './src/events/addSubject.php', // URL of your server-side script
-                                    type: 'POST',
-                                    data: {
-                                        subjectName: $("#subjectName").val(),
-                                        subjectCode: $("#subjectCode").val(),
-                                        lecturerId: $("#lecturer").val(),
-                                        students: jsonData.students
-                                    },
-                                    success: function(response) {
-                                        // Handle the response from the server
-                                        console.log(response);
-                                        $("#addSubjectModal").addClass("hidden");
-                                    },
-                                    error: function(xhr, status, error) {
-                                        console.error("Error:", error);
-                                    }
-                                });
-                            } catch (error) {
-                                console.error("Invalid JSON file");
-                            }
-                        };
-                        reader.readAsText(jsonFile);
-                    } else {
-                        console.error("No file selected");
-                    }
+                    $.ajax({
+                        url: './src/events/addSubject.php', // URL of your server-side script
+                        type: 'POST',
+                        data: {
+                            subjectName: $("#subjectName").val(),
+                            subjectCode: $("#subjectCode").val(),
+                            lecturerIds: $('#lecturer').val(),
+                            studentIds: $("#students").val()
+                        },
+                        success: function(response) {
+                            // Handle the response from the server
+                            $("#addSubjectModal").addClass("hidden");
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error:", error);
+                        }
+                    });
                 });
 
 
@@ -242,6 +225,22 @@ $userType = $data['user_type'];
                     }
                 });
 
+                $.ajax({
+                    url: './src/events/getStudents.php', // Endpoint to get students
+                    method: 'GET',
+                    success: function(data) {
+                        let students = JSON.parse(data);
+                        let studentElement = $('#students');
+                        studentElement.find('option').remove();
+                        students.forEach(student => {
+                            studentElement.append(`<option value="${student.id}">${student.name} - ${student.id}</option>`);
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX error:', error);
+                    }
+                });
+
                 $("#fileUpload").change(function(event) {
                     var file = event.target.files[0];
                     if (file && file.type === "application/json") {
@@ -251,7 +250,6 @@ $userType = $data['user_type'];
                             try {
                                 var json = JSON.parse(contents);
                                 // Process the JSON data here
-                                console.log(json); // You can remove this line
                             } catch (error) {
                                 console.error("Invalid JSON file");
                             }
@@ -317,13 +315,18 @@ $userType = $data['user_type'];
                             <div class="col-span-2">
                                 <label for="fileUpload" class="items-center flex mb-2 text-sm font-medium text-textColour">Student List<i class="pl-1 bx bx-info-circle"></i></label>
                                 <div class="flex items-center justify-center w-full">
-                                    <label for="fileUpload" class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-500 border-dashed rounded-lg cursor-pointer bg-menu">
+                                    <!-- <label for="fileUpload" class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-500 border-dashed rounded-lg cursor-pointer bg-menu">
                                         <div class="flex flex-col items-center justify-center ">
                                             <p class="mb-2 text-sm text-textAccent dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
                                             <p class="text-xs text-textAccent dark:text-gray-400">TXT, CSV, JSON, JSN</p>
                                         </div>
                                         <input id="fileUpload" type="file" class="hidden" accept=".json">
-                                    </label>
+                                    </label> -->
+                                    <select id="students" multiple class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                        <option value="DD">Student</option>
+                                        <option value="TV">Dr. Partha Roy</option>
+                                        <option value="PC">Dr. John Lee</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
