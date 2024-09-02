@@ -1,13 +1,14 @@
 <?php
 require 'vendor/autoload.php';
 
-function getSubjectsAndLecturers($userId)
+function getStudentsAndSubjects($userId)
 {
     $mongoClient = new MongoDB\Client("mongodb://localhost:27017");
     $database = $mongoClient->selectDatabase("CSIT321Development");
     $lecturersCollection = $database->selectCollection("lecturers");
     $subjectsCollection = $database->selectCollection("subjects");
     $lecturesCollection = $database->selectCollection("lectures");
+    $studentsCollection = $database->selectCollection("students");
     $usersCollection = $database->selectCollection("users");
 
     // Find user by user_id to get user_type
@@ -15,7 +16,7 @@ function getSubjectsAndLecturers($userId)
     $userType = $user ? $user['user_type'] : 'Lecturer';
     
     if ($userType === 'Admin') {
-        // For admin: Get all subjects
+        // For admin: Get all students
         $subjectsCursor = $subjectsCollection->find();
     } else {
         // For lecturers: Get only assigned subjects
@@ -24,66 +25,83 @@ function getSubjectsAndLecturers($userId)
         $subjectsCursor = $subjectsCollection->find(['subject_id' => ['$in' => $assignedSubjectIds]]);
     }
     
-    $subjects = [];
-    
+    $studentsData = [];
+
     foreach ($subjectsCursor as $subject) {
-        // Calculate average attendance
-        $lectures = $lecturesCollection->find(['subject_id' => $subject['subject_id']]);
-        $totalLectures = 0;
-        $totalAttended = 0;
-        $studentsCount = count($subject['students']) ?: 1; // Avoid division by zero
-    
-        foreach ($lectures as $lecture) {
-            $totalLectures++;
-            $totalAttended += count($lecture['attended_students']);
+        foreach ($subject['students'] as $studentId) {
+            // Get student details
+            $student = $studentsCollection->findOne(['student_id' => $studentId]);
+            if ($student) {
+                // Initialize student data if not already present
+                if (!isset($studentsData[$studentId])) {
+                    $studentsData[$studentId] = [
+                        'student_id' => $student['student_id'],
+                        'first_name' => $student['first_name'],
+                        'last_name' => $student['last_name'],
+                        'image_url' => $student['image_url'],
+                        'email' => $student['email'],
+                        'phone' => $student['phone'],
+                        'subjects' => [],
+                        'total_lectures' => 0,
+                        'total_attended' => 0,
+                    ];
+                }
+
+                // Add subject to student's list of enrolled subjects
+                $studentsData[$studentId]['subjects'][] = $subject['subject_id'];
+
+                // Calculate attendance
+                $lectures = $lecturesCollection->find(['subject_id' => $subject['subject_id']]);
+                foreach ($lectures as $lecture) {
+                    $studentsData[$studentId]['total_lectures']++;
+                
+                    // Convert BSON array to PHP array
+                    $attendedStudents = $lecture['attended_students']->getArrayCopy();
+                
+                    if (in_array($studentId, $attendedStudents)) {
+                        $studentsData[$studentId]['total_attended']++;
+                    }
+                }
+            }
         }
-    
-        // Avoid division by zero for average attendance calculation
-        $averageAttendance = $totalLectures > 0 && $totalAttended > 0 
-            ? min((($totalAttended / ($totalLectures * $studentsCount)) * 100), 100) // Percentage
-            : 0;
-    
-        // Get assigned lecturers
-        $assignedLecturers = $lecturersCollection->find(['assigned_subjects' => $subject['subject_id']]);
-        $lecturerIds = [];
-        foreach ($assignedLecturers as $lecturer) {
-            $lecturerIds[] = $lecturer['user_id']; // Changed from username to user_id
-        }
-        
-        $subject['average_attendance'] = $averageAttendance;
-        $subject['lecturers'] = implode(', ', $lecturerIds);
-        $subjects[] = $subject;
     }
-    
+
+    // Calculate average attendance for each student
+    foreach ($studentsData as &$studentData) {
+        $totalLectures = $studentData['total_lectures'];
+        $totalAttended = $studentData['total_attended'];
+        $studentData['average_attendance'] = $totalLectures > 0 ? ($totalAttended / $totalLectures) * 100 : 0;
+    }
 
     return [
-        'subjects' => $subjects,
+        'students' => array_values($studentsData), // Convert associative array to indexed array
         'user_type' => $userType
     ];
 }
 
-$data = getSubjectsAndLecturers($_SESSION['user_id']);
-$subjects = $data['subjects'];
+$data = getStudentsAndSubjects($_SESSION['user_id']);
+$students = $data['students'];
 $userType = $data['user_type'];
 ?>
-    <?php if (isset($_SESSION['user_id'])): ?>
+<?php if (isset($_SESSION['user_id'])): ?>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const searchBar = $('#searchBar');
                 const loadingElement = $('#loading');
-                const subjectsTable = $('table');
-                let allSubjects = <?php echo json_encode($subjects); ?>;
+                const studentsTable = $('table');
+                let allStudents = <?php echo json_encode($students); ?>;
+                console.log(allStudents);
 
-                function updateSubjectsTable(subjects) {
-                    subjectsTable.find('tr:gt(0)').remove(); // Remove all rows except the header
+                function updatestudentsTable(students) {
+                    studentsTable.find('tr:gt(0)').remove(); // Remove all rows except the header
 
-                    if (subjects.length === 0) {
-                        subjectsTable.append('<tr><td colspan="<?php echo $userType === 'Admin' ? '5' : '4'; ?>" class="text-center">No subjects found</td></tr>');
+                    if (students.length === 0) {
+                        studentsTable.append('<tr><td colspan="<?php echo $userType === 'Admin' ? '5' : '4'; ?>" class="text-center">No subjects found</td></tr>');
                         return;
                     }
 
-                    subjects.slice(0, 10).forEach(subject => { // Show a maximum of 10 subjects
+                    students.slice(0, 10).forEach(student => { // Show a maximum of 10 students
                         const actionContainer = $(`<div class="absolute pr-2 right-0 [&:not(:hover)]:hidden group-hover:inline w-full h-full"></div>`);
                         const actions = $(`<div class="flex flex-row justify-center items-center float-end h-full"></div>`);
                         
@@ -98,20 +116,17 @@ $userType = $data['user_type'];
                         actionContainer.append(actions);
 
                         const row = $('<tr class="group relative"></tr>')
-                            .append(`<td>${subject.subject_name}</td>`)
-                            .append(`<td>${subject.subject_code}</td>`)
-                            .append(`<td>${subject.students ? subject.students.length : 0}</td>`)
-                            .append(`<td>${subject.average_attendance !== undefined ? number_format(subject.average_attendance, 2) : 'N/A'}%</td>`);
-                        
-                        if ('<?php echo $userType; ?>' === 'Admin') {
-                            row.append(`<td>${subject.lecturers || 'N/A'}</td>`);
-                        }
+                            .append(`<td>${student.first_name} ${student.first_name}</td>`)
+                            .append(`<td>${student.student_id}</td>`)
+                            .append(`<td>${student.email}</td>`)
+                            .append(`<td>${student.subjects}</td>`)
+                            .append(`<td>${student.average_attendance !== undefined ? number_format(student.average_attendance, 2) : 'N/A'}%</td>`);
                         
                         row.append(actionContainer);
-                        subjectsTable.append(row);
+                        studentsTable.append(row);
                     });
 
-                    loadingElement.hide(); // Hide loading spinner after subjects are updated
+                    loadingElement.hide(); // Hide loading spinner after students are updated
                 }
 
                 function number_format(number, decimals) {
@@ -120,21 +135,22 @@ $userType = $data['user_type'];
 
                 searchBar.on('input', function() {
                     const query = $(this).val().toLowerCase();
-                    let filteredSubjects = allSubjects;
+                    let filteredStudents = allStudents;
 
                     if (query.length > 0) {
-                        filteredSubjects = allSubjects.filter(subject => 
-                            subject.subject_name.toLowerCase().includes(query) ||
-                            subject.subject_code.toLowerCase().includes(query)
+                        filteredStudents = allStudents.filter(student => 
+                            student.first_name.toLowerCase().includes(query) ||
+                            student.last_name.toLowerCase().includes(query) ||
+                            student.student_id.toLowerCase().includes(query)
                         );
                     }
 
-                    updateSubjectsTable(filteredSubjects);
+                    updatestudentsTable(filteredStudents);
                 });
 
                 loadingElement.show(); // Show loading spinner initially
 
-                updateSubjectsTable(allSubjects); // Initial load
+                updatestudentsTable(allStudents); // Initial load
 
                 $("#generateReport").click(function() {
                     var table = $("#table").get(0); // Get the table element
@@ -168,21 +184,21 @@ $userType = $data['user_type'];
                     });
                 });
                 
-                $("#addSubject").click(function() {
-                    $("#addSubjectModal").removeClass("hidden");
+                $("#addStudent").click(function() {
+                    $("#addStudentModal").removeClass("hidden");
                 });
 
                 // Close the modal
-                $("#closeAddSubjectModal").click(function() {
-                    $("#addSubjectModal").addClass("hidden");
+                $("#closeAddStudentModal").click(function() {
+                    $("#addStudentModal").addClass("hidden");
                 });
 
                 // Handle form submission
-                $("#addSubjectForm").submit(function(event) {
+                $("#addStudentForm").submit(function(event) {
                     event.preventDefault(); // Prevent the default form submission
                     
                     $.ajax({
-                        url: './src/events/CRUD/addSubject.php', // URL of your server-side script
+                        url: './src/events/CRUD/addStudent.php', // URL of your server-side script
                         type: 'POST',
                         data: {
                             subjectName: $("#subjectName").val(),
@@ -192,7 +208,7 @@ $userType = $data['user_type'];
                         },
                         success: function(response) {
                             // Handle the response from the server
-                            $("#addSubjectModal").addClass("hidden");
+                            $("#addStudentModal").addClass("hidden");
                         },
                         error: function(xhr, status, error) {
                             console.error("Error:", error);
@@ -273,14 +289,14 @@ $userType = $data['user_type'];
         </div>
 
         <div id="content">
-            <div id="addSubjectModal" class="flex justify-center items-center z-50 fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-black to-transparent hidden">
+            <div id="addStudentModal" class="flex justify-center items-center z-50 fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-black to-transparent hidden">
                 <div class="relative bg-menu text-textColour rounded-lg shadow-lg max-w-3xl mx-auto mt-20 self-center justify-self-center">
                     <!-- Modal header -->
                     <div class="flex items-center justify-between p-4 md:p-5 border-b border-accentBold rounded-t">
                         <h3 class="text-lg font-semibold text-textColour">
-                            Create New Subject
+                            Create New Student
                         </h3>
-                        <button type="button" id="closeAddSubjectModal" class="bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" id="closeAddSubjectModal">
+                        <button type="button" id="closeAddStudentModal" class="bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" id="closeAddStudentModal">
                             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
                             </svg>
@@ -288,7 +304,7 @@ $userType = $data['user_type'];
                         </button>
                     </div>
                     <!-- Modal body -->
-                    <form id="addSubjectForm" class="self-center p-4 md:p-5">
+                    <form id="addStudentForm" class="self-center p-4 md:p-5">
                         <div class="grid gap-4 mb-4 grid-cols-2">
                             <div class="col-span-2">
                                 <div class="grid grid-cols-2 gap-x-4">
@@ -336,34 +352,32 @@ $userType = $data['user_type'];
                             <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
                             </svg>
-                            Create Subject
+                            Create Student
                         </button>
                     </form>
                 </div>
             </div>
             <div class="flex flex-col items-center">
-                <!-- Subjects Table -->
-                <span class="text-4xl text-center mb-8">Subjects</span>
+                <!-- Students Table -->
+                <span class="text-4xl text-center mb-8">Students</span>
                 <div class="flex flex-col bg-menu p-4 w-70p rounded-lg h-auto">
                     <div class="flex">
                         <div class="searchBar w-70p">
                             <i class="searchIcon bx bx-search"></i>
-                            <input type="text" id="searchBar" placeholder="Search for subjects..." class="searchInput">
+                            <input type="text" id="searchBar" placeholder="Search for students..." class="searchInput">
                         </div>
                         <?php if ($userType === 'Admin'): ?>
-                            <a href="#" id="addSubject" class="bg-accentDark ml-auto mr-4 transition ease-out duration-300 text-center self-center block px-4 py-2 text-md rounded-xl hover:bg-accentBold">Add Subject</a>
+                            <a href="#" id="addStudent" class="bg-accentDark ml-auto mr-4 transition ease-out duration-300 text-center self-center block px-4 py-2 text-md rounded-xl hover:bg-accentBold">Add Student</a>
                         <?php endif; ?>
                         <a href="#" id="generateReport" class="bg-accentDark transition <?php echo $userType !== 'Admin' ? 'ml-auto' : ''; ?> ease-out duration-300 text-center self-center block px-4 py-2 text-md rounded-xl hover:bg-accentBold">Generate Report</a>
                     </div>
                     <table id="table" class="bg-menu text-left [&_tr]:border-b-2 [&_tr]:border-accent [&_tr:not(:first-of-type)]:border-opacity-10 [&_tr_th]:py-2 [&_tr_td:not(first-of-type)]:pl-4 [&_tr_td:last-of-type]:pr-3 [&_tr_th:not(first-of-type)]:pl-4 [&_tr_td]:pb-2 [&_tr_td]:pt-2 [&_tr_td:first-of-type]:pl-2 [&_tr_th:first-of-type]:pl-2 border-2 overflow-hidden w-full rounded-lg border-collapse border-spacing-0">
                         <tr>
-                            <th>Subject Name</th>
-                            <th>Subject Code</th>
-                            <th>Students Enrolled</th>
+                            <th>Student Name</th>
+                            <th>Student ID</th>
+                            <th>Student Email</th>
+                            <th>Enrolled Subjects</th>
                             <th>Average Attendance (%)</th>
-                            <?php if ($userType === 'Admin'): ?>
-                                <th>Assigned Lecturer(s)</th>
-                            <?php endif; ?>
                         </tr>
                         <!-- Rows will be dynamically inserted here -->
                     </table>

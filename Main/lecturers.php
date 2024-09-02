@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 else{
-    $_SESSION['currentPage'] = 'students';
+    $_SESSION['currentPage'] = 'lecturers';
 }
 
 require 'vendor/autoload.php';
@@ -18,7 +18,7 @@ require 'vendor/autoload.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="svg" href="./src/assets/favicon.ico">
-    <title>Students</title>
+    <title>Lecturers</title>
 
     <!-- Styles -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -39,7 +39,7 @@ require 'vendor/autoload.php';
 <body class="bg-background p-0 m-0">
     <div id="sidebar"><?php include './src/components/sidebar.php'; ?></div>
 
-    <div id="main-content" class="p-20 ml-sidebarLarge flex flex-col h-screen justify-between"><?php include './src/components/students.php'; ?></div>
+    <div id="main-content" class="p-20 ml-sidebarLarge flex flex-col h-screen justify-between"><?php include './src/components/lecturers.php'; ?></div>
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>

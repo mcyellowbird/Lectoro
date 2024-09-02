@@ -6,8 +6,7 @@ function getSubjectsAndLecturers($userId)
     $mongoClient = new MongoDB\Client("mongodb://localhost:27017");
     $database = $mongoClient->selectDatabase("CSIT321Development");
     $lecturersCollection = $database->selectCollection("lecturers");
-    $subjectsCollection = $database->selectCollection("subjects");
-    $lecturesCollection = $database->selectCollection("lectures");
+    $subjectCollection = $database->selectCollection("subjects");
     $usersCollection = $database->selectCollection("users");
 
     // Find user by user_id to get user_type
@@ -16,33 +15,27 @@ function getSubjectsAndLecturers($userId)
     
     if ($userType === 'Admin') {
         // For admin: Get all subjects
-        $subjectsCursor = $subjectsCollection->find();
-    } else {
-        // For lecturers: Get only assigned subjects
-        $lecturer = $lecturersCollection->findOne(['user_id' => $userId]);
-        $assignedSubjectIds = $lecturer ? $lecturer['assigned_subjects'] : [];
-        $subjectsCursor = $subjectsCollection->find(['subject_id' => ['$in' => $assignedSubjectIds]]);
+        $lecturerCursor = $lecturersCollection->find();
     }
     
-    $subjects = [];
+    $lecturers = [];
     
-    foreach ($subjectsCursor as $subject) {
+    foreach ($lecturerCursor as $lecturer) {
         // Calculate average attendance
-        $lectures = $lecturesCollection->find(['subject_id' => $subject['subject_id']]);
+        $lectures = $lecturesCollection->find(['subject_id' => $lecturer['subject_id']]);
         $totalLectures = 0;
         $totalAttended = 0;
         $studentsCount = count($subject['students']) ?: 1; // Avoid division by zero
-    
+
         foreach ($lectures as $lecture) {
             $totalLectures++;
             $totalAttended += count($lecture['attended_students']);
         }
-    
-        // Avoid division by zero for average attendance calculation
-        $averageAttendance = $totalLectures > 0 && $totalAttended > 0 
-            ? min((($totalAttended / ($totalLectures * $studentsCount)) * 100), 100) // Percentage
+        
+        $averageAttendance = $totalLectures > 0 
+            ? ($totalAttended / ($totalLectures * $studentsCount)) * 100 // Percentage
             : 0;
-    
+
         // Get assigned lecturers
         $assignedLecturers = $lecturersCollection->find(['assigned_subjects' => $subject['subject_id']]);
         $lecturerIds = [];
@@ -54,7 +47,6 @@ function getSubjectsAndLecturers($userId)
         $subject['lecturers'] = implode(', ', $lecturerIds);
         $subjects[] = $subject;
     }
-    
 
     return [
         'subjects' => $subjects,
@@ -101,7 +93,7 @@ $userType = $data['user_type'];
                             .append(`<td>${subject.subject_name}</td>`)
                             .append(`<td>${subject.subject_code}</td>`)
                             .append(`<td>${subject.students ? subject.students.length : 0}</td>`)
-                            .append(`<td>${subject.average_attendance !== undefined ? number_format(subject.average_attendance, 2) : 'N/A'}%</td>`);
+                            .append(`<td>${subject.average_attendance !== undefined ? number_format(subject.average_attendance, 2) : 'N/A'}</td>`);
                         
                         if ('<?php echo $userType; ?>' === 'Admin') {
                             row.append(`<td>${subject.lecturers || 'N/A'}</td>`);
@@ -182,7 +174,7 @@ $userType = $data['user_type'];
                     event.preventDefault(); // Prevent the default form submission
                     
                     $.ajax({
-                        url: './src/events/CRUD/addSubject.php', // URL of your server-side script
+                        url: './src/events/addSubject.php', // URL of your server-side script
                         type: 'POST',
                         data: {
                             subjectName: $("#subjectName").val(),
@@ -343,7 +335,7 @@ $userType = $data['user_type'];
             </div>
             <div class="flex flex-col items-center">
                 <!-- Subjects Table -->
-                <span class="text-4xl text-center mb-8">Subjects</span>
+                <span class="text-4xl text-center mb-8">Lecturers</span>
                 <div class="flex flex-col bg-menu p-4 w-70p rounded-lg h-auto">
                     <div class="flex">
                         <div class="searchBar w-70p">
@@ -357,13 +349,10 @@ $userType = $data['user_type'];
                     </div>
                     <table id="table" class="bg-menu text-left [&_tr]:border-b-2 [&_tr]:border-accent [&_tr:not(:first-of-type)]:border-opacity-10 [&_tr_th]:py-2 [&_tr_td:not(first-of-type)]:pl-4 [&_tr_td:last-of-type]:pr-3 [&_tr_th:not(first-of-type)]:pl-4 [&_tr_td]:pb-2 [&_tr_td]:pt-2 [&_tr_td:first-of-type]:pl-2 [&_tr_th:first-of-type]:pl-2 border-2 overflow-hidden w-full rounded-lg border-collapse border-spacing-0">
                         <tr>
-                            <th>Subject Name</th>
-                            <th>Subject Code</th>
-                            <th>Students Enrolled</th>
+                            <th>Lecturer Name</th>
+                            <th>Lecturer ID</th>
+                            <th>Subjects</th>
                             <th>Average Attendance (%)</th>
-                            <?php if ($userType === 'Admin'): ?>
-                                <th>Assigned Lecturer(s)</th>
-                            <?php endif; ?>
                         </tr>
                         <!-- Rows will be dynamically inserted here -->
                     </table>

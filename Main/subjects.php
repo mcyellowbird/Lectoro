@@ -39,7 +39,7 @@ require 'vendor/autoload.php';
 <body class="bg-background p-0 m-0">
     <div id="sidebar"><?php include './src/components/sidebar.php'; ?></div>
 
-    <div id="main-content" class="p-20 ml-304 flex flex-col h-screen justify-between"><?php include './src/components/subjects.php'; ?></div>
+    <div id="main-content" class="p-20 ml-sidebarLarge flex flex-col h-screen justify-between"><?php include './src/components/subjects.php'; ?></div>
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>

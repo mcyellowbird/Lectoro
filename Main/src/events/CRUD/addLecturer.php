@@ -1,5 +1,5 @@
 <?php
-require dirname(dirname(__DIR__)) . '/vendor/autoload.php';
+require dirname(dirname(dirname(__DIR__))) . '/vendor/autoload.php';
 
 // Database connection
 $mongoClient = new MongoDB\Client("mongodb://localhost:27017");
