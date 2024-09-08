@@ -55,8 +55,8 @@ $loggedInUserId = $_SESSION['_id'];
             //     const data = JSON.parse(event.data);
 
             //     // Ensure data contains necessary fields
-            //     if (data.conversation_id && data.sender_id && data.message) {
-            //         const conversationId = data.conversation_id;
+            //     if (data.conversationId && data.sender_id && data.message) {
+            //         const conversationId = data.conversationId;
             //         const senderId = data.sender_id;
             //         const message = data.message;
 
@@ -113,9 +113,9 @@ $loggedInUserId = $_SESSION['_id'];
                         }
                         const conversationDiv = $('#conversations');
 
-                        if (data.conversation_id) {
-                            conversationIdentifier = data.conversation_id;
-                            loadMessages(data.conversation_id, function () {
+                        if (data.conversationId) {
+                            conversationIdentifier = data.conversationId;
+                            loadMessages(data.conversationId, function () {
                                 const messagesDiv = $('#messages');
                                 messagesDiv.scrollTop(messagesDiv[0].scrollHeight);
                             })
@@ -136,7 +136,7 @@ $loggedInUserId = $_SESSION['_id'];
                             }
 
                             // Initialize WebSocket connection
-                            // initializeWebSocket(data.conversation_id);
+                            // initializeWebSocket(data.conversationId);
                         } else {
                             createConversation(userId).then(conversationId => {
                                 loadMessages(conversationId);
@@ -155,7 +155,7 @@ $loggedInUserId = $_SESSION['_id'];
                     .done(function (data) {
                         data = JSON.parse(data);
                         if (data.success) {
-                            return data.conversation_id;
+                            return data.conversationId;
                         } else {
                             throw new Error(data.error || 'Failed to create conversation');
                         }
@@ -167,7 +167,7 @@ $loggedInUserId = $_SESSION['_id'];
             }
 
             function loadMessages(conversationId, callback) {
-                $.get('./src/events/chat/getMessages.php', { conversation_id: conversationId })
+                $.get('./src/events/chat/getMessages.php', { conversationId: conversationId })
                     .done(function (data) {
                         data = JSON.parse(data);
                         const messagesDiv = $('#messages');
@@ -205,13 +205,13 @@ $loggedInUserId = $_SESSION['_id'];
 
                             const messageContainer = $('<div></div>')
                                 .addClass('flex flex-col !max-w-60p')
-                                .addClass(message.sender_id === loggedInUserId ? 'self-end' : 'self-start');
+                                .addClass(message.senderId === loggedInUserId ? 'self-end' : 'self-start');
 
                             const messageInner = $('<div></div>')
                                 .addClass('flex flex-row mt-0.5 mb-0.5');
 
                             const messageDiv = $('<div></div>')
-                                .addClass(message.sender_id === loggedInUserId ? 'message-from-user' : 'message-to-user');
+                                .addClass(message.senderId === loggedInUserId ? 'message-from-user' : 'message-to-user');
 
                             messageDiv.append($('<span></span>').text(message.message));
 
@@ -223,7 +223,7 @@ $loggedInUserId = $_SESSION['_id'];
                                 .addClass('shrink-0 flex-grow'); // This will take the remaining width
 
                             // Swap emptyContainer and messageContainer if the message is from the other user
-                            if (message.sender_id === loggedInUserId) {
+                            if (message.senderId === loggedInUserId) {
                                 timeDiv.addClass('mr-2')
                                 messageInner.append(timeDiv);
                                 messageInner.append(messageDiv);
@@ -268,7 +268,7 @@ $loggedInUserId = $_SESSION['_id'];
             //     socket.onopen = () => {
             //         console.log('WebSocket connection opened');
             //         // Send initial message or subscribe to conversation if needed
-            //         socket.send(JSON.stringify({ action: 'subscribe', conversation_id: conversationId }));
+            //         socket.send(JSON.stringify({ action: 'subscribe', conversationId: conversationId }));
             //     };
 
             //     socket.onmessage = (event) => {
@@ -289,12 +289,12 @@ $loggedInUserId = $_SESSION['_id'];
             //     };
             // }
 
-            setInterval(() => {
-                const activeConversation = $('.activeConversation').data('conversationId');
-                if (activeConversation) {
-                    loadMessages(activeConversation);
-                }
-            }, 5000);
+            // setInterval(() => {
+            //     const activeConversation = $('.activeConversation').data('conversationId');
+            //     if (activeConversation) {
+            //         loadMessages(activeConversation);
+            //     }
+            // }, 5000);
 
             const sendMessageButton = $('#sendMessageButton');
             
@@ -306,7 +306,7 @@ $loggedInUserId = $_SESSION['_id'];
 
                 if (activeConversation && message.length > 0) {
                     $.post('./src/events/chat/sendMessage.php', {
-                        conversation_id: activeConversation,
+                        conversationId: activeConversation,
                         message: message
                     })
                     .done(function (data) {
@@ -316,7 +316,7 @@ $loggedInUserId = $_SESSION['_id'];
                                 // if (socket) {
                                 //     socket.send(JSON.stringify({
                                 //         action: 'message',
-                                //         conversation_id: activeConversation,
+                                //         conversationId: activeConversation,
                                 //         message: message
                                 //     }));
                                 // }
@@ -361,13 +361,13 @@ $loggedInUserId = $_SESSION['_id'];
                                 const userDiv = $('<div></div>')
                                     .addClass('flex items-center rounded-md cursor-pointer p-1.5 hover:bg-buttonHover/60')
                                     .text(conversation.display_name)
-                                    .data('userId', conversation.user_id)
-                                    .data('conversationId', conversation.conversation_id)
-                                    .click(() => openChat(conversation.user_id));
+                                    .data('userId', conversation.userId)
+                                    .data('conversationId', conversation.conversationId)
+                                    .click(() => openChat(conversation.userId));
                                 
-                                if (lastMessageTimestamps[conversation.conversation_id] &&
+                                if (lastMessageTimestamps[conversation.conversationId] &&
                                     (!$('.activeConversation').data('conversationId') || 
-                                    new Date(lastMessageTimestamps[conversation.conversation_id]) > new Date(lastMessageTimestamps[$('.activeConversation').data('conversationId')]))) {
+                                    new Date(lastMessageTimestamps[conversation.conversationId]) > new Date(lastMessageTimestamps[$('.activeConversation').data('conversationId')]))) {
                                     $('.activeConversation').removeClass('activeConversation');
                                     userDiv.addClass('activeConversation');
                                 }
@@ -399,9 +399,9 @@ $loggedInUserId = $_SESSION['_id'];
                             const userDiv = $('<div></div>')
                                 .addClass('flex items-center rounded-md cursor-pointer p-1.5 hover:bg-buttonHover/60')
                                 .text(conversation.display_name)
-                                .data('userId', conversation.user_id)
-                                .data('conversationId', conversation.conversation_id)
-                                .click(() => openChat(conversation.user_id));
+                                .data('userId', conversation.userId)
+                                .data('conversationId', conversation.conversationId)
+                                .click(() => openChat(conversation.userId));
                                 
                             conversationsDiv.append(userDiv);
                             userDiv.prepend($('<i class="bx bxs-user pr-1.5 text-xl"></i>'));

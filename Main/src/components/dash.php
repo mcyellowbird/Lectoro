@@ -8,15 +8,15 @@ function getDashboardData($userId)
     $lecturersCollection = $database->selectCollection("lecturers");
     $subjectsCollection = $database->selectCollection("subjects");
     $usersCollection = $database->selectCollection("users");
-    $lecturesCollection = $database->selectCollection("lectures");
-    // Find lecturer by user_id
-    $lecturer = $lecturersCollection->findOne(['user_id' => $userId]);
+    $lecturesCollection = $database->selectCollection("lecture");
+    // Find lecturer by userId
+    $lecturer = $lecturersCollection->findOne(['userId' => $userId]);
     if (!$lecturer) {
         return [];
     }
 
     // Find user details
-    $user = $usersCollection->findOne(['user_id' => $userId]);
+    $user = $usersCollection->findOne(['userId' => $userId]);
     if (!$user) {
         return [];
     }
@@ -29,7 +29,7 @@ function getDashboardData($userId)
     $totalSubjects = 0;
     $lectures = [];
     foreach ($assignedSubjectIds as $subjectId) {
-        $subject = $subjectsCollection->findOne(['subject_id' => $subjectId]);
+        $subject = $subjectsCollection->findOne(['subjectId' => $subjectId]);
         if ($subject) {
             $subjects[] = $subject;
 
@@ -37,8 +37,8 @@ function getDashboardData($userId)
             $totalAttendance = 0;
             $totalLectures = 0;
             $lectures = $lecturesCollection->find([
-                'lecturer_id' => $lecturer['lecturer_id'],
-                'subject_id' => $subjectId
+                'lecturer' => $lecturer['lecturerId'],
+                'subjectId' => $subjectId
             ]);
 
             foreach ($lectures as $lecture) {
@@ -96,10 +96,11 @@ foreach ($subjects as $subject) {
             // Handle upcoming classes
             if ($lectureTime > $currentTime) {
                 $upcomingClasses[] = [
-                    'subjectName' => $subject['subject_name'],
-                    'subjectCode' => $subject['subject_code'],
+                    'subjectName' => $subject['subjectName'],
+                    'subjectId' => $subject['subjectId'],
                     'studentsEnrolled' => count($subject['students']),
-                    'duration' => $subject['duration'],
+                    'faculty' => $subject['faculty'],
+                    'semester' => $subject['semester'],
                     'day' => $lectureTime->format('l'),
                     'date' => $lectureTime->format('Y-m-d'),
                     'time' => $lectureTime->format('H:i'),
@@ -113,12 +114,12 @@ foreach ($subjects as $subject) {
 foreach ($subjects as $subject) {
     // Find all lectures for the current subject and lecturer
     $lectures = $lecturesCollection->find([
-        'lecturer_id' => $lecturer['lecturer_id'],
-        'subject_id' => $subject['subject_id'],
+        'lecturer' => $lecturer['lecturerId'],
+        'subjectId' => $subject['subjectId'],
     ]);
 
     foreach ($lectures as $lecture) {
-        $lectureTime = new DateTime($lecture['date_time']);
+        $lectureTime = new DateTime($lecture['dateTime']);
         $currentTime = new DateTime();
 
         // Handle previous classes
@@ -128,10 +129,11 @@ foreach ($subjects as $subject) {
 
             // Add to previousClasses array
             $previousClasses[] = [
-                'subjectName' => $subject['subject_name'],
-                'subjectCode' => $subject['subject_code'],
+                'subjectName' => $subject['subjectName'],
+                'subjectId' => $subject['subjectId'],
                 'studentsEnrolled' => count($subject['students']),
-                'duration' => $subject['duration'],
+                'faculty' => $subject['faculty'],
+                'semester' => $subject['semester'],
                 'day' => $lectureTime->format('l'),
                 'date' => $lectureTime->format('Y-m-d'),
                 'time' => $lectureTime->format('H:i'),
@@ -176,8 +178,8 @@ foreach ($subjects as $subject) {
     ];
 }
 
-if (isset($_SESSION['user_id'])) {
-    $data = getDashboardData($_SESSION['user_id']);
+if (isset($_SESSION['userId'])) {
+    $data = getDashboardData($_SESSION['userId']);
     ?>
     <script>
         $(document).ready(function () {
@@ -188,7 +190,7 @@ if (isset($_SESSION['user_id'])) {
                     <?php foreach ($data['upcomingClasses'] as $index => $class) { ?>
                                         <?php if ($index > 0) { ?>, <?php } ?>
                                         {
-                            title: '<?php echo $class['subjectCode']; ?>',
+                            title: '<?php echo $class['subjectId']; ?>',
                             start: '<?php echo $class['date'] . "T" . $class['time']; ?>'
                         }
                                 <?php } ?>
@@ -213,7 +215,7 @@ if (isset($_SESSION['user_id'])) {
 
             <?php foreach ($data['subjects'] as $subject) { ?>
                 donutSeries.push(<?php echo $subject['attendance_rate']; ?>);
-                donutLabels.push('<?php echo $subject['subject_code']; ?>');
+                donutLabels.push('<?php echo $subject['subjectId']; ?>');
             <?php } ?>
 
             var chart = {
@@ -321,30 +323,23 @@ if (isset($_SESSION['user_id'])) {
                         <tr>
                             <th>Subject Name</th>
                             <th>Subject Code</th>
+                            <th>Faculty</th>
+                            <th>Semester</th>
                             <th>Students Enrolled</th>
                             <th>Day</th>
                             <th>Date</th>
                             <th>Time</th>
-                            <th>Duration</th>
                         </tr>
                         <?php foreach ($subset_upcomingClasses as $class) { ?>
                             <tr>
                                 <td><?php echo $class['subjectName']; ?></td>
-                                <td><?php echo $class['subjectCode']; ?></td>
+                                <td><?php echo $class['subjectId']; ?></td>
+                                <td><?php echo $class['faculty']; ?></td>
+                                <td><?php echo $class['semester']; ?></td>
                                 <td><?php echo $class['studentsEnrolled']; ?></td>
                                 <td><?php echo $class['day']; ?></td>
                                 <td><?php echo $class['date']; ?></td>
                                 <td><?php echo $class['time']; ?></td>
-                                <td><?php
-                                    $duration = $class['duration'];
-                                    if ($duration >= 60) {
-                                        $hours = floor($duration / 60);
-                                        echo $hours . " " . ($hours == 1 ? "hour" : "hours");
-                                    } else {
-                                        echo $duration . " minute" . ($duration == 1 ? "" : "s");
-                                    }
-                                    ?>
-                                </td>
                             </tr>
                         <?php } ?>
                     </table>
@@ -378,31 +373,24 @@ if (isset($_SESSION['user_id'])) {
                         <tr>
                             <th>Subject Name</th>
                             <th>Subject Code</th>
+                            <th>Faculty</th>
+                            <th>Semester</th>
                             <th>Students Enrolled</th>
                             <th>Day</th>
                             <th>Date</th>
                             <th>Time</th>
-                            <th>Duration</th>
                             <th>Attendance</th>
                         </tr>
                         <?php foreach ($subset_previousClasses as $class) { ?>
                             <tr>
                                 <td><?php echo $class['subjectName']; ?></td>
-                                <td><?php echo $class['subjectCode']; ?></td>
+                                <td><?php echo $class['subjectId']; ?></td>
+                                <td><?php echo $class['faculty']; ?></td>
+                                <td><?php echo $class['semester']; ?></td>
                                 <td><?php echo $class['studentsEnrolled']; ?></td>
                                 <td><?php echo $class['day']; ?></td>
                                 <td><?php echo $class['date']; ?></td>
                                 <td><?php echo $class['time']; ?></td>
-                                <td><?php
-                                    $duration = $class['duration'];
-                                    if ($duration >= 60) {
-                                        $hours = floor($duration / 60);
-                                        echo $hours . " " . ($hours == 1 ? "hour" : "hours");
-                                    } else {
-                                        echo $duration . " minute" . ($duration == 1 ? "" : "s");
-                                    }
-                                    ?>
-                                </td>
                                 <td><?php echo $class['attendance']; ?></td>
                             </tr>
                         <?php } ?>

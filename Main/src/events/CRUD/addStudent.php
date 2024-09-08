@@ -8,13 +8,6 @@ $subjectsCollection = $database->selectCollection("subjects");
 $studentsCollection = $database->selectCollection("students");
 $lecturersCollection = $database->selectCollection("lecturers");
 
-// Function to get the next available subject_id
-function getNextSubjectId($subjectsCollection) {
-    $lastSubject = $subjectsCollection->findOne([], ['sort' => ['subject_id' => -1]]);
-    $lastId = $lastSubject ? $lastSubject['subject_id'] : 'S000';
-    $nextIdNumber = intval(substr($lastId, 1)) + 1;
-    return 'S' . str_pad($nextIdNumber, 3, '0', STR_PAD_LEFT);
-}
 
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

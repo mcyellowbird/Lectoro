@@ -10,9 +10,9 @@ $students = $studentsCollection->find()->toArray();
 // Prepare lecturers array with full names
 $studentList = [];
 foreach ($students as $student) {
-    $fullName = $student->first_name . ' ' . $student->last_name;
+    $fullName = $student->firstName . ' ' . $student->lastName;
     $studentList[] = [
-        'id' => $student->student_id, // Include ID for reference if needed
+        'id' => $student->studentId, // Include ID for reference if needed
         'name' => $fullName
     ];
 }

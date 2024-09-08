@@ -6,7 +6,7 @@ $database = $mongoClient->selectDatabase("CSIT321Development");
 $messagesCollection = $database->selectCollection("messages");
 $usersCollection = $database->selectCollection("users");
 
-$conversationId = isset($_GET['conversation_id']) ? $_GET['conversation_id'] : '';
+$conversationId = isset($_GET['conversationId']) ? $_GET['conversationId'] : '';
 
 if (!$conversationId) {
     echo json_encode(['error' => 'No conversation ID provided']);
@@ -15,20 +15,20 @@ if (!$conversationId) {
 
 try {
     $messages = $messagesCollection->find([
-        'conversation_id' => new MongoDB\BSON\ObjectId($conversationId)
+        'conversationId' => new MongoDB\BSON\ObjectId($conversationId)
     ], [
         'sort' => ['timestamp' => 1] // Sort messages by timestamp ascending
     ]);
 
     $result = [];
     foreach ($messages as $message) {
-        $user = $usersCollection->findOne(['_id' => new MongoDB\BSON\ObjectId($message['sender_id'])]);
+        $user = $usersCollection->findOne(['_id' => new MongoDB\BSON\ObjectId($message['senderId'])]);
         $userName = isset($user['username']) ? $user['username'] : 'Unknown User';
 
         $result[] = [
-            'sender_id' => (string) $message['sender_id'],
+            'senderId' => (string) $message['senderId'],
             'username' => $userName,
-            'user_type' => (string) $user['user_type'],
+            'role' => $user['role'],
             'message' => $message['message'],
             'timestamp' => $message['timestamp']->toDateTime()->format('Y-m-d H:i:s')
         ];

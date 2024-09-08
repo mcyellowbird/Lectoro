@@ -12,15 +12,15 @@ try {
     $messagesCollection = $database->selectCollection("messages");
 
     // Get input data
-    $conversation_id = isset($_POST['conversation_id']) ? $_POST['conversation_id'] : null;
+    $conversationId = isset($_POST['conversationId']) ? $_POST['conversationId'] : null;
     $message = isset($_POST['message']) ? $_POST['message'] : null;
 
     // Debugging: Log the input data
-    error_log('Received conversation_id: ' . $conversation_id);
+    error_log('Received conversationId: ' . $conversationId);
     error_log('Received message: ' . $message);
 
     // Validate input data
-    if (!$conversation_id || !$message) {
+    if (!$conversationId || !$message) {
         throw new Exception('Invalid input data');
     }
 
@@ -29,12 +29,12 @@ try {
     if (!isset($_SESSION['_id'])) {
         throw new Exception('User not logged in');
     }
-    $sender_id = $_SESSION['_id'];
+    $senderId = $_SESSION['_id'];
 
     // Insert the message into the collection
     $insertResult = $messagesCollection->insertOne([
-        'conversation_id' => new MongoDB\BSON\ObjectId($conversation_id),
-        'sender_id' => $sender_id,
+        'conversationId' => new MongoDB\BSON\ObjectId($conversationId),
+        'senderId' => $senderId,
         'message' => $message,
         'timestamp' => new MongoDB\BSON\UTCDateTime()
     ]);

@@ -9,8 +9,8 @@ function searchSubjects($query)
 
     $subjects = $subjectsCollection->find([
         '$or' => [
-            ['subject_code' => ['$regex' => $query, '$options' => 'i']],
-            ['subject_name' => ['$regex' => $query, '$options' => 'i']]
+            ['subjectId' => ['$regex' => $query, '$options' => 'i']],
+            ['subjectName' => ['$regex' => $query, '$options' => 'i']]
         ]
     ]);
 

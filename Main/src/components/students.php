@@ -7,22 +7,22 @@ function getStudentsAndSubjects($userId)
     $database = $mongoClient->selectDatabase("CSIT321Development");
     $lecturersCollection = $database->selectCollection("lecturers");
     $subjectsCollection = $database->selectCollection("subjects");
-    $lecturesCollection = $database->selectCollection("lectures");
+    $lecturesCollection = $database->selectCollection("lecture");
     $studentsCollection = $database->selectCollection("students");
     $usersCollection = $database->selectCollection("users");
 
-    // Find user by user_id to get user_type
-    $user = $usersCollection->findOne(['user_id' => $userId]);
-    $userType = $user ? $user['user_type'] : 'Lecturer';
+    // Find user by userId to get user_type
+    $user = $usersCollection->findOne(['userId' => $userId]);
+    $userType = $user ? $user['role'] : 'Lecturer';
     
     if ($userType === 'Admin') {
         // For admin: Get all students
         $subjectsCursor = $subjectsCollection->find();
     } else {
         // For lecturers: Get only assigned subjects
-        $lecturer = $lecturersCollection->findOne(['user_id' => $userId]);
+        $lecturer = $lecturersCollection->findOne(['userId' => $userId]);
         $assignedSubjectIds = $lecturer ? $lecturer['assigned_subjects'] : [];
-        $subjectsCursor = $subjectsCollection->find(['subject_id' => ['$in' => $assignedSubjectIds]]);
+        $subjectsCursor = $subjectsCollection->find(['subjectId' => ['$in' => $assignedSubjectIds]]);
     }
     
     $studentsData = [];
@@ -30,15 +30,15 @@ function getStudentsAndSubjects($userId)
     foreach ($subjectsCursor as $subject) {
         foreach ($subject['students'] as $studentId) {
             // Get student details
-            $student = $studentsCollection->findOne(['student_id' => $studentId]);
+            $student = $studentsCollection->findOne(['studentId' => $studentId]);
             if ($student) {
                 // Initialize student data if not already present
                 if (!isset($studentsData[$studentId])) {
                     $studentsData[$studentId] = [
-                        'student_id' => $student['student_id'],
-                        'first_name' => $student['first_name'],
-                        'last_name' => $student['last_name'],
-                        'image_url' => $student['image_url'],
+                        'studentId' => $student['studentId'],
+                        'firstName' => $student['firstName'],
+                        'lastName' => $student['lastName'],
+                        'imageURL' => $student['imageURL'],
                         'email' => $student['email'],
                         'phone' => $student['phone'],
                         'subjects' => [],
@@ -48,10 +48,10 @@ function getStudentsAndSubjects($userId)
                 }
 
                 // Add subject to student's list of enrolled subjects
-                $studentsData[$studentId]['subjects'][] = $subject['subject_id'];
+                $studentsData[$studentId]['subjects'][] = $subject['subjectId'];
 
                 // Calculate attendance
-                $lectures = $lecturesCollection->find(['subject_id' => $subject['subject_id']]);
+                $lectures = $lecturesCollection->find(['subjectId' => $subject['subjectId']]);
                 foreach ($lectures as $lecture) {
                     $studentsData[$studentId]['total_lectures']++;
                 
@@ -75,15 +75,15 @@ function getStudentsAndSubjects($userId)
 
     return [
         'students' => array_values($studentsData), // Convert associative array to indexed array
-        'user_type' => $userType
+        'role' => $userType
     ];
 }
 
-$data = getStudentsAndSubjects($_SESSION['user_id']);
+$data = getStudentsAndSubjects($_SESSION['userId']);
 $students = $data['students'];
-$userType = $data['user_type'];
+$userType = $data['role'];
 ?>
-<?php if (isset($_SESSION['user_id'])): ?>
+<?php if (isset($_SESSION['userId'])): ?>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -116,8 +116,8 @@ $userType = $data['user_type'];
                         actionContainer.append(actions);
 
                         const row = $('<tr class="group relative"></tr>')
-                            .append(`<td>${student.first_name} ${student.first_name}</td>`)
-                            .append(`<td>${student.student_id}</td>`)
+                            .append(`<td>${student.firstName} ${student.lastName}</td>`)
+                            .append(`<td>${student.studentId}</td>`)
                             .append(`<td>${student.email}</td>`)
                             .append(`<td>${student.subjects}</td>`)
                             .append(`<td>${student.average_attendance !== undefined ? number_format(student.average_attendance, 2) : 'N/A'}%</td>`);

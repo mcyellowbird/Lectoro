@@ -4,7 +4,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",
-    "flowbite": "^2.4.1",
+    "flowbite": "^2.5.1",
     "highcharts": "^11.4.6",
     "postcss": "^8.4.39",
     "postcss-cli": "^11.0.0",

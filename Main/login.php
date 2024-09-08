@@ -18,9 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $usersCollection->findOne(['username' => $username, 'password' => $password]);
 
         if ($user) {
-            $_SESSION['user_type'] = $user['user_type'];
-            $_SESSION['user_id'] = $user['user_id']; // Ensure _id is used
-            $_SESSION['_id'] = (string) $user['_id']; // Ensure _id is used
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['userId'] = $user['userId'];
+            $_SESSION['_id'] = (string) $user['_id'];
             $_SESSION['username'] = $user['username'];
             // Redirect to dashboard
             header("Location: dashboard.php");

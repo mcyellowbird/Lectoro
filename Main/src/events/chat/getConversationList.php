@@ -35,10 +35,10 @@ try {
         $lastMessageTimestamp = $lastMessage['timestamp'] ?? null;
 
         $result[] = [
-            'conversation_id' => (string) $conversation['_id'],
-            'user_id' => (string) $user['_id'],
+            'conversationId' => (string) $conversation['_id'],
+            'userId' => (string) $user['_id'],
             'display_name' => $user['first_name'] . " " . $user['last_name'] . " (" . $user['username'] . ")", // Assuming 'username' is stored as 'username'
-            'user_type' => (string) $user['user_type'],
+            'role' => (string) $user['role'],
             'last_message_timestamp' => $lastMessageTimestamp,
         ];
     }

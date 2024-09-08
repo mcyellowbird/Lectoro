@@ -23,12 +23,12 @@ try {
         $user = $usersCollection->findOne(['_id' => new MongoDB\BSON\ObjectId($userId)]);
         $userName = isset($user['username']) ? $user['username'] : 'Unknown User';
         echo json_encode([
-            'conversation_id' => (string) $conversation->_id,
-            'user_name' => $userName,
-            'user_type' => (string) $user['user_type'],
+            'conversationId' => (string) $conversation->_id,
+            'username' => $userName,
+            'role' => (string) $user['role'],
         ]);
     } else {
-        echo json_encode(['conversation_id' => null]);
+        echo json_encode(['conversationId' => null]);
     }
 } catch (Exception $e) {
     echo json_encode(['error' => $e->getMessage()]);

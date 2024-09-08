@@ -7,8 +7,7 @@ function getSidebarData($userId) {
     $usersCollection = $database->selectCollection("users");
 
     // Find user details
-    $user = $usersCollection->findOne(['user_id' => $userId]);
-    $userType = $user ? $user['user_type'] : 'Lecturer';
+    $user = $usersCollection->findOne(['userId' => $userId]);
     if (!$user) {
         return [];
     }
@@ -22,7 +21,7 @@ function getSidebarData($userId) {
             'lastName' => $user['last_name'],
             'email' => $user['email']
         ],
-        'userType' => $userType
+        'role' => $user['role']
     ];
 }
 
@@ -55,7 +54,7 @@ function generateSidebar($data, $currentPage) {
         )
     );
     
-    if ($data['userType'] === "Admin") {
+    if ($data['role'] == "Admin") {
         $lecturers = array(
             'lecturers' => array(
                 'text' => 'Lecturers',
@@ -70,10 +69,10 @@ function generateSidebar($data, $currentPage) {
                 array_slice($pages, 4, null, true);
     }
 
-    $buttonsHTML = '<ul class="text-md flex flex-col flex-grow w-240">';
+    $largeButtonsHTML = '<ul class="text-md flex flex-col flex-grow w-240">';
     foreach ($pages as $pageId => $page) {
         $activeClass = ($currentPage === $pageId) ? 'componentButtonActive' : '';
-        $buttonsHTML .= '
+        $largeButtonsHTML .= '
             <li class="my-1">
                 <a href="' . $page['href'] . '" class="componentButton ' . $activeClass . '">
                     <i class="' . $page['icon'] . '"></i>
@@ -81,10 +80,22 @@ function generateSidebar($data, $currentPage) {
                 </a>
             </li>';
     }
-    $buttonsHTML .= '</ul>';
+    $largeButtonsHTML .= '</ul>';
+
+    $smallButtonsHTML = '<ul class="text-2xl flex flex-col items-center flex-grow w-20">';
+    foreach ($pages as $pageId => $page) {
+        $activeClass = ($currentPage === $pageId) ? 'componentButtonSmallActive' : '';
+        $smallButtonsHTML .= '
+            <li class="my-1">
+                <a href="' . $page['href'] . '" class="componentButtonSmall ' . $activeClass . '">
+                    <i class="' . $page['icon'] . '"></i>
+                </a>
+            </li>';
+    }
+    $smallButtonsHTML .= '</ul>';
     
     return '
-        <div id="sidebar-content" class="sidebar z-20" tabindex="-1">
+        <div id="sidebar-content" class="sidebar z-20 " tabindex="-1">
         <div class="flex items-center flex-col p-4 bg-background h-screen w-280">
             <a href="#" class="flex items-center w-full text-3xl pl-1">
                 <i class="pr-4">
@@ -97,7 +108,7 @@ function generateSidebar($data, $currentPage) {
 
             <hr class="my-4 opacity-25 w-full">
 
-            ' . $buttonsHTML . '
+            ' . $largeButtonsHTML . '
 
             <hr class="my-4 opacity-25 w-full">
 
@@ -110,7 +121,7 @@ function generateSidebar($data, $currentPage) {
                     </button>
                 </div>
                 <div class="self-center">
-                    <button class="hover:text-accent shadow-lg" id="sidebar-large-button" data-drawer-target="sidebar-content" data-drawer-body-scrolling="true" data-drawer-hide="sidebar-content" data-drawer-backdrop="false" data-drawer-placement="left"><i class="bx bx-left-arrow"></i></button>
+                    <button type="button" class="hover:text-accent shadow-lg" id="sidebar-large-button" data-drawer-target="sidebar-content" data-drawer-body-scrolling="true" data-drawer-hide="sidebar-content" data-drawer-backdrop="false" data-drawer-placement="left"><i class="bx bx-left-arrow"></i></button>
                 </div>
 
                 <div id="dropdown-menu"
@@ -149,33 +160,7 @@ function generateSidebar($data, $currentPage) {
 
             <hr class="my-4 opacity-25 w-full">
 
-            <ul class="text-2xl flex flex-col items-center flex-grow w-20">
-                <li class="my-1">
-                    <a href="dashboard.php" class="componentButtonSmall ' . ($currentPage === "dashboard" ? "componentButtonSmallActive" : "") . '">
-                        <i class="bx bxs-home"></i>
-                    </a>
-                </li>
-                <li class="my-1">
-                    <a href="messages.php" class="componentButtonSmall ' . ($currentPage === "messages" ? "componentButtonSmallActive" : "") . '">
-                        <i class="bx bxs-message"></i>
-                    </a>
-                </li>
-                <li class="my-1">
-                    <a href="subjects.php" class="componentButtonSmall ' . ($currentPage === "subjects" ? "componentButtonSmallActive" : "") . '">
-                        <i class="bx bxs-book-alt"></i>
-                    </a>
-                </li>
-                <li class="my-1">
-                    <a href="students.php" class="componentButtonSmall ' . ($currentPage === "students" ? "componentButtonSmallActive" : "") . '">
-                        <i class="bx bxs-user"></i>
-                    </a>
-                </li>
-                <li class="my-1">
-                    <a href="reports.php" class="componentButtonSmall ' . ($currentPage === "reports" ? "componentButtonSmallActive" : "") . '">
-                        <i class="bx bxs-bar-chart-alt-2"></i>
-                    </a>
-                </li>
-            </ul>
+            ' . $smallButtonsHTML . '
 
             <hr class="my-4 opacity-25 w-full">
 
@@ -183,7 +168,7 @@ function generateSidebar($data, $currentPage) {
                 <div>
                     <button data-dropdown-toggle="dropdown-menu-small" data-dropdown-placement="top-end" type="button" class="group w-full flex items-center"
                         id="dropdown-button-small">
-                        <i class="group-hover:text-accent transition-color ease-out duration-300 bx bxs-user text-2xl pr-1.5"></i>
+                        <i class="group-hover:text-accent transition-color ease-out duration-300 bx bxs-user text-2xl"></i>
                     </button>
                 </div>
                 <div class="self-center relative">
@@ -214,8 +199,8 @@ function generateSidebar($data, $currentPage) {
     </div>
 ';}
 
-if (isset($_SESSION['user_id'])) {
-    $data = getSidebarData($_SESSION['user_id']);
+if (isset($_SESSION['userId'])) {
+    $data = getSidebarData($_SESSION['userId']);
     $currentPage = isset($_SESSION['currentPage']) ? $_SESSION['currentPage'] : 'dashboard';
     // Generate Sidebar HTML
     echo generateSidebar($data, $currentPage);

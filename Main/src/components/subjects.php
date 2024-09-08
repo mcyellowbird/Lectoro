@@ -7,28 +7,28 @@ function getSubjectsAndLecturers($userId)
     $database = $mongoClient->selectDatabase("CSIT321Development");
     $lecturersCollection = $database->selectCollection("lecturers");
     $subjectsCollection = $database->selectCollection("subjects");
-    $lecturesCollection = $database->selectCollection("lectures");
+    $lecturesCollection = $database->selectCollection("lecture");
     $usersCollection = $database->selectCollection("users");
 
-    // Find user by user_id to get user_type
-    $user = $usersCollection->findOne(['user_id' => $userId]);
-    $userType = $user ? $user['user_type'] : 'Lecturer';
+    // Find user by userId to get role
+    $user = $usersCollection->findOne(['userId' => $userId]);
+    $role = $user ? $user['role'] : 'Lecturer';
     
-    if ($userType === 'Admin') {
+    if ($role === 'Admin') {
         // For admin: Get all subjects
         $subjectsCursor = $subjectsCollection->find();
     } else {
         // For lecturers: Get only assigned subjects
-        $lecturer = $lecturersCollection->findOne(['user_id' => $userId]);
+        $lecturer = $lecturersCollection->findOne(['userId' => $userId]);
         $assignedSubjectIds = $lecturer ? $lecturer['assigned_subjects'] : [];
-        $subjectsCursor = $subjectsCollection->find(['subject_id' => ['$in' => $assignedSubjectIds]]);
+        $subjectsCursor = $subjectsCollection->find(['subjectId' => ['$in' => $assignedSubjectIds]]);
     }
     
     $subjects = [];
     
     foreach ($subjectsCursor as $subject) {
         // Calculate average attendance
-        $lectures = $lecturesCollection->find(['subject_id' => $subject['subject_id']]);
+        $lectures = $lecturesCollection->find(['subjectId' => $subject['subjectId']]);
         $totalLectures = 0;
         $totalAttended = 0;
         $studentsCount = count($subject['students']) ?: 1; // Avoid division by zero
@@ -44,29 +44,48 @@ function getSubjectsAndLecturers($userId)
             : 0;
     
         // Get assigned lecturers
-        $assignedLecturers = $lecturersCollection->find(['assigned_subjects' => $subject['subject_id']]);
+        $assignedLecturers = $lecturersCollection->find(['assigned_subjects' => $subject['subjectId']]);
         $lecturerIds = [];
         foreach ($assignedLecturers as $lecturer) {
-            $lecturerIds[] = $lecturer['user_id']; // Changed from username to user_id
+            $lecturerIds[] = $lecturer['userId'];
         }
+
+        $lecturerUsernames = [];
+        // Retrieve usernames for the collected userIds
+            if (!empty($lecturerIds)) {
+                $users = $usersCollection->find(['userId' => ['$in' => $lecturerIds]]);
+                
+                // Create a mapping of userId to username
+                $userIdToUsername = [];
+                foreach ($users as $user) {
+                    $userIdToUsername[$user['userId']] = $user['username'];
+                }
+                
+                // Populate lecturerUsernames with usernames
+                foreach ($lecturerIds as $id) {
+                    if (isset($userIdToUsername[$id])) {
+                        $lecturerUsernames[] = $userIdToUsername[$id];
+                    }
+                }
+            }
         
         $subject['average_attendance'] = $averageAttendance;
-        $subject['lecturers'] = implode(', ', $lecturerIds);
+        $subject['lecturers'] = implode(', ', $lecturerUsernames);
         $subjects[] = $subject;
     }
     
 
     return [
         'subjects' => $subjects,
-        'user_type' => $userType
+        'role' => $role
     ];
 }
 
-$data = getSubjectsAndLecturers($_SESSION['user_id']);
+$data = getSubjectsAndLecturers($_SESSION['userId']);
 $subjects = $data['subjects'];
-$userType = $data['user_type'];
+$role = $data['role'];
 ?>
-    <?php if (isset($_SESSION['user_id'])): ?>
+    <?php if (isset($_SESSION['userId'])): ?>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -79,7 +98,7 @@ $userType = $data['user_type'];
                     subjectsTable.find('tr:gt(0)').remove(); // Remove all rows except the header
 
                     if (subjects.length === 0) {
-                        subjectsTable.append('<tr><td colspan="<?php echo $userType === 'Admin' ? '5' : '4'; ?>" class="text-center">No subjects found</td></tr>');
+                        subjectsTable.append('<tr><td colspan="<?php echo $role === 'Admin' ? '5' : '4'; ?>" class="text-center">No subjects found</td></tr>');
                         return;
                     }
 
@@ -87,10 +106,10 @@ $userType = $data['user_type'];
                         const actionContainer = $(`<div class="absolute pr-2 right-0 [&:not(:hover)]:hidden group-hover:inline w-full h-full"></div>`);
                         const actions = $(`<div class="flex flex-row justify-center items-center float-end h-full"></div>`);
                         
-                        if ('<?php echo $userType; ?>' === 'Admin') {
+                        if ('<?php echo $role; ?>' === 'Admin') {
                             actions.append(`<a class="cursor-pointer"><i class="bx bxs-edit-alt text-accentDark hover:text-accent text-2xl"></i></a>`);
                         }
-                        if ('<?php echo $userType; ?>' != 'Admin') {
+                        if ('<?php echo $role; ?>' != 'Admin') {
                             actions.append(`<a class="cursor-pointer"><i class="bx bxs-bullseye text-accentDark hover:text-accent text-2xl"></i></a>`);
                         }
 
@@ -98,12 +117,12 @@ $userType = $data['user_type'];
                         actionContainer.append(actions);
 
                         const row = $('<tr class="group relative"></tr>')
-                            .append(`<td>${subject.subject_name}</td>`)
-                            .append(`<td>${subject.subject_code}</td>`)
+                            .append(`<td>${subject.subjectName}</td>`)
+                            .append(`<td>${subject.subjectId}</td>`)
                             .append(`<td>${subject.students ? subject.students.length : 0}</td>`)
                             .append(`<td>${subject.average_attendance !== undefined ? number_format(subject.average_attendance, 2) : 'N/A'}%</td>`);
                         
-                        if ('<?php echo $userType; ?>' === 'Admin') {
+                        if ('<?php echo $role; ?>' === 'Admin') {
                             row.append(`<td>${subject.lecturers || 'N/A'}</td>`);
                         }
                         
@@ -124,8 +143,8 @@ $userType = $data['user_type'];
 
                     if (query.length > 0) {
                         filteredSubjects = allSubjects.filter(subject => 
-                            subject.subject_name.toLowerCase().includes(query) ||
-                            subject.subject_code.toLowerCase().includes(query)
+                            subject.subjectName.toLowerCase().includes(query) ||
+                            subject.subjectId.toLowerCase().includes(query)
                         );
                     }
 
@@ -186,7 +205,7 @@ $userType = $data['user_type'];
                         type: 'POST',
                         data: {
                             subjectName: $("#subjectName").val(),
-                            subjectCode: $("#subjectCode").val(),
+                            subjectId: $("#subjectId").val(),
                             lecturerIds: $('#lecturer').val(),
                             studentIds: $("#students").val()
                         },
@@ -273,7 +292,7 @@ $userType = $data['user_type'];
         </div>
 
         <div id="content">
-            <div id="addSubjectModal" class="flex justify-center items-center z-50 fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-black to-transparent hidden">
+            <div id="addSubjectModal" class="flex justify-center items-center z-50 fixed top-0 left-0 w-full h-full bg-black/40 hidden">
                 <div class="relative bg-menu text-textColour rounded-lg shadow-lg max-w-3xl mx-auto mt-20 self-center justify-self-center">
                     <!-- Modal header -->
                     <div class="flex items-center justify-between p-4 md:p-5 border-b border-accentBold rounded-t">
@@ -295,7 +314,7 @@ $userType = $data['user_type'];
                                     <label for="subjectName" class="mb-2 text-sm font-medium text-textColour dark:text-white">Subject Name</label>
                                     <label for="subjectCode" class="mb-2 text-sm font-medium text-textColour dark:text-white">Subject Code</label>
                                     <input type="text" name="subjectName" id="subjectName" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type subject name" required>
-                                    <input type="text" name="subjectCode" id="subjectCode" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type subject code" required>
+                                    <input type="text" name="subjectId" id="subjectId" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type subject code" required>
                                 </div>
                             </div>
                             <div class="col-span-2 sm:col-span-1">
@@ -350,10 +369,10 @@ $userType = $data['user_type'];
                             <i class="searchIcon bx bx-search"></i>
                             <input type="text" id="searchBar" placeholder="Search for subjects..." class="searchInput">
                         </div>
-                        <?php if ($userType === 'Admin'): ?>
+                        <?php if ($role === 'Admin'): ?>
                             <a href="#" id="addSubject" class="bg-accentDark ml-auto mr-4 transition ease-out duration-300 text-center self-center block px-4 py-2 text-md rounded-xl hover:bg-accentBold">Add Subject</a>
                         <?php endif; ?>
-                        <a href="#" id="generateReport" class="bg-accentDark transition <?php echo $userType !== 'Admin' ? 'ml-auto' : ''; ?> ease-out duration-300 text-center self-center block px-4 py-2 text-md rounded-xl hover:bg-accentBold">Generate Report</a>
+                        <a href="#" id="generateReport" class="bg-accentDark transition <?php echo $role !== 'Admin' ? 'ml-auto' : ''; ?> ease-out duration-300 text-center self-center block px-4 py-2 text-md rounded-xl hover:bg-accentBold">Generate Report</a>
                     </div>
                     <table id="table" class="bg-menu text-left [&_tr]:border-b-2 [&_tr]:border-accent [&_tr:not(:first-of-type)]:border-opacity-10 [&_tr_th]:py-2 [&_tr_td:not(first-of-type)]:pl-4 [&_tr_td:last-of-type]:pr-3 [&_tr_th:not(first-of-type)]:pl-4 [&_tr_td]:pb-2 [&_tr_td]:pt-2 [&_tr_td:first-of-type]:pl-2 [&_tr_th:first-of-type]:pl-2 border-2 overflow-hidden w-full rounded-lg border-collapse border-spacing-0">
                         <tr>
@@ -361,7 +380,7 @@ $userType = $data['user_type'];
                             <th>Subject Code</th>
                             <th>Students Enrolled</th>
                             <th>Average Attendance (%)</th>
-                            <?php if ($userType === 'Admin'): ?>
+                            <?php if ($role === 'Admin'): ?>
                                 <th>Assigned Lecturer(s)</th>
                             <?php endif; ?>
                         </tr>
