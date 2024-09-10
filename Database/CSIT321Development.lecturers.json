@@ -1,0 +1,22 @@
+[{
+  "_id": {
+    "$oid": "6646f8af0f7217950f730283"
+  },
+  "assigned_subjects": [
+    "CSIT111",
+    "CSIT114"
+  ],
+  "lecturerId": "L002",
+  "userId": "U002"
+},
+{
+  "_id": {
+    "$oid": "66aed9fad59bcf9dda023bc9"
+  },
+  "assigned_subjects": [
+    "CSIT110",
+    "CSIT113"
+  ],
+  "lecturerId": "L001",
+  "userId": "U003"
+}]

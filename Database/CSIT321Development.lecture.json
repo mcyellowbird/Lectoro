@@ -1,0 +1,261 @@
+[{
+  "_id": {
+    "$oid": "6646f87b0f7217950f730272"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L001",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-05-17T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "6646f87b0f7217950f730273"
+  },
+  "attended_students": [
+    "121212",
+    "141414"
+  ],
+  "lectureId": "CSIT111_L002",
+  "subjectId": "CSIT111",
+  "dateTime": "2024-05-18T14:00:00Z",
+  "lecturer": "L002"
+},
+{
+  "_id": {
+    "$oid": "664d8c612914b0da1014f826"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L003",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-05-22T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "664d8c612914b0da1014f827"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L004",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-05-24T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "664d8c612914b0da1014f828"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L005",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-05-26T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "664d8c612914b0da1014f829"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L006",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-05-28T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "664d8c612914b0da1014f830"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L007",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-05-30T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "664d8c612914b0da1014f831"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L008",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-06-01T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "664d8c612914b0da1014f832"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L009",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-06-03T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "664d8c612914b0da1014f833"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L010",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-06-05T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "664d8c612914b0da1014f834"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L011",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-06-07T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "664d8c612914b0da1014f835"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT110_L012",
+  "subjectId": "CSIT110",
+  "dateTime": "2024-06-09T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "6646f87b0f7217950f730280"
+  },
+  "attended_students": [
+    "111111",
+    "131313"
+  ],
+  "lectureId": "CSIT113_L001",
+  "subjectId": "CSIT113",
+  "dateTime": "2024-05-17T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "6646f87b0f7217950f730281"
+  },
+  "attended_students": [
+    "111111",
+    "131313"
+  ],
+  "lectureId": "CSIT113_L002",
+  "subjectId": "CSIT113",
+  "dateTime": "2024-05-19T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "6646f87b0f7217950f730282"
+  },
+  "attended_students": [
+    "111111",
+    "131313"
+  ],
+  "lectureId": "CSIT113_L003",
+  "subjectId": "CSIT113",
+  "dateTime": "2024-05-24T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "6646f87b0f7217950f730283"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT114_L001",
+  "subjectId": "CSIT114",
+  "dateTime": "2024-05-18T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "6646f87b0f7217950f730284"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT114_L002",
+  "subjectId": "CSIT114",
+  "dateTime": "2024-05-20T10:00:00Z",
+  "lecturer": "L002"
+},
+{
+  "_id": {
+    "$oid": "6646f87b0f7217950f730285"
+  },
+  "attended_students": [
+    "111111",
+    "121212",
+    "131313"
+  ],
+  "lectureId": "CSIT114_L003",
+  "subjectId": "CSIT114",
+  "dateTime": "2024-05-25T10:00:00Z",
+  "lecturer": "L001"
+},
+{
+  "_id": {
+    "$oid": "66a75ad87565e9517120bff4"
+  },
+  "attended_students": [
+    "121212",
+    "141414"
+  ],
+  "lectureId": "CSIT111_L010",
+  "subjectId": "CSIT111",
+  "dateTime": "2024-05-21T14:00:00Z",
+  "lecturer": "L002"
+}]

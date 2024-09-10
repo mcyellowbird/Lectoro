@@ -1,0 +1,44 @@
+[{
+  "_id": {
+    "$oid": "6646f8a00f7217950f73027b"
+  },
+  "email": "john.doe@example.com",
+  "phone": "+1234567890",
+  "studentId": "111111",
+  "firstName": "John",
+  "lastName": "Doe",
+  "imageURL": "https://example.com/images/john_doe.jpg"
+},
+{
+  "_id": {
+    "$oid": "6646f8a00f7217950f73027c"
+  },
+  "email": "jane.smith@example.com",
+  "phone": "+0987654321",
+  "studentId": "121212",
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "imageURL": "https://example.com/images/jane_smith.jpg"
+},
+{
+  "_id": {
+    "$oid": "6646f8a00f7217950f73027d"
+  },
+  "email": "alice.johnson@example.com",
+  "phone": "+1122334455",
+  "studentId": "131313",
+  "firstName": "Alice",
+  "lastName": "Johnson",
+  "imageURL": "https://example.com/images/alice_johnson.jpg"
+},
+{
+  "_id": {
+    "$oid": "6646f8a00f7217950f73027e"
+  },
+  "email": "bob.brown@example.com",
+  "phone": "+6677889900",
+  "studentId": "141414",
+  "firstName": "Bob",
+  "lastName": "Brown",
+  "imageURL": "https://example.com/images/bob_brown.jpg"
+}]

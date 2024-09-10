@@ -1,0 +1,42 @@
+[{
+  "_id": {
+    "$oid": "6646f8bb0f7217950f730286"
+  },
+  "first_name": "Michael",
+  "last_name": "Jordan",
+  "email": "mj001@uow.edu",
+  "phone": "+1234509876",
+  "username": "mj001",
+  "password": "admin123",
+  "role": "Admin",
+  "userId": "U001",
+  "options": {
+    "sidebar": 1
+  }
+},
+{
+  "_id": {
+    "$oid": "6646f8bb0f7217950f730287"
+  },
+  "first_name": "Sarah",
+  "last_name": "Connor",
+  "email": "sc002@uow.edu",
+  "phone": "+0987612345",
+  "username": "sc002",
+  "password": "sarah123",
+  "role": "Lecturer",
+  "userId": "U002"
+},
+{
+  "_id": {
+    "$oid": "6646f8bb0f7217950f730288"
+  },
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "jd003@uow.edu",
+  "phone": "+1122334455",
+  "username": "jd003",
+  "password": "john123",
+  "userId": "U003",
+  "role": "Lecturer"
+}]
