@@ -141,6 +141,7 @@ if ($user && isset($user->options['sidebar'])) {
             // Webcam
             let stream;
             let live = false;
+            let intervalId;
             const videoElement = document.querySelector('video');
 
             const startButton = document.getElementById('startButton');
@@ -159,11 +160,19 @@ if ($user && isset($user->options['sidebar'])) {
                 try {
                     stream = await navigator.mediaDevices.getUserMedia({ video: true });
                     videoElement.srcObject = stream;
-                    live = true;  // Update the state
+                    live = true;
                     $('#liveStatus').text("Live");
 
                     $('#liveStatus').removeClass('text-errorBold').addClass('text-successBold');
                     $('#liveIcon').removeClass('bx-stop-circle').addClass('bx-check-circle text-successBold');
+
+                    // 
+                    intervalId = setInterval(() => {
+                        if (live) {
+                            sendImage();
+                        }
+                    }, 200);
+
                 } catch (error) {
                     console.error('Error accessing webcam:', error.message, error.name, error.stack);
                 }
@@ -197,6 +206,11 @@ if ($user && isset($user->options['sidebar'])) {
                     startWebcam();
                 }
             });
+
+            // CHANGE THIS FUNCTION
+            function sendImage() {
+                console.log("Sent");
+            }
 
             // function capturePhoto() {
             //     canvasElement.width = videoElement.videoWidth;
