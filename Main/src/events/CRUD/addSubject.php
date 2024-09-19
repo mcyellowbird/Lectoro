@@ -14,8 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $subjectId = $_POST['subjectId'];
     // $faculty = $_POST['faculty'];
     // $semester = $_POST['semester'];
-    $faculty = "temp";
-    $semester = "temp";
+    $faculty = $_POST['faculty'];
+    $semester = $_POST['semester'];
     $students = $_POST['studentIds']; // 'studentIds' should be obtained from the form
     $lecturerIds = $_POST['lecturerIds']; // 'lecturerIds' should be obtained from the form
 

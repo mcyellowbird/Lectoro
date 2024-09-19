@@ -201,10 +201,12 @@ $userType = $data['role'];
                         url: './src/events/CRUD/addStudent.php', // URL of your server-side script
                         type: 'POST',
                         data: {
-                            subjectName: $("#subjectName").val(),
-                            subjectCode: $("#subjectCode").val(),
-                            lecturerIds: $('#lecturer').val(),
-                            studentIds: $("#students").val()
+                            firstName: $("#firstName").val(),
+                            lastName: $("#lastName").val(),
+                            studentId: $('#studentId').val(),
+                            email: $("#email").val(),
+                            phone: $("#phone").val(),
+                            subjects: $('#subjects').val()
                         },
                         success: function(response) {
                             // Handle the response from the server
@@ -259,6 +261,22 @@ $userType = $data['role'];
                     }
                 });
 
+                $.ajax({
+                    url: './src/events/getSubjects.php', // Endpoint to get students
+                    method: 'GET',
+                    success: function(data) {
+                        let subjects = JSON.parse(data);
+                        let subjectElement = $('#subjects');
+                        subjectElement.find('option').remove();
+                        subjects.forEach(subject => {
+                            subjectElement.append(`<option value="${subject.subjectId}">${subject.subjectName} - ${subject.subjectId}</option>`);
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX error:', error);
+                    }
+                });
+
                 $("#fileUpload").change(function(event) {
                     var file = event.target.files[0];
                     if (file && file.type === "application/json") {
@@ -289,7 +307,7 @@ $userType = $data['role'];
         </div>
 
         <div id="content">
-            <div id="addStudentModal" class="flex justify-center items-center z-50 fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-black to-transparent hidden">
+            <div id="addStudentModal" class="flex justify-center items-center z-50 fixed top-0 left-0 w-full h-full bg-black/40 hidden">
                 <div class="relative bg-menu text-textColour rounded-lg shadow-lg max-w-3xl mx-auto mt-20 self-center justify-self-center">
                     <!-- Modal header -->
                     <div class="flex items-center justify-between p-4 md:p-5 border-b border-accentBold rounded-t">
@@ -306,46 +324,38 @@ $userType = $data['role'];
                     <!-- Modal body -->
                     <form id="addStudentForm" class="self-center p-4 md:p-5">
                         <div class="grid gap-4 mb-4 grid-cols-2">
-                            <div class="col-span-2">
-                                <div class="grid grid-cols-2 gap-x-4">
-                                    <label for="subjectName" class="mb-2 text-sm font-medium text-textColour dark:text-white">Subject Name</label>
-                                    <label for="subjectCode" class="mb-2 text-sm font-medium text-textColour dark:text-white">Subject Code</label>
-                                    <input type="text" name="subjectName" id="subjectName" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type subject name" required>
-                                    <input type="text" name="subjectCode" id="subjectCode" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type subject code" required>
-                                </div>
+                            <!-- First Name and Last Name -->
+                            <div class="col-span-2 sm:col-span-1">
+                                <label for="firstName" class="mb-2 text-sm font-medium text-textColour">First Name</label>
+                                <input type="text" name="firstName" id="firstName" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type first name" required>
                             </div>
                             <div class="col-span-2 sm:col-span-1">
-                                <label for="lecturer" class="block mb-2 text-sm font-medium text-textColour">Assigned Lecturer(s)</label>
-                                <select id="lecturer" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    <option value="DD">Dr. Fenghui Ren +2</option>
-                                    <option value="TV">Dr. Partha Roy</option>
-                                    <option value="PC">Dr. John Lee</option>
-                                </select>
+                                <label for="lastName" class="mb-2 text-sm font-medium text-textColour">Last Name</label>
+                                <input type="text" name="lastName" id="lastName" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type last name" required>
+                            </div>
+
+                            <!-- Student ID -->
+                            <div class="col-span-2">
+                                <label for="studentId" class="mb-2 text-sm font-medium text-textColour">Student ID</label>
+                                <input type="text" name="studentId" id="studentId" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type student ID" required>
+                            </div>
+
+                            <!-- Email and Phone -->
+                            <div class="col-span-2 sm:col-span-1">
+                                <label for="email" class="mb-2 text-sm font-medium text-textColour">Email</label>
+                                <input type="email" name="email" id="email" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type email" required>
                             </div>
                             <div class="col-span-2 sm:col-span-1">
-                                <label for="term" class="block mb-2 text-sm font-medium text-textColour">Available</label>
-                                <select id="term" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    <option selected>Spring</option>
-                                    <option>Autumn</option>
-                                    <option>Summer</option>
-                                </select>
+                                <label for="phone" class="mb-2 text-sm font-medium text-textColour">Phone</label>
+                                <input type="tel" name="phone" id="phone" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type phone number" required>
                             </div>
+
+                            <!-- Select List of Subjects -->
                             <div class="col-span-2">
-                                <label for="fileUpload" class="items-center flex mb-2 text-sm font-medium text-textColour">Student List<i class="pl-1 bx bx-info-circle"></i></label>
-                                <div class="flex items-center justify-center w-full">
-                                    <!-- <label for="fileUpload" class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-500 border-dashed rounded-lg cursor-pointer bg-menu">
-                                        <div class="flex flex-col items-center justify-center ">
-                                            <p class="mb-2 text-sm text-textAccent dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                            <p class="text-xs text-textAccent dark:text-gray-400">TXT, CSV, JSON, JSN</p>
-                                        </div>
-                                        <input id="fileUpload" type="file" class="hidden" accept=".json">
-                                    </label> -->
-                                    <select id="students" multiple class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                        <option value="DD">Student</option>
-                                        <option value="TV">Dr. Partha Roy</option>
-                                        <option value="PC">Dr. John Lee</option>
-                                    </select>
-                                </div>
+                                <label for="subjects" class="block mb-2 text-sm font-medium text-textColour">Select List of Subjects</label>
+                                <select id="subjects" name="subjects[]" multiple class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                    
+                                </select>
                             </div>
                         </div>
                         <button type="submit" class="text-white inline-flex items-center bg-accentBold focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">

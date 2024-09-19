@@ -2078,11 +2078,6 @@ body {
   margin-bottom: auto;
 }
 
-.mx-96 {
-  margin-left: 24rem;
-  margin-right: 24rem;
-}
-
 .-mb-px {
   margin-bottom: -1px;
 }
@@ -3063,10 +3058,6 @@ body {
 
 .pt-8 {
   padding-top: 2rem;
-}
-
-.pt-10 {
-  padding-top: 2.5rem;
 }
 
 .text-left {

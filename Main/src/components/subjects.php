@@ -119,6 +119,8 @@ $role = $data['role'];
                         const row = $('<tr class="group relative"></tr>')
                             .append(`<td>${subject.subjectName}</td>`)
                             .append(`<td>${subject.subjectId}</td>`)
+                            .append(`<td>${subject.faculty}</td>`)
+                            .append(`<td>${subject.semester}</td>`)
                             .append(`<td>${subject.students ? subject.students.length : 0}</td>`)
                             .append(`<td>${subject.average_attendance !== undefined ? number_format(subject.average_attendance, 2) : 'N/A'}%</td>`);
                         
@@ -207,7 +209,9 @@ $role = $data['role'];
                             subjectName: $("#subjectName").val(),
                             subjectId: $("#subjectId").val(),
                             lecturerIds: $('#lecturer').val(),
-                            studentIds: $("#students").val()
+                            studentIds: $("#students").val(),
+                            semester: $("#term").val(),
+                            faculty: $("#faculty").val()
                         },
                         success: function(response) {
                             // Handle the response from the server
@@ -326,15 +330,19 @@ $role = $data['role'];
                                 </select>
                             </div>
                             <div class="col-span-2 sm:col-span-1">
-                                <label for="term" class="block mb-2 text-sm font-medium text-textColour">Available</label>
+                                <label for="term" class="block mb-2 text-sm font-medium text-textColour">Semester</label>
                                 <select id="term" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    <option selected>Spring</option>
-                                    <option>Autumn</option>
-                                    <option>Summer</option>
+                                    <option value="Spring" selected>Spring</option>
+                                    <option value="Autumn">Autumn</option>
+                                    <option value="Summer">Summer</option>
                                 </select>
                             </div>
+                            <div class="col-span-2 sm:col-span-1">                                
+                                    <label for="faculty" class="mb-2 text-sm font-medium text-textColour dark:text-white">Faculty</label>
+                                    <input type="text" name="faculty" id="faculty" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type faculty" required>
+                            </div>
                             <div class="col-span-2">
-                                <label for="fileUpload" class="items-center flex mb-2 text-sm font-medium text-textColour">Student List<i class="pl-1 bx bx-info-circle"></i></label>
+                                <label for="students" class="items-center flex mb-2 text-sm font-medium text-textColour">Student List<i class="pl-1 bx bx-info-circle"></i></label>
                                 <div class="flex items-center justify-center w-full">
                                     <!-- <label for="fileUpload" class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-500 border-dashed rounded-lg cursor-pointer bg-menu">
                                         <div class="flex flex-col items-center justify-center ">
@@ -378,6 +386,8 @@ $role = $data['role'];
                         <tr>
                             <th>Subject Name</th>
                             <th>Subject Code</th>
+                            <th>Faculty</th>
+                            <th>Semester</th>
                             <th>Students Enrolled</th>
                             <th>Average Attendance (%)</th>
                             <?php if ($role === 'Admin'): ?>

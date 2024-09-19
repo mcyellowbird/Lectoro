@@ -7,43 +7,38 @@ function getDashboardData($userId)
     $database = $mongoClient->selectDatabase("CSIT321Development");
     $lecturersCollection = $database->selectCollection("lecturers");
     $subjectsCollection = $database->selectCollection("subjects");
+    $studentsCollection = $database->selectCollection("students");
     $usersCollection = $database->selectCollection("users");
     $lecturesCollection = $database->selectCollection("lecture");
+
+    $userType = $_SESSION['role']; // 'Admin' or 'Lecturer'
+    $userId = $_SESSION['userId']; // ID of the current user
+
     // Find lecturer by userId
-    $lecturer = $lecturersCollection->findOne(['userId' => $userId]);
-    if (!$lecturer) {
-        return [];
-    }
+    if ($userType === "Admin"){
+        // Admin logic
+        $subjects = $subjectsCollection->find()->toArray();
+        $lectures = $lecturesCollection->find()->toArray();
+        $students = $studentsCollection->find()->toArray();
 
-    // Find user details
-    $user = $usersCollection->findOne(['userId' => $userId]);
-    if (!$user) {
-        return [];
-    }
+        $upcomingClasses = [];
+        $previousClasses = [];
 
-    // Extract relevant data from the lecturer's document
-    $assignedSubjectIds = $lecturer['assigned_subjects'];
-    $subjects = [];
-    $studentsCount = 0;
-    $totalAttendanceRate = 0;
-    $totalSubjects = 0;
-    $lectures = [];
-    foreach ($assignedSubjectIds as $subjectId) {
-        $subject = $subjectsCollection->findOne(['subjectId' => $subjectId]);
-        if ($subject) {
-            $subjects[] = $subject;
+        // Extract relevant data from the lecturer's document
+        $studentsCount = 0;
+        $totalAttendanceRate = 0;
+        $totalSubjects = 0;
 
-            // Calculate total attendance and lectures for this subject
+        foreach ($subjects as $subject) {
             $totalAttendance = 0;
             $totalLectures = 0;
-            $lectures = $lecturesCollection->find([
-                'lecturer' => $lecturer['lecturerId'],
-                'subjectId' => $subjectId
+            $subLectures = $lecturesCollection->find([
+                'subjectId' => $subject["subjectId"]
             ]);
 
-            foreach ($lectures as $lecture) {
+            foreach ($subLectures as $lec) {
                 $totalLectures++;
-                $totalAttendance += count($lecture['attended_students']);
+                $totalAttendance += count($lec['attended_students']);
             }
 
             // Debugging: Print out the calculated values
@@ -53,7 +48,7 @@ function getDashboardData($userId)
 
             // Calculate the attendance rate for this subject
             $subjectAttendanceRate = $totalLectures > 0 ? ($totalAttendance / (count($subject['students']) * $totalLectures)) * 100 : 0;
-            $subject['attendance_rate'] = $subjectAttendanceRate;
+            $subject["averageAttendance"] = $subjectAttendanceRate;
 
             // Debugging: Print out the calculated attendance rate
             // echo "Attendance Rate: " . $subjectAttendanceRate . "\n";
@@ -63,119 +58,271 @@ function getDashboardData($userId)
             $totalSubjects++;
             $studentsCount += count($subject['students']);
         }
-    }
-    // Calculate the overall average attendance rate for all subjects
-    $overallAverageAttendance = $totalSubjects > 0 ? $totalAttendanceRate / $totalSubjects : 0;
+        // Calculate the overall average attendance rate for all subjects
+        $overallAverageAttendance = $totalSubjects > 0 ? $totalAttendanceRate / $totalSubjects : 0;
 
-    // Debugging: Print out the overall average attendance rate
-    // echo "Overall Average Attendance Rate: " . $overallAverageAttendance . "\n";
+        // Extract relevant data for all subjects
+        foreach ($subjects as $subject) {
+            if (isset($subject['timetable']) && !empty($subject['timetable'])) {
+                foreach ($subject['timetable'] as $lecture) {
+                    $lectureTime = new DateTime($lecture);
+                    $currentTime = new DateTime();
 
+                    // Handle upcoming classes
+                    if ($lectureTime > $currentTime) {
+                        $totalStudents = count($subject['students']);
+                        $attendedStudents = 0;
 
+                        foreach ($lectures as $lec) {
+                            if ($lec['subjectId'] === $subject['subjectId'] && $lec['dateTime'] === $lecture) {
+                                $attendedStudents = count($lec['attended_students']);
+                                break;
+                            }
+                        }
 
-    // Calculate average attendance
-    $totalAttendance = 0;
-    $attendanceRecords = $lecturer['attendance'] ?? [];
-    foreach ($attendanceRecords as $record) {
-        $totalAttendance += $record['attendance'];
-    }
-    $averageAttendance = count($attendanceRecords) > 0 ? $totalAttendance / count($attendanceRecords) : 0;
+                        $attendanceRate = $totalStudents > 0 ? round(($attendedStudents / $totalStudents) * 100, 2) . '%' : 'N/A';
 
-    // Array to store upcoming classes
-$upcomingClasses = [];
-
-// Array to store previous classes with attendance
-$previousClasses = [];
-
-// Loop through each subject for upcoming classes
-foreach ($subjects as $subject) {
-    if (isset($subject['timetable']) && !empty($subject['timetable'])) {
-        foreach ($subject['timetable'] as $lecture) {
-            $lectureTime = new DateTime($lecture);
-            $currentTime = new DateTime();
-
-            // Handle upcoming classes
-            if ($lectureTime > $currentTime) {
-                $upcomingClasses[] = [
-                    'subjectName' => $subject['subjectName'],
-                    'subjectId' => $subject['subjectId'],
-                    'studentsEnrolled' => count($subject['students']),
-                    'faculty' => $subject['faculty'],
-                    'semester' => $subject['semester'],
-                    'day' => $lectureTime->format('l'),
-                    'date' => $lectureTime->format('Y-m-d'),
-                    'time' => $lectureTime->format('H:i'),
-                ];
+                        $upcomingClasses[] = [
+                            'subjectName' => $subject['subjectName'],
+                            'subjectId' => $subject['subjectId'],
+                            'studentsEnrolled' => $totalStudents,
+                            'faculty' => $subject['faculty'],
+                            'semester' => $subject['semester'],
+                            'day' => $lectureTime->format('l'),
+                            'date' => $lectureTime->format('Y-m-d'),
+                            'time' => $lectureTime->format('H:i'),
+                            'attendanceRate' => $attendanceRate,
+                        ];
+                    }
+                }
             }
         }
+
+        // Extract previous classes for all subjects
+        foreach ($subjects as $subject) {
+            foreach ($lectures as $lecture) {
+                if ($lecture['subjectId'] === $subject['subjectId']) {
+                    $lectureTime = new DateTime($lecture['dateTime']);
+                    $currentTime = new DateTime();
+
+                    // Handle previous classes
+                    if ($lectureTime < $currentTime) {
+                        $totalStudents = count($subject['students']);
+                        $attendedStudents = count($lecture['attended_students']);
+                        $attendanceRate = $totalStudents > 0 ? round(($attendedStudents / $totalStudents) * 100, 2) . '%' : 'N/A';
+
+                        $previousClasses[] = [
+                            'subjectName' => $subject['subjectName'],
+                            'subjectId' => $subject['subjectId'],
+                            'studentsEnrolled' => $totalStudents,
+                            'faculty' => $subject['faculty'],
+                            'semester' => $subject['semester'],
+                            'day' => $lectureTime->format('l'),
+                            'date' => $lectureTime->format('Y-m-d'),
+                            'time' => $lectureTime->format('H:i'),
+                            'attendance' => $attendanceRate,
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Sort upcoming and previous classes by date and time
+        usort($upcomingClasses, function($a, $b) {
+            return strtotime($a['date'] . ' ' . $a['time']) - strtotime($b['date'] . ' ' . $b['time']);
+        });
+        
+        usort($previousClasses, function($a, $b) {
+            return strtotime($b['date'] . ' ' . $b['time']) - strtotime($a['date'] . ' ' . $a['time']);
+        });
+
+        // Find the next lecture
+        $nextLecture = null;
+        foreach ($upcomingClasses as $class) {
+            if (!$nextLecture || strtotime($class['date'] . ' ' . $class['time']) < strtotime($nextLecture['date'] . ' ' . $nextLecture['time'])) {
+                $nextLecture = $class;
+            }
+        }
+
+        return [
+            'lectures' => $lectures,
+            'subjects' => $subjects,
+            'totalSubjects' => count($subjects),
+            'totalStudents' => count($students),
+            'averageAttendance' => $overallAverageAttendance,
+            'nextLecture' => $nextLecture,
+            'upcomingClasses' => $upcomingClasses,
+            'previousClasses' => $previousClasses,
+        ];
     }
-}
+    else{
+        $lecturer = $lecturersCollection->findOne(['userId' => $userId]);
+        if (!$lecturer) {
+            return [];
+        }
+    
+        // Find user details
+        $user = $usersCollection->findOne(['userId' => $userId]);
+        if (!$user) {
+            return [];
+        }
 
-// Loop through each subject for previous classes using lecturesCollection
-foreach ($subjects as $subject) {
-    // Find all lectures for the current subject and lecturer
-    $lectures = $lecturesCollection->find([
-        'lecturer' => $lecturer['lecturerId'],
-        'subjectId' => $subject['subjectId'],
-    ]);
+        // Extract relevant data from the lecturer's document
+        $assignedSubjectIds = $lecturer['assigned_subjects'];
+        $subjects = [];
+        $studentsCount = 0;
+        $totalAttendanceRate = 0;
+        $totalSubjects = 0;
+        $lectures = [];
+        foreach ($assignedSubjectIds as $subjectId) {
+            $subject = $subjectsCollection->findOne(['subjectId' => $subjectId]);
+            if ($subject) {
+                $subjects[] = $subject;
 
-    foreach ($lectures as $lecture) {
-        $lectureTime = new DateTime($lecture['dateTime']);
-        $currentTime = new DateTime();
+                // Calculate total attendance and lectures for this subject
+                $totalAttendance = 0;
+                $totalLectures = 0;
+                $lectures = $lecturesCollection->find([
+                    'lecturer' => $lecturer['lecturerId'],
+                    'subjectId' => $subjectId
+                ]);
 
-        // Handle previous classes
-        if ($lectureTime < $currentTime) {
-            // Calculate attendance rate for the lecture
-            $attendance = count($lecture['attended_students']);
+                foreach ($lectures as $lecture) {
+                    $totalLectures++;
+                    $totalAttendance += count($lecture['attended_students']);
+                }
 
-            // Add to previousClasses array
-            $previousClasses[] = [
-                'subjectName' => $subject['subjectName'],
+                // Debugging: Print out the calculated values
+                // echo "Subject: " . json_encode($subject) . "\n";
+                // echo "Total Lectures: " . $totalLectures . "\n";
+                // echo "Total Attendance: " . $totalAttendance . "\n";
+
+                // Calculate the attendance rate for this subject
+                $subjectAttendanceRate = $totalLectures > 0 ? ($totalAttendance / (count($subject['students']) * $totalLectures)) * 100 : 0;
+                $subject['averageAttendance'] = $subjectAttendanceRate;
+
+                // Debugging: Print out the calculated attendance rate
+                // echo "Attendance Rate: " . $subjectAttendanceRate . "\n";
+
+                // Increment total attendance rate and subjects count
+                $totalAttendanceRate += $subjectAttendanceRate;
+                $totalSubjects++;
+                $studentsCount += count($subject['students']);
+            }
+        }
+        // Calculate the overall average attendance rate for all subjects
+        $overallAverageAttendance = $totalSubjects > 0 ? $totalAttendanceRate / $totalSubjects : 0;
+
+        // Debugging: Print out the overall average attendance rate
+        // echo "Overall Average Attendance Rate: " . $overallAverageAttendance . "\n";
+
+
+
+        // Calculate average attendance
+        $totalAttendance = 0;
+        $attendanceRecords = $lecturer['attendance'] ?? [];
+        foreach ($attendanceRecords as $record) {
+            $totalAttendance += $record['attendance'];
+        }
+        $averageAttendance = count($attendanceRecords) > 0 ? $totalAttendance / count($attendanceRecords) : 0;
+
+        // Array to store upcoming classes
+        $upcomingClasses = [];
+
+        // Array to store previous classes with attendance
+        $previousClasses = [];
+
+        // Loop through each subject for upcoming classes
+        foreach ($subjects as $subject) {
+            if (isset($subject['timetable']) && !empty($subject['timetable'])) {
+                foreach ($subject['timetable'] as $lecture) {
+                    $lectureTime = new DateTime($lecture);
+                    $currentTime = new DateTime();
+
+                    // Handle upcoming classes
+                    if ($lectureTime > $currentTime) {
+                        $upcomingClasses[] = [
+                            'subjectName' => $subject['subjectName'],
+                            'subjectId' => $subject['subjectId'],
+                            'studentsEnrolled' => count($subject['students']),
+                            'faculty' => $subject['faculty'],
+                            'semester' => $subject['semester'],
+                            'day' => $lectureTime->format('l'),
+                            'date' => $lectureTime->format('Y-m-d'),
+                            'time' => $lectureTime->format('H:i'),
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Loop through each subject for previous classes using lecturesCollection
+        foreach ($subjects as $subject) {
+            // Find all lectures for the current subject and lecturer
+            $lectures = $lecturesCollection->find([
+                'lecturer' => $lecturer['lecturerId'],
                 'subjectId' => $subject['subjectId'],
-                'studentsEnrolled' => count($subject['students']),
-                'faculty' => $subject['faculty'],
-                'semester' => $subject['semester'],
-                'day' => $lectureTime->format('l'),
-                'date' => $lectureTime->format('Y-m-d'),
-                'time' => $lectureTime->format('H:i'),
-                'attendance' => round(($attendance / count($subject['students'])) * 100, 2) . '%',
-            ];
+            ]);
+
+            foreach ($lectures as $lecture) {
+                $lectureTime = new DateTime($lecture['dateTime']);
+                $currentTime = new DateTime();
+
+                // Handle previous classes
+                if ($lectureTime < $currentTime) {
+                    // Calculate attendance rate for the lecture
+                    $attendance = count($lecture['attended_students']);
+
+                    // Add to previousClasses array
+                    $previousClasses[] = [
+                        'subjectName' => $subject['subjectName'],
+                        'subjectId' => $subject['subjectId'],
+                        'studentsEnrolled' => count($subject['students']),
+                        'faculty' => $subject['faculty'],
+                        'semester' => $subject['semester'],
+                        'day' => $lectureTime->format('l'),
+                        'date' => $lectureTime->format('Y-m-d'),
+                        'time' => $lectureTime->format('H:i'),
+                        'attendance' => round(($attendance / count($subject['students'])) * 100, 2) . '%',
+                    ];
+                }
+            }
         }
-    }
-}
 
-// Debugging: Print counts to check number of classes processed
-// echo "Upcoming classes count: " . count($upcomingClasses) . "\n";
-// echo "Previous classes count: " . count($previousClasses) . "\n";
+        // Debugging: Print counts to check number of classes processed
+        // echo "Upcoming classes count: " . count($upcomingClasses) . "\n";
+        // echo "Previous classes count: " . count($previousClasses) . "\n";
 
 
-    
-    // Ensure the classes are sorted by date and time
-    usort($upcomingClasses, function($a, $b) {
-        return strtotime($a['date'] . ' ' . $a['time']) - strtotime($b['date'] . ' ' . $b['time']);
-    });
-    
-    usort($previousClasses, function($a, $b) {
-        return strtotime($b['date'] . ' ' . $b['time']) - strtotime($a['date'] . ' ' . $a['time']);
-    });    
+        
+        // Ensure the classes are sorted by date and time
+        usort($upcomingClasses, function($a, $b) {
+            return strtotime($a['date'] . ' ' . $a['time']) - strtotime($b['date'] . ' ' . $b['time']);
+        });
+        
+        usort($previousClasses, function($a, $b) {
+            return strtotime($b['date'] . ' ' . $b['time']) - strtotime($a['date'] . ' ' . $a['time']);
+        });    
 
-    // Find the next lecture
-    $nextLecture = null;
-    foreach ($upcomingClasses as $class) {
-        if (!$nextLecture || strtotime($class['date'] . ' ' . $class['time']) < strtotime($nextLecture['date'] . ' ' . $nextLecture['time'])) {
-            $nextLecture = $class;
+        // Find the next lecture
+        $nextLecture = null;
+        foreach ($upcomingClasses as $class) {
+            if (!$nextLecture || strtotime($class['date'] . ' ' . $class['time']) < strtotime($nextLecture['date'] . ' ' . $nextLecture['time'])) {
+                $nextLecture = $class;
+            }
         }
-    }
 
-    return [
-        'lectures' => $lectures,
-        'subjects' => $subjects,
-        'totalSubjects' => $totalSubjects,
-        'totalStudents' => $studentsCount,
-        'averageAttendance' => $overallAverageAttendance,
-        'nextLecture' => $nextLecture,
-        'upcomingClasses' => $upcomingClasses,
-        'previousClasses' => $previousClasses,
-    ];
+        return [
+            'lectures' => $lectures,
+            'subjects' => $subjects,
+            'totalSubjects' => $totalSubjects,
+            'totalStudents' => $studentsCount,
+            'averageAttendance' => $overallAverageAttendance,
+            'nextLecture' => $nextLecture,
+            'upcomingClasses' => $upcomingClasses,
+            'previousClasses' => $previousClasses,
+        ];
+    }
 }
 
 if (isset($_SESSION['userId'])) {
@@ -214,7 +361,7 @@ if (isset($_SESSION['userId'])) {
             var donutLabels = [];
 
             <?php foreach ($data['subjects'] as $subject) { ?>
-                donutSeries.push(<?php echo $subject['attendance_rate']; ?>);
+                donutSeries.push(<?php echo $subject['averageAttendance']; ?>);
                 donutLabels.push('<?php echo $subject['subjectId']; ?>');
             <?php } ?>
 

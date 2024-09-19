@@ -361,8 +361,8 @@ $role = $data['role'];
                 </div>
             </div>
             <div class="flex flex-col items-center">
-                <!-- Subjects Table -->
-                <span class="text-4xl text-center mb-8">Subjects</span>
+                <!-- Lecturers Table -->
+                <span class="text-4xl text-center mb-8">Lecturers</span>
                 <div class="flex flex-col bg-menu p-4 w-70p rounded-lg h-auto">
                     <div class="flex">
                         <div class="searchBar w-70p">
