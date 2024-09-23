@@ -11,48 +11,109 @@ require 'vendor/autoload.php';
 
 $mongoClient = new MongoDB\Client("mongodb://localhost:27017");
 $database = $mongoClient->selectDatabase("CSIT321Development");
-$lecturesCollection = $database->selectCollection("lectures");
+$lecturesCollection = $database->selectCollection("lecture");
 $studentsCollection = $database->selectCollection("students");
 $usersCollection = $database->selectCollection("users");
 $subjectsCollection = $database->selectCollection("subjects");
+$lecturersCollection = $database->selectCollection("lecturers");
 
-// Hardcoded subject enrollment for CSIT110
-$subject = $subjectsCollection->findOne(['subjectId' => 'CSIT110']);
+// Fetch userId from session
+$userId = $_SESSION['userId'];
 
-// Initialize $totalEnrolled
+// Get lecturerId and assigned subjects from the lecturers collection by comparing userId
+$lecturer = $lecturersCollection->findOne(['userId' => $userId]);
+if (!$lecturer) {
+    echo "Lecturer not found.";
+    exit;
+}
+
+// Get the lecturer's ID and their assigned subjects
+$lecturerId = $lecturer['lecturerId']; // Get lecturer's ID
+
+// Convert BSONArray to PHP array
+$assignedSubjects = (array) $lecturer['assigned_subjects'] ?? [];
+
+// Get subjectId from URL parameter, fallback to session if not found
+$subjectId = $_GET['subjectId'] ?? $_SESSION['subjectId'] ?? null;
+if (!$subjectId) {
+    echo "Subject not specified.";
+    exit;
+}
+
+// Ensure the subjectId is in the lecturer's assigned subjects
+if (!in_array($subjectId, $assignedSubjects)) {
+    echo "You are not assigned to this subject.";
+    exit;
+}
+
+// Fetch the subject details from the subjects collection
+$subject = $subjectsCollection->findOne(['subjectId' => $subjectId]);
+
+// Initialize total enrolled students count
 $totalEnrolled = 0;
 
-// Check if the subject document exists and has a 'students' field
+// Check if the subject exists and has enrolled students
 if ($subject && isset($subject['students'])) {
     $totalEnrolled = count($subject['students']);
 }
 
-// Fetch the student data for those enrolled in CSIT110
-$studentIds = $subject['students'] ?? []; // Ensure $studentIds is an array
+// Fetch student data for those enrolled in the selected subject
+$studentIds = $subject['students'] ?? []; // Default to empty array if no students
 $students = $studentsCollection->find(['studentId' => ['$in' => $studentIds]])->toArray();
 
-// Calculate total attending students dynamically
-$totalAttending = 0;
-// foreach ($students as $student) {
-//     if (isset($student['attendance']) && $student['attendance'] === true) {
-//         $totalAttending++;
-//     }
-// }
-
-// Calculate attendance rate
-$attendanceRate = $totalEnrolled > 0 ? ($totalAttending / $totalEnrolled) * 100 : 0;
-
-// Fetch the user document based on userId
-$userId = $_SESSION['userId'];
+// Fetch the user document based on userId for sidebar preferences
 $user = $usersCollection->findOne(['userId' => $userId]);
 
-// Check if the user document exists and if the sidebar field is present
+// Check if the user has a sidebar preference
 $sidebarStatus = 'large'; // Default value
 if ($user && isset($user->options['sidebar'])) {
     $sidebar = (string)$user->options['sidebar'];
     if (in_array($sidebar, ['1', '0'])) {
         $sidebarStatus = $sidebar === '1' ? 'small' : 'large';
     }
+}
+
+// Function to create a new lecture
+function startLecture($lecturesCollection, $subjectId, $lecturerId)
+{
+    // Find the latest lecture for the subject
+    $latestLecture = $lecturesCollection->findOne(
+        ['subjectId' => $subjectId],
+        ['sort' => ['lectureId' => -1]]
+    );
+
+    // Generate the next lectureId
+    if ($latestLecture) {
+        $lastLectureId = $latestLecture['lectureId'];
+        $lectureNumber = intval(substr($lastLectureId, strrpos($lastLectureId, 'L') + 1)) + 1;
+    } else {
+        $lectureNumber = 1;
+    }
+    $lectureId = sprintf('%s_L%03d', $subjectId, $lectureNumber);
+
+    // Get the current date and time in the required format
+    $dateTime = gmdate('Y-m-d\TH:i:s\Z');
+
+    // Create the new lecture document
+    $newLecture = [
+        'attended_students' => [], // Empty array for attended students
+        'lectureId' => $lectureId,
+        'subjectId' => $subjectId,
+        'dateTime' => $dateTime,
+        'lecturerId' => $lecturerId
+    ];
+
+    // Insert the new lecture into the collection
+    $lecturesCollection->insertOne($newLecture);
+
+    // Return the created lectureId
+    return $lectureId;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
+    // Start a new lecture
+    $createdLectureId = startLecture($lecturesCollection, $subjectId, $lecturerId);
+    echo "New lecture created: $createdLectureId";
 }
 ?>
 
@@ -87,6 +148,7 @@ if ($user && isset($user->options['sidebar'])) {
         var totalAttending = 0;
         var totalEnrolled = 0;
         var attendanceRate = 0.00;
+        var lectureId;
         var live = false;
 
         $(document).ready(function () {
@@ -112,19 +174,29 @@ if ($user && isset($user->options['sidebar'])) {
 
             // Attendance click event
             $('body').on('click', '.attendance-toggle', function () {
-                const iconElement = $(this).find('i');
-                const studentId = $(this).data('student-id');
-                const isAttending = iconElement.hasClass('bx-check-circle');
+                if (live){
+                    const iconElement = $(this).find('i');
+                    const studentId = $(this).attr('data-student-id');
+                    console.log($(this));
+                    const isAttending = iconElement.hasClass('bx-check-circle');
 
-                // Toggle attendance state
-                if (isAttending) {
-                    iconElement.removeClass('bx-check-circle text-successBold').addClass('bx-x-circle text-errorBold');
-                } else {
-                    iconElement.removeClass('bx-x-circle text-errorBold').addClass('bx-check-circle text-successBold');
+                    timeRegistered = new Date();
+                    timeRegistered.toLocaleString('en-US', { hour: 'numeric', hour12: true })
+
+                    const row = $(`table tr[data-student-id='${studentId}']`);
+                    row.find('.timeColumn').text(timeRegistered);
+
+                    // Toggle attendance state
+                    if (isAttending) {
+                        iconElement.removeClass('bx-check-circle text-successBold').addClass('bx-x-circle text-errorBold');
+                    } else {
+                        iconElement.removeClass('bx-x-circle text-errorBold').addClass('bx-check-circle text-successBold');
+                    }
+
+                    // Update totalAttending and attendance rate
+                    updateAttendanceStats(isAttending ? -1 : 1);
+                    updateAttendance(studentId, !isAttending); // Send the updated attendance status
                 }
-
-                // Update totalAttending and attendance rate
-                updateAttendanceStats(isAttending ? -1 : 1);
             });
 
             function updateAttendanceStats(change) {
@@ -138,10 +210,38 @@ if ($user && isset($user->options['sidebar'])) {
                 $('#averageAttendance').text(attendanceRate + '%');
             }
 
+            function updateAttendance(studentId, isAttending) {
+                console.log('Updating attendance with:');
+                console.log('Lecture ID:', lectureId);
+                console.log('Student ID:', studentId);
+                console.log('Is Attending:', isAttending ? '1' : '0');
+
+                $.ajax({
+                    url: './src/events/lectures/updateAttendance.php',
+                    method: 'POST',
+                    data: { 
+                        lectureId: lectureId,
+                        studentId: studentId, 
+                        isAttending: isAttending ? '1' : '0' 
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.success) {
+                            console.log(`Attendance updated for student ID: ${studentId}`);
+                        } else {
+                            console.error('Error updating attendance:', data.error);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Request failed:', textStatus, errorThrown);
+                    }
+                });
+            }
+
             // Webcam
-            let stream;
+            let stream = null;
             let live = false;
-            let intervalId;
+            let intervalId = null;
             const videoElement = document.querySelector('video');
 
             const startButton = document.getElementById('startButton');
@@ -162,10 +262,10 @@ if ($user && isset($user->options['sidebar'])) {
                     videoElement.srcObject = stream;
                     live = true;
                     $('#liveStatus').text("Live");
-
                     $('#liveStatus').removeClass('text-errorBold').addClass('text-successBold');
                     $('#liveIcon').removeClass('bx-stop-circle').addClass('bx-check-circle text-successBold');
 
+                    startLecture();
                     // 
                     intervalId = setInterval(() => {
                         if (live) {
@@ -179,23 +279,38 @@ if ($user && isset($user->options['sidebar'])) {
             }
 
             function stopWebcam() {
-                if (!videoElement) {
-                    console.error('Video element not found');
-                    return;
-                }
-
                 if (stream) {
-                    // Stop all video tracks
                     stream.getTracks().forEach(track => track.stop());
-                    videoElement.srcObject = null;  // Clear the video source
-                    live = false;  // Update the state
+                    videoElement.srcObject = null;
+                    live = false;
                     $('#liveStatus').text("Stopped");
-
                     $('#liveStatus').removeClass('text-successBold').addClass('text-errorBold');
                     $('#liveIcon').removeClass('bx-check-circle text-successBold').addClass('bx-stop-circle');
-                } else {
-                    console.error('No active stream to stop');
+                    clearInterval(intervalId);
                 }
+            }
+
+            function startLecture() {
+                const subjectId = '<?php echo $_GET['subjectId'];?>';
+
+                $.ajax({
+                    url: './src/events/lectures/createLecture.php',
+                    method: 'POST',
+                    data: { subjectId: subjectId },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.success) {
+                            console.log(`New lecture created: ${data.lectureId}`);
+                            lectureId = data.lectureId;
+                        } else {
+                            console.error('Error starting lecture:', data.error);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log(subjectId);
+                        console.error('Request failed:', textStatus, errorThrown);
+                    }
+                });
             }
 
             startButton.addEventListener('click', function() {
@@ -238,11 +353,11 @@ if ($user && isset($user->options['sidebar'])) {
                     <span class="text-lg">Total Enrolled</span>
                 </div>
                 <div class="bg-menu shadow-lg w-40 h-40 rounded-lg flex flex-col justify-center items-center">
-                    <span id="totalAttending" class="text-2xl font-bold"><?php echo $totalAttending; ?></span>
+                    <span id="totalAttending" class="text-2xl font-bold">0</span>
                     <span class="text-lg">Total Attending</span>
                 </div>
                 <div class="bg-menu shadow-lg w-40 h-40 rounded-lg flex flex-col justify-center items-center">
-                    <span id="averageAttendance" class="text-2xl font-bold"><?php echo number_format($attendanceRate, 2); ?>%</span>
+                    <span id="averageAttendance" class="text-2xl font-bold">0%</span>
                     <span class="text-lg">Attendance Rate</span>
                 </div>
                 <div class="bg-menu shadow-lg w-40 h-40 rounded-lg flex flex-col justify-center items-center">
@@ -264,7 +379,7 @@ if ($user && isset($user->options['sidebar'])) {
                     <tr>
                         <td><?php echo $student['firstName']; ?></td>
                         <td><?php echo $student['studentId']; ?></td>
-                        <td><?php echo isset($student['time_registered']) ? $student['time_registered'] : 'N/A'; ?></td>
+                        <td class="timeColumn" data-student-id="<?php echo $student['studentId']; ?>"><?php echo isset($student['time_registered']) ? $student['time_registered'] : 'N/A'; ?></td>
                         <td class="attendance-toggle" data-student-id="<?php echo $student['studentId']; ?>">
                             <i class="ml-6 bx <?php echo isset($student['attendance']) && $student['attendance'] === true ? 'bx-check-circle text-successBold' : 'bx-x-circle text-errorBold'; ?> text-xl"></i>
                         </td>

@@ -110,7 +110,7 @@ $role = $data['role'];
                             actions.append(`<a class="cursor-pointer"><i class="bx bxs-edit-alt text-accentDark hover:text-accent text-2xl"></i></a>`);
                         }
                         if ('<?php echo $role; ?>' != 'Admin') {
-                            actions.append(`<a class="cursor-pointer"><i class="bx bxs-bullseye text-accentDark hover:text-accent text-2xl"></i></a>`);
+                            actions.append(`<a href="./attendance.php?subjectId=${subject.subjectId}"  class="cursor-pointer"><i class="bx bxs-bullseye text-accentDark hover:text-accent text-2xl"></i></a>`);
                         }
 
                         actions.append(`<a class="cursor-pointer"><i class="bx bxs-report text-accentDark hover:text-accent text-2xl"></i></a>`);

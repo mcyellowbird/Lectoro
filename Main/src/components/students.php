@@ -165,7 +165,7 @@ $userType = $data['role'];
                                 ${cssLink}
                             </head>
                             <body>
-                                ${table.outerHTML} <!-- Use outerHTML to include the table's outer tags -->
+                                ${table.outerHTML}
                             </body>
                         </html>
                     `;
