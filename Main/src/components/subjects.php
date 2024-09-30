@@ -203,16 +203,17 @@ $role = $data['role'];
                     event.preventDefault(); // Prevent the default form submission
                     
                     $.ajax({
-                        url: './src/events/CRUD/addSubject.php', // URL of your server-side script
+                        url: 'http://localhost:8081/subject/save', // URL of your server-side script
                         type: 'POST',
-                        data: {
+                        data: JSON.stringify({
                             subjectName: $("#subjectName").val(),
                             subjectId: $("#subjectId").val(),
                             lecturerIds: $('#lecturer').val(),
                             studentIds: $("#students").val(),
                             semester: $("#term").val(),
                             faculty: $("#faculty").val()
-                        },
+                        }),
+                        contentType: "application/json; charset=utf-8",
                         success: function(response) {
                             // Handle the response from the server
                             $("#addSubjectModal").addClass("hidden");

@@ -198,16 +198,17 @@ $userType = $data['role'];
                     event.preventDefault(); // Prevent the default form submission
                     
                     $.ajax({
-                        url: './src/events/CRUD/addStudent.php', // URL of your server-side script
+                        url: 'http://localhost:8081/student/save', // URL of your server-side script
                         type: 'POST',
-                        data: {
+                        data: JSON.stringify({
                             firstName: $("#firstName").val(),
                             lastName: $("#lastName").val(),
                             studentId: $('#studentId').val(),
                             email: $("#email").val(),
                             phone: $("#phone").val(),
                             subjects: $('#subjects').val()
-                        },
+                        }),
+                        contentType: "application/json; charset=utf-8",
                         success: function(response) {
                             // Handle the response from the server
                             $("#addStudentModal").addClass("hidden");
