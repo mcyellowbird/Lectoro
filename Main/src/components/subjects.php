@@ -201,7 +201,6 @@ $role = $data['role'];
                 // Handle form submission
                 $("#addSubjectForm").submit(function(event) {
                     event.preventDefault(); // Prevent the default form submission
-                    
                     $.ajax({
                         url: 'http://localhost:8081/subject/save', // URL of your server-side script
                         type: 'POST',
@@ -209,7 +208,7 @@ $role = $data['role'];
                             subjectName: $("#subjectName").val(),
                             subjectId: $("#subjectId").val(),
                             lecturerIds: $('#lecturer').val(),
-                            studentIds: $("#students").val(),
+                            students: $("#students").val(),
                             semester: $("#term").val(),
                             faculty: $("#faculty").val()
                         }),
