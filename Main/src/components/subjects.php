@@ -251,14 +251,14 @@ $role = $data['role'];
                 });
 
                 $.ajax({
-                    url: './src/events/getStudents.php', // Endpoint to get students
+                    url: 'http://localhost:8081/student/allNames', // Endpoint to get students
                     method: 'GET',
                     success: function(data) {
-                        let students = JSON.parse(data);
+                        let students = data;
                         let studentElement = $('#students');
                         studentElement.find('option').remove();
                         students.forEach(student => {
-                            studentElement.append(`<option value="${student.id}">${student.name} - ${student.id}</option>`);
+                            studentElement.append(`<option value="${student.studentId}">${student.fullName} - ${student.studentId}</option>`);
                         });
                     },
                     error: function(xhr, status, error) {
