@@ -226,11 +226,11 @@ $role = $data['role'];
 
                 // Form
                 $.ajax({
-                    url: './src/events/getLecturers.php', // Endpoint to get lecturers
+                    url: 'http://localhost:8081/users/all/Lecturer', // Endpoint to get lecturers
                     method: 'GET',
                     success: function(data) {
                         try {
-                            let lecturers = JSON.parse(data);
+                            let lecturers = data;
                             if (lecturers.error) {
                                 console.error(lecturers.error);
                                 alert('Error fetching lecturers: ' + lecturers.error);
@@ -239,7 +239,7 @@ $role = $data['role'];
                             let lecturerSelect = $('#lecturer');
                             lecturerSelect.empty();
                             lecturers.forEach(function(lecturer) {
-                                lecturerSelect.append(`<option value="${lecturer.id}">${lecturer.name}</option>`);
+                                lecturerSelect.append(`<option value="${lecturer.userId}">${lecturer.fullName}</option>`);
                             });
                         } catch (e) {
                             console.error('Error parsing JSON:', e);
