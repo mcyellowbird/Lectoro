@@ -1,89 +1,55 @@
 <?php
 require 'vendor/autoload.php';
 
-function getSubjectsAndLecturers($userId)
+function getLecturers($userId)
 {
     $mongoClient = new MongoDB\Client("mongodb://localhost:27017");
     $database = $mongoClient->selectDatabase("CSIT321Development");
     $lecturersCollection = $database->selectCollection("lecturers");
     $subjectsCollection = $database->selectCollection("subjects");
-    $lecturesCollection = $database->selectCollection("lecture");
     $usersCollection = $database->selectCollection("users");
 
-    // Find user by userId to get role
-    $user = $usersCollection->findOne(['userId' => $userId]);
-    $role = $user ? $user['role'] : 'Lecturer';
-    
-    if ($role === 'Admin') {
-        // For admin: Get all subjects
-        $subjectsCursor = $subjectsCollection->find();
-    } else {
-        // For lecturers: Get only assigned subjects
-        $lecturer = $lecturersCollection->findOne(['userId' => $userId]);
-        $assignedSubjectIds = $lecturer ? $lecturer['assigned_subjects'] : [];
-        $subjectsCursor = $subjectsCollection->find(['subjectId' => ['$in' => $assignedSubjectIds]]);
-    }
-    
-    $subjects = [];
-    
-    foreach ($subjectsCursor as $subject) {
-        // Calculate average attendance
-        $lectures = $lecturesCollection->find(['subjectId' => $subject['subjectId']]);
-        $totalLectures = 0;
-        $totalAttended = 0;
-        $studentsCount = count($subject['students']) ?: 1; // Avoid division by zero
-    
-        foreach ($lectures as $lecture) {
-            $totalLectures++;
-            $totalAttended += count($lecture['attended_students']);
-        }
-    
-        // Avoid division by zero for average attendance calculation
-        $averageAttendance = $totalLectures > 0 && $totalAttended > 0 
-            ? min((($totalAttended / ($totalLectures * $studentsCount)) * 100), 100) // Percentage
-            : 0;
-    
-        // Get assigned lecturers
-        $assignedLecturers = $lecturersCollection->find(['assigned_subjects' => $subject['subjectId']]);
-        $lecturerIds = [];
-        foreach ($assignedLecturers as $lecturer) {
-            $lecturerIds[] = $lecturer['userId'];
+    // Fetch lecturers based on role
+    $lecturersCursor = $lecturersCollection->find();
+
+    $lecturers = [];
+
+    foreach ($lecturersCursor as $lecturer) {
+        // Get assigned subjects for each lecturer
+        $assignedSubjectIds = $lecturer['assigned_subjects'] ?? [];
+
+        // Retrieve the subject names for these assigned subject IDs
+        $assignedSubjects = [];
+        if (!empty($assignedSubjectIds)) {
+            $subjects = $subjectsCollection->find(['subjectId' => ['$in' => $assignedSubjectIds]]);
+            foreach ($subjects as $subject) {
+                $assignedSubjects[] = $subject['subjectName'];
+            }
         }
 
-        $lecturerUsernames = [];
-        // Retrieve usernames for the collected userIds
-            if (!empty($lecturerIds)) {
-                $users = $usersCollection->find(['userId' => ['$in' => $lecturerIds]]);
-                
-                // Create a mapping of userId to username
-                $userIdToUsername = [];
-                foreach ($users as $user) {
-                    $userIdToUsername[$user['userId']] = $user['username'];
-                }
-                
-                // Populate lecturerUsernames with usernames
-                foreach ($lecturerIds as $id) {
-                    if (isset($userIdToUsername[$id])) {
-                        $lecturerUsernames[] = $userIdToUsername[$id];
-                    }
-                }
-            }
-        
-        $subject['average_attendance'] = $averageAttendance;
-        $subject['lecturers'] = implode(', ', $lecturerUsernames);
-        $subjects[] = $subject;
+        // Get user details for the lecturer (first name, last name, username, etc.)
+        $user = $usersCollection->findOne(['userId' => $lecturer['userId']]);
+
+        // Prepare lecturer data
+        $lecturers[] = [
+            'userId' => $lecturer['userId'] ?? 'N/A',
+            'first_name' => $user['first_name'] ?? 'N/A',
+            'last_name' => $user['last_name'] ?? 'N/A',
+            'email' => $user['email'] ?? 'N/A',
+            'phone' => $user['phone'] ?? 'N/A',
+            'username' => $user['username'] ?? 'N/A',
+            'assignedSubjects' => implode(', ', $assignedSubjects) // Comma-separated list of assigned subject names
+        ];
     }
-    
 
     return [
-        'subjects' => $subjects,
-        'role' => $role
+        'lecturers' => $lecturers,
     ];
 }
 
-$data = getSubjectsAndLecturers($_SESSION['userId']);
-$subjects = $data['subjects'];
-$role = $data['role'];
+// Usage
+$data = getLecturers($_SESSION['userId']);
+$lecturers = $data['lecturers'];
 ?>
     <?php if (isset($_SESSION['userId'])): ?>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
@@ -91,47 +57,46 @@ $role = $data['role'];
             document.addEventListener('DOMContentLoaded', function() {
                 const searchBar = $('#searchBar');
                 const loadingElement = $('#loading');
-                const subjectsTable = $('table');
-                let allSubjects = <?php echo json_encode($subjects); ?>;
+                const lecturersTable = $('table');
+                let allLecturers = <?php echo json_encode($lecturers); ?>;
 
-                function updateSubjectsTable(subjects) {
-                    subjectsTable.find('tr:gt(0)').remove(); // Remove all rows except the header
+                function updatelecturersTable(users) {
+                    lecturersTable.find('tr:gt(0)').remove(); // Remove all rows except the header
 
-                    if (subjects.length === 0) {
-                        subjectsTable.append('<tr><td colspan="<?php echo $role === 'Admin' ? '5' : '4'; ?>" class="text-center">No subjects found</td></tr>');
+                    if (users.length === 0) {
+                        lecturersTable.append('<tr><td colspan="6" class="text-center">No users found</td></tr>');
                         return;
                     }
 
-                    subjects.slice(0, 10).forEach(subject => { // Show a maximum of 10 subjects
+                    users.slice(0, 10).forEach(user => { // Show a maximum of 10 users
                         const actionContainer = $(`<div class="absolute pr-2 right-0 [&:not(:hover)]:hidden group-hover:inline w-full h-full"></div>`);
                         const actions = $(`<div class="flex flex-row justify-center items-center float-end h-full"></div>`);
                         
-                        if ('<?php echo $role; ?>' === 'Admin') {
-                            actions.append(`<a class="cursor-pointer"><i class="bx bxs-edit-alt text-accentDark hover:text-accent text-2xl"></i></a>`);
-                        }
-                        if ('<?php echo $role; ?>' != 'Admin') {
-                            actions.append(`<a class="cursor-pointer"><i class="bx bxs-bullseye text-accentDark hover:text-accent text-2xl"></i></a>`);
-                        }
-
+                        // Add a report icon for all users
                         actions.append(`<a class="cursor-pointer"><i class="bx bxs-report text-accentDark hover:text-accent text-2xl"></i></a>`);
+                        
                         actionContainer.append(actions);
 
+                        // Create table row with user details
                         const row = $('<tr class="group relative"></tr>')
-                            .append(`<td>${subject.subjectName}</td>`)
-                            .append(`<td>${subject.subjectId}</td>`)
-                            .append(`<td>${subject.students ? subject.students.length : 0}</td>`)
-                            .append(`<td>${subject.average_attendance !== undefined ? number_format(subject.average_attendance, 2) : 'N/A'}%</td>`);
-                        
-                        if ('<?php echo $role; ?>' === 'Admin') {
-                            row.append(`<td>${subject.lecturers || 'N/A'}</td>`);
-                        }
-                        
+                            .append(`<td>${user.userId || 'N/A'}</td>`)
+                            .append(`<td>${user.first_name || 'N/A'}</td>`)
+                            .append(`<td>${user.last_name || 'N/A'}</td>`)
+                            .append(`<td>${user.email || 'N/A'}</td>`)
+                            .append(`<td>${user.phone || 'N/A'}</td>`)
+                            .append(`<td>${user.username || 'N/A'}</td>`)
+                            .append(`<td>${user.assignedSubjects ? user.assignedSubjects : 'N/A'}</td>`);
+
+                        // Add the action container to the row
                         row.append(actionContainer);
-                        subjectsTable.append(row);
+                        
+                        // Append the row to the table
+                        lecturersTable.append(row);
                     });
 
-                    loadingElement.hide(); // Hide loading spinner after subjects are updated
+                    loadingElement.hide(); // Hide loading spinner after users are updated
                 }
+
 
                 function number_format(number, decimals) {
                     return number.toFixed(decimals);
@@ -139,21 +104,27 @@ $role = $data['role'];
 
                 searchBar.on('input', function() {
                     const query = $(this).val().toLowerCase();
-                    let filteredSubjects = allSubjects;
+                    let filteredLecturers = allLecturers;
 
                     if (query.length > 0) {
-                        filteredSubjects = allSubjects.filter(subject => 
-                            subject.subjectName.toLowerCase().includes(query) ||
-                            subject.subjectId.toLowerCase().includes(query)
-                        );
+                        filteredLecturers = allLecturers.filter(lec => {
+                            // Ensure that the fields are defined before checking them
+                            return (lec.username && lec.username.toLowerCase().includes(query)) ||
+                                (lec.userId && lec.userId.toLowerCase().includes(query)) ||
+                                (lec.email && lec.email.toLowerCase().includes(query)) ||
+                                (lec.first_name && lec.first_name.toLowerCase().includes(query)) ||
+                                (lec.last_name && lec.last_name.toLowerCase().includes(query)) ||
+                                (lec.phone && lec.phone.toLowerCase().includes(query));
+                        });
                     }
 
-                    updateSubjectsTable(filteredSubjects);
+                    updatelecturersTable(filteredLecturers);
                 });
+
 
                 loadingElement.show(); // Show loading spinner initially
 
-                updateSubjectsTable(allSubjects); // Initial load
+                updatelecturersTable(allLecturers); // Initial load
 
                 $("#generateReport").click(function() {
                     var table = $("#table").get(0); // Get the table element
@@ -188,37 +159,37 @@ $role = $data['role'];
                 });
                 
                 $("#addSubject").click(function() {
-                    $("#addSubjectModal").removeClass("hidden");
+                    $("#addUserModal").removeClass("hidden");
                 });
 
                 // Close the modal
-                $("#closeAddSubjectModal").click(function() {
-                    $("#addSubjectModal").addClass("hidden");
+                $("#closeAddUserModal").click(function() {
+                    $("#addUserModal").addClass("hidden");
                 });
 
                 // Handle form submission
-                $("#addSubjectForm").submit(function(event) {
+                $("#addUserForm").submit(function(event) {
                     event.preventDefault(); // Prevent the default form submission
-                    
+
                     $.ajax({
-                        url: './src/events/CRUD/addSubject.php', // URL of your server-side script
+                        url: './src/events/CRUD/addLecturer.php', // Updated URL of your server-side script for adding a user
                         type: 'POST',
                         data: {
-                            subjectName: $("#subjectName").val(),
-                            subjectId: $("#subjectId").val(),
-                            lecturerIds: $('#lecturer').val(),
-                            studentIds: $("#students").val()
+                            firstName: $("#first_name").val(), // Get first_name input value
+                            lastName: $("#last_name").val(),   // Get last_name input value
+                            phone: $("#phone").val(),         // Get phone input value
+                            password: $("#password").val(),   // Get password input value
+                            assignedSubjects: $('#subjects').val() // Get assigned_subjects (multiple values)
                         },
                         success: function(response) {
                             // Handle the response from the server
-                            $("#addSubjectModal").addClass("hidden");
+                            $("#addUserModal").addClass("hidden"); // Close the modal upon success
                         },
                         error: function(xhr, status, error) {
                             console.error("Error:", error);
                         }
                     });
                 });
-
 
                 // Form
                 $.ajax({
@@ -247,14 +218,14 @@ $role = $data['role'];
                 });
 
                 $.ajax({
-                    url: './src/events/getStudents.php', // Endpoint to get students
+                    url: './src/events/getSubjects.php', // Endpoint to get students
                     method: 'GET',
                     success: function(data) {
-                        let students = JSON.parse(data);
-                        let studentElement = $('#students');
-                        studentElement.find('option').remove();
-                        students.forEach(student => {
-                            studentElement.append(`<option value="${student.id}">${student.name} - ${student.id}</option>`);
+                        let subjects = JSON.parse(data);
+                        let subjectElement = $('#subjects');
+                        subjectElement.find('option').remove();
+                        subjects.forEach(subject => {
+                            subjectElement.append(`<option value="${subject.subjectId}">${subject.subjectName} - ${subject.subjectId}</option>`);
                         });
                     },
                     error: function(xhr, status, error) {
@@ -292,101 +263,89 @@ $role = $data['role'];
         </div>
 
         <div id="content">
-            <div id="addSubjectModal" class="flex justify-center items-center z-50 fixed top-0 left-0 w-full h-full bg-black/40 hidden">
-                <div class="relative bg-menu text-textColour rounded-lg shadow-lg max-w-3xl mx-auto mt-20 self-center justify-self-center">
-                    <!-- Modal header -->
-                    <div class="flex items-center justify-between p-4 md:p-5 border-b border-accentBold rounded-t">
-                        <h3 class="text-lg font-semibold text-textColour">
-                            Create New Subject
-                        </h3>
-                        <button type="button" id="closeAddSubjectModal" class="bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" id="closeAddSubjectModal">
-                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
-                            </svg>
-                            <span class="sr-only">Close modal</span>
-                        </button>
-                    </div>
-                    <!-- Modal body -->
-                    <form id="addSubjectForm" class="self-center p-4 md:p-5">
-                        <div class="grid gap-4 mb-4 grid-cols-2">
-                            <div class="col-span-2">
-                                <div class="grid grid-cols-2 gap-x-4">
-                                    <label for="subjectName" class="mb-2 text-sm font-medium text-textColour dark:text-white">Subject Name</label>
-                                    <label for="subjectCode" class="mb-2 text-sm font-medium text-textColour dark:text-white">Subject Code</label>
-                                    <input type="text" name="subjectName" id="subjectName" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type subject name" required>
-                                    <input type="text" name="subjectId" id="subjectId" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type subject code" required>
-                                </div>
-                            </div>
-                            <div class="col-span-2 sm:col-span-1">
-                                <label for="lecturer" class="block mb-2 text-sm font-medium text-textColour">Assigned Lecturer(s)</label>
-                                <select id="lecturer" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    <option value="DD">Dr. Fenghui Ren +2</option>
-                                    <option value="TV">Dr. Partha Roy</option>
-                                    <option value="PC">Dr. John Lee</option>
-                                </select>
-                            </div>
-                            <div class="col-span-2 sm:col-span-1">
-                                <label for="term" class="block mb-2 text-sm font-medium text-textColour">Available</label>
-                                <select id="term" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    <option selected>Spring</option>
-                                    <option>Autumn</option>
-                                    <option>Summer</option>
-                                </select>
-                            </div>
-                            <div class="col-span-2">
-                                <label for="fileUpload" class="items-center flex mb-2 text-sm font-medium text-textColour">Student List<i class="pl-1 bx bx-info-circle"></i></label>
-                                <div class="flex items-center justify-center w-full">
-                                    <!-- <label for="fileUpload" class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-500 border-dashed rounded-lg cursor-pointer bg-menu">
-                                        <div class="flex flex-col items-center justify-center ">
-                                            <p class="mb-2 text-sm text-textAccent dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                            <p class="text-xs text-textAccent dark:text-gray-400">TXT, CSV, JSON, JSN</p>
-                                        </div>
-                                        <input id="fileUpload" type="file" class="hidden" accept=".json">
-                                    </label> -->
-                                    <select id="students" multiple class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                        <option value="DD">Student</option>
-                                        <option value="TV">Dr. Partha Roy</option>
-                                        <option value="PC">Dr. John Lee</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" class="text-white inline-flex items-center bg-accentBold focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                            <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
-                            </svg>
-                            Create Subject
-                        </button>
-                    </form>
+            <div id="addUserModal" class="flex justify-center items-center z-50 fixed top-0 left-0 w-full h-full bg-black/40 hidden">
+            <div class="relative bg-menu text-textColour rounded-lg shadow-lg max-w-3xl mx-auto mt-20 self-center justify-self-center">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b border-accentBold rounded-t">
+                    <h3 class="text-lg font-semibold text-textColour">
+                        Add New User
+                    </h3>
+                    <button type="button" id="closeAddUserModal" class="bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
                 </div>
+                <!-- Modal body -->
+                <form id="addUserForm" class="self-center p-4 md:p-5">
+                    <div class="grid gap-4 mb-4 grid-cols-2">
+                        <!-- First Name -->
+                        <div class="col-span-2 sm:col-span-1">
+                            <label for="first_name" class="block mb-2 text-sm font-medium text-textColour">First Name</label>
+                            <input type="text" name="first_name" id="first_name" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Enter first name" required>
+                        </div>
+                        <!-- Last Name -->
+                        <div class="col-span-2 sm:col-span-1">
+                            <label for="last_name" class="block mb-2 text-sm font-medium text-textColour">Last Name</label>
+                            <input type="text" name="last_name" id="last_name" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Enter last name" required>
+                        </div>
+                        <!-- Phone -->
+                        <div class="col-span-2">
+                            <label for="phone" class="block mb-2 text-sm font-medium text-textColour">Phone</label>
+                            <input type="text" name="phone" id="phone" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Enter phone number" required>
+                        </div>
+                        <!-- Password -->
+                        <div class="col-span-2">
+                            <label for="password" class="block mb-2 text-sm font-medium text-textColour">Password</label>
+                            <input type="password" name="password" id="password" class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Enter password" required>
+                        </div>
+                        <!-- Assigned Subjects -->
+                        <div class="col-span-2">
+                            <label for="subjects" class="block mb-2 text-sm font-medium text-textColour">Assigned Subjects</label>
+                            <select id="subjects" multiple class="bg-buttonHover border border-gray-500 text-textColour placeholder-textAccent text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5">
+                                <option value="subject1">Math</option>
+                                <option value="subject2">Science</option>
+                                <option value="subject3">History</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="text-white inline-flex items-center bg-accentBold focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        Add User
+                    </button>
+                </form>
+            </div>
+
             </div>
             <div class="flex flex-col items-center">
                 <!-- Lecturers Table -->
                 <span class="text-4xl text-center mb-8">Lecturers</span>
                 <div class="flex flex-col bg-menu p-4 w-70p rounded-lg h-auto">
-                    <div class="flex">
-                        <div class="searchBar w-70p">
-                            <i class="searchIcon bx bx-search"></i>
-                            <input type="text" id="searchBar" placeholder="Search for subjects..." class="searchInput">
-                        </div>
-                        <?php if ($role === 'Admin'): ?>
-                            <a href="#" id="addSubject" class="bg-accentDark ml-auto mr-4 transition ease-out duration-300 text-center self-center block px-4 py-2 text-md rounded-xl hover:bg-accentBold">Add Subject</a>
-                        <?php endif; ?>
-                        <a href="#" id="generateReport" class="bg-accentDark transition <?php echo $role !== 'Admin' ? 'ml-auto' : ''; ?> ease-out duration-300 text-center self-center block px-4 py-2 text-md rounded-xl hover:bg-accentBold">Generate Report</a>
-                    </div>
-                    <table id="table" class="bg-menu text-left [&_tr]:border-b-2 [&_tr]:border-accent [&_tr:not(:first-of-type)]:border-opacity-10 [&_tr_th]:py-2 [&_tr_td:not(first-of-type)]:pl-4 [&_tr_td:last-of-type]:pr-3 [&_tr_th:not(first-of-type)]:pl-4 [&_tr_td]:pb-2 [&_tr_td]:pt-2 [&_tr_td:first-of-type]:pl-2 [&_tr_th:first-of-type]:pl-2 border-2 overflow-hidden w-full rounded-lg border-collapse border-spacing-0">
-                        <tr>
-                            <th>Subject Name</th>
-                            <th>Subject Code</th>
-                            <th>Students Enrolled</th>
-                            <th>Average Attendance (%)</th>
-                            <?php if ($role === 'Admin'): ?>
-                                <th>Assigned Lecturer(s)</th>
-                            <?php endif; ?>
-                        </tr>
-                        <!-- Rows will be dynamically inserted here -->
-                    </table>
-                </div>
+        <div class="flex">
+            <div class="searchBar w-70p">
+                <i class="searchIcon bx bx-search"></i>
+                <input type="text" id="searchBar" placeholder="Search for lecturers..." class="searchInput">
+            </div>
+            <a href="#" id="addSubject" class="bg-accentDark ml-auto mr-4 transition ease-out duration-300 text-center self-center block px-4 py-2 text-md rounded-xl hover:bg-accentBold">Add User</a>
+            <a href="#" id="generateReport" class="bg-accentDark transition ease-out duration-300 text-center self-center block px-4 py-2 text-md rounded-xl hover:bg-accentBold">Generate Report</a>
+        </div>
+        <table id="table" class="bg-menu text-left [&_tr]:border-b-2 [&_tr]:border-accent [&_tr:not(:first-of-type)]:border-opacity-10 [&_tr_th]:py-2 [&_tr_td:not(first-of-type)]:pl-4 [&_tr_td:last-of-type]:pr-3 [&_tr_th:not(first-of-type)]:pl-4 [&_tr_td]:pb-2 [&_tr_td]:pt-2 [&_tr_td:first-of-type]:pl-2 [&_tr_th:first-of-type]:pl-2 border-2 overflow-hidden w-full rounded-lg border-collapse border-spacing-0">
+            <tr>
+                <th>User ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Username</th>
+                <th>Assigned Subjects</th>
+            </tr>
+            <!-- Rows will be dynamically inserted here -->
+        </table>
+    </div>
+
             </div>
         </div>
     <?php endif; ?>

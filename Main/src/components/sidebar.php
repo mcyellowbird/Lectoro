@@ -47,11 +47,11 @@ function generateSidebar($data, $currentPage) {
             'icon' => 'bx bxs-user',
             'href' => 'students.php'
         ),
-        'reports' => array(
-            'text' => 'Reports',
-            'icon' => 'bx bxs-bar-chart-alt-2',
-            'href' => 'reports.php'
-        )
+        // 'reports' => array(
+        //     'text' => 'Reports',
+        //     'icon' => 'bx bxs-bar-chart-alt-2',
+        //     'href' => 'reports.php'
+        // )
     );
     
     if ($data['role'] == "Admin") {
