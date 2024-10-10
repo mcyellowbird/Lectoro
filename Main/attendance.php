@@ -426,6 +426,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                 <div class="w-full h-[600px] gap-10 flex justify-center p-4 bg-menu shadow-lg rounded-lg">
                     <div class="relative h-full overflow-hidden"><span class="text-base font-bold"></span>
                         <video autoplay="true" id="video" class="h-[95%] border-4 border-accentBold rounded-lg shadow-lg"></video>
+                        <canvas id="canvas" style="display: none;"></canvas>
                     </div>
                 </div>
         </div>
