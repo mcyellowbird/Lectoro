@@ -210,11 +210,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                 $('#averageAttendance').text(attendanceRate + '%');
             }
 
-            function updateAttendance(studentId, isAttending) {
+            function updateAttendance(student_email, studentId, isAttending) {
                 console.log('Updating attendance with:');
                 console.log('Lecture ID:', lectureId);
                 console.log('Student ID:', studentId);
                 console.log('Is Attending:', isAttending ? '1' : '0');
+                
 
                 $.ajax({
                     url: './src/events/lectures/updateAttendance.php',
@@ -232,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                                 url: 'http://localhost:8081/email/send/1',
                                 method: 'POST',
                                 data: JSON.stringify({ 
-                                    toAddress: "jk790@uowmail.edu.au",
+                                    toAddress: student_email,
                                     subject: "Attendance",
                                     message: `Hi, You have successfully recorded your attendance at ${lectureId} lecture.`
                                 }),
@@ -372,7 +373,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                     success: function(response) {
                         console.log('Image sent successfully:', response);
                         studentId = response.faces[0].name;
-                        updateAttendance(studentId, 1);
+                        $.ajax({
+                            url: `http://localhost:8081/student/get/${studentId}`,
+                            method: 'GET',
+                            success: function(student_response) {
+                                student_email = student_response.email;
+                                updateAttendance(student_email, studentId, 1);
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                console.error('Error sending image:', textStatus, errorThrown);
+                            },
+                            complete: function(jqXHR, textStatus) {
+                                console.log('Request complete:', textStatus);
+                            }
+                        })
+            
+                        
+                    
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error('Error sending image:', textStatus, errorThrown);
