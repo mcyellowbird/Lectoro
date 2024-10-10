@@ -201,18 +201,18 @@ $role = $data['role'];
                 // Handle form submission
                 $("#addSubjectForm").submit(function(event) {
                     event.preventDefault(); // Prevent the default form submission
-                    
                     $.ajax({
-                        url: './src/events/CRUD/addSubject.php', // URL of your server-side script
+                        url: 'http://localhost:8081/subject/save', // URL of your server-side script
                         type: 'POST',
-                        data: {
+                        data: JSON.stringify({
                             subjectName: $("#subjectName").val(),
                             subjectId: $("#subjectId").val(),
                             lecturerIds: $('#lecturer').val(),
-                            studentIds: $("#students").val(),
+                            students: $("#students").val(),
                             semester: $("#term").val(),
                             faculty: $("#faculty").val()
-                        },
+                        }),
+                        contentType: "application/json; charset=utf-8",
                         success: function(response) {
                             // Handle the response from the server
                             $("#addSubjectModal").addClass("hidden");
@@ -226,11 +226,11 @@ $role = $data['role'];
 
                 // Form
                 $.ajax({
-                    url: './src/events/getLecturers.php', // Endpoint to get lecturers
+                    url: 'http://localhost:8081/users/all/Lecturer', // Endpoint to get lecturers
                     method: 'GET',
                     success: function(data) {
                         try {
-                            let lecturers = JSON.parse(data);
+                            let lecturers = data;
                             if (lecturers.error) {
                                 console.error(lecturers.error);
                                 alert('Error fetching lecturers: ' + lecturers.error);
@@ -239,7 +239,7 @@ $role = $data['role'];
                             let lecturerSelect = $('#lecturer');
                             lecturerSelect.empty();
                             lecturers.forEach(function(lecturer) {
-                                lecturerSelect.append(`<option value="${lecturer.id}">${lecturer.name}</option>`);
+                                lecturerSelect.append(`<option value="${lecturer.userId}">${lecturer.fullName}</option>`);
                             });
                         } catch (e) {
                             console.error('Error parsing JSON:', e);
@@ -251,14 +251,14 @@ $role = $data['role'];
                 });
 
                 $.ajax({
-                    url: './src/events/getStudents.php', // Endpoint to get students
+                    url: 'http://localhost:8081/student/allNames', // Endpoint to get students
                     method: 'GET',
                     success: function(data) {
-                        let students = JSON.parse(data);
+                        let students = data;
                         let studentElement = $('#students');
                         studentElement.find('option').remove();
                         students.forEach(student => {
-                            studentElement.append(`<option value="${student.id}">${student.name} - ${student.id}</option>`);
+                            studentElement.append(`<option value="${student.studentId}">${student.fullName} - ${student.studentId}</option>`);
                         });
                     },
                     error: function(xhr, status, error) {

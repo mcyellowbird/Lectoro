@@ -198,17 +198,20 @@ $userType = $data['role'];
                     event.preventDefault(); // Prevent the default form submission
                     
                     $.ajax({
-                        url: './src/events/CRUD/addStudent.php', // URL of your server-side script
+                        url: 'http://localhost:8081/student/save', // URL of your server-side script
                         type: 'POST',
-                        data: {
+                        data: JSON.stringify({
                             firstName: $("#firstName").val(),
                             lastName: $("#lastName").val(),
                             studentId: $('#studentId').val(),
                             email: $("#email").val(),
                             phone: $("#phone").val(),
-                            subjects: $('#subjects').val()
-                        },
+                            subjects: $('#subjects').val(),
+                            imageURL: " "
+                        }),
+                        contentType: "application/json; charset=utf-8",
                         success: function(response) {
+                            console.log(response);
                             // Handle the response from the server
                             $("#addStudentModal").addClass("hidden");
                         },
@@ -221,11 +224,11 @@ $userType = $data['role'];
 
                 // Form
                 $.ajax({
-                    url: './src/events/getLecturers.php', // Endpoint to get lecturers
+                    url: 'http://localhost:8081/users/all/Lecturer', // Endpoint to get lecturers
                     method: 'GET',
                     success: function(data) {
                         try {
-                            let lecturers = JSON.parse(data);
+                            let lecturers = data;
                             if (lecturers.error) {
                                 console.error(lecturers.error);
                                 alert('Error fetching lecturers: ' + lecturers.error);
@@ -234,7 +237,7 @@ $userType = $data['role'];
                             let lecturerSelect = $('#lecturer');
                             lecturerSelect.empty();
                             lecturers.forEach(function(lecturer) {
-                                lecturerSelect.append(`<option value="${lecturer.id}">${lecturer.name}</option>`);
+                                lecturerSelect.append(`<option value="${lecturer.userId}">${lecturer.fullName}</option>`);
                             });
                         } catch (e) {
                             console.error('Error parsing JSON:', e);
@@ -246,14 +249,14 @@ $userType = $data['role'];
                 });
 
                 $.ajax({
-                    url: './src/events/getStudents.php', // Endpoint to get students
+                    url: 'http://localhost:8081/student/allNames', // Endpoint to get students
                     method: 'GET',
                     success: function(data) {
-                        let students = JSON.parse(data);
+                        let students = data;
                         let studentElement = $('#students');
                         studentElement.find('option').remove();
                         students.forEach(student => {
-                            studentElement.append(`<option value="${student.id}">${student.name} - ${student.id}</option>`);
+                            studentElement.append(`<option value="${student.studentId}">${student.fullName} - ${student.studentId}</option>`);
                         });
                     },
                     error: function(xhr, status, error) {
@@ -262,10 +265,10 @@ $userType = $data['role'];
                 });
 
                 $.ajax({
-                    url: './src/events/getSubjects.php', // Endpoint to get students
+                    url: 'http://localhost:8081/subject/all', // Endpoint to get subjects
                     method: 'GET',
                     success: function(data) {
-                        let subjects = JSON.parse(data);
+                        let subjects = data;
                         let subjectElement = $('#subjects');
                         subjectElement.find('option').remove();
                         subjects.forEach(subject => {

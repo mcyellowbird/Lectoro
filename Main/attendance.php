@@ -210,11 +210,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                 $('#averageAttendance').text(attendanceRate + '%');
             }
 
-            function updateAttendance(studentId, isAttending) {
+            function updateAttendance(student_email, studentId, isAttending) {
                 console.log('Updating attendance with:');
                 console.log('Lecture ID:', lectureId);
                 console.log('Student ID:', studentId);
                 console.log('Is Attending:', isAttending ? '1' : '0');
+                
 
                 $.ajax({
                     url: './src/events/lectures/updateAttendance.php',
@@ -228,6 +229,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                     success: function(data) {
                         if (data.success) {
                             console.log(`Attendance updated for student ID: ${studentId}`);
+                            $.ajax({
+                                url: 'http://localhost:8081/email/send/1',
+                                method: 'POST',
+                                data: JSON.stringify({ 
+                                    toAddress: student_email,
+                                    subject: "Attendance",
+                                    message: `Hi, You have successfully recorded your attendance at ${lectureId} lecture.`
+                                }),
+                                contentType: "application/json; charset=utf-8",
+                                success: function(data) {
+                                    if (data.success) {
+                                        console.log(`Email successfuly sent.`);
+                                        
+                                    } else {
+                                        console.error('Error sending email:', data.error);
+                                    }
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    console.error('Request failed:', textStatus, errorThrown);
+                                }
+                            })
                         } else {
                             console.error('Error updating attendance:', data.error);
                         }
@@ -243,8 +265,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
             let live = false;
             let intervalId = null;
             const videoElement = document.querySelector('video');
+            const canvas = document.getElementById('canvas');
+            let base64Image = ''; // Base64 image data
 
             const startButton = document.getElementById('startButton');
+
             async function startWebcam() {
 
                 if (!videoElement) {
@@ -266,12 +291,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                     $('#liveIcon').removeClass('bx-stop-circle').addClass('bx-check-circle text-successBold');
 
                     startLecture();
-                    // 
+
+                    // Capture and send image every 200ms
                     intervalId = setInterval(() => {
                         if (live) {
                             sendImage();
                         }
-                    }, 200);
+                    }, 1000);
 
                 } catch (error) {
                     console.error('Error accessing webcam:', error.message, error.name, error.stack);
@@ -316,16 +342,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
             startButton.addEventListener('click', function() {
                 if (live) {
                     stopWebcam();
-                }
-                else{
+                } else {
                     startWebcam();
                 }
             });
 
-            // CHANGE THIS FUNCTION
-            function sendImage() {
-                console.log("Sent");
-            }
+            // UPDATED FUNCTION - Capture and send the image
+            async function sendImage() {
+                // Draw the video frame onto the canvas
+                canvas.getContext('2d').drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                // console.log(canvas.width);
+                // console.log(canvas.height);
+                
+                // Get the base64-encoded JPEG image
+                base64Image = canvas.toDataURL('image/jpeg').split(',')[1]; // Get Base64 string without the prefix
+
+                
+                // Send the image to the server
+                if (base64Image === '') {
+                    console.warn('No image captured.');
+                    return;
+                }
+
+
+                $.ajax({
+                    url: 'http://localhost:8081/image/upload',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ image: base64Image }),
+                    success: function(response) {
+                        console.log('Image sent successfully:', response);
+                        studentId = response.faces[0].name;
+                        $.ajax({
+                            url: `http://localhost:8081/student/get/${studentId}`, // Get student by id
+                            method: 'GET',
+                            success: function(student_response) {
+                                student_email = student_response.email; // Get student email
+                                updateAttendance(student_email, studentId, 1);
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                console.error('Error sending image:', textStatus, errorThrown);
+                            },
+                            complete: function(jqXHR, textStatus) {
+                                console.log('Request complete:', textStatus);
+                            }
+                        })
+            
+                        
+                    
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error sending image:', textStatus, errorThrown);
+                    },
+                    complete: function(jqXHR, textStatus) {
+                        console.log('Request complete:', textStatus);
+                    }
+                });
+        }
+
 
             // function capturePhoto() {
             //     canvasElement.width = videoElement.videoWidth;
@@ -426,7 +500,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                 <div class="w-full h-[600px] gap-10 flex justify-center p-4 bg-menu shadow-lg rounded-lg">
                     <div class="relative h-full overflow-hidden"><span class="text-base font-bold"></span>
                         <video autoplay="true" id="video" class="h-[95%] border-4 border-accentBold rounded-lg shadow-lg"></video>
-                        <canvas id="canvas" style="display: none;"></canvas>
+                        <canvas id="canvas" style="display: none;" width="1280" height="720"></canvas>
                     </div>
                 </div>
         </div>
