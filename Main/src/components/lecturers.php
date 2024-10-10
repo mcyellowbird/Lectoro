@@ -172,17 +172,34 @@ $lecturers = $data['lecturers'];
                     event.preventDefault(); // Prevent the default form submission
 
                     $.ajax({
-                        url: './src/events/CRUD/addLecturer.php', // Updated URL of your server-side script for adding a user
+                        url: 'http://localhost:8081/register', // Updated URL of your server-side script for adding a user
                         type: 'POST',
-                        data: {
-                            firstName: $("#first_name").val(), // Get first_name input value
-                            lastName: $("#last_name").val(),   // Get last_name input value
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            first_name: $("#first_name").val(), // Get first_name input value
+                            last_name: $("#last_name").val(),   // Get last_name input value
                             phone: $("#phone").val(),         // Get phone input value
                             password: $("#password").val(),   // Get password input value
-                            assignedSubjects: $('#subjects').val() // Get assigned_subjects (multiple values)
-                        },
+                            
+                        }),
                         success: function(response) {
                             // Handle the response from the server
+                            $.ajax({
+                                url: 'http://localhost:8081/lecturer/save', // Post lecturer
+                                type: 'POST',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify({
+                                    assigned_subjects: $('#subjects').val(),  // Get assigned_subjects (multiple values)
+                                    userId: response.userId
+                                }),
+                                success: function(response) {
+                                    // Handle the response from the server
+                                    $("#addUserModal").addClass("hidden"); // Close the modal upon success
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error("Error:", error);
+                                }
+                            })
                             $("#addUserModal").addClass("hidden"); // Close the modal upon success
                         },
                         error: function(xhr, status, error) {
@@ -193,11 +210,11 @@ $lecturers = $data['lecturers'];
 
                 // Form
                 $.ajax({
-                    url: './src/events/getLecturers.php', // Endpoint to get lecturers
+                    url: 'http://localhost:8081/users/all/Lecturer', // Endpoint to get lecturers
                     method: 'GET',
                     success: function(data) {
                         try {
-                            let lecturers = JSON.parse(data);
+                            let lecturers = data;
                             if (lecturers.error) {
                                 console.error(lecturers.error);
                                 alert('Error fetching lecturers: ' + lecturers.error);
@@ -218,10 +235,10 @@ $lecturers = $data['lecturers'];
                 });
 
                 $.ajax({
-                    url: './src/events/getSubjects.php', // Endpoint to get students
+                    url: 'http://localhost:8081/subject/all', // Endpoint to get subjects
                     method: 'GET',
                     success: function(data) {
-                        let subjects = JSON.parse(data);
+                        let subjects = data;
                         let subjectElement = $('#subjects');
                         subjectElement.find('option').remove();
                         subjects.forEach(subject => {
