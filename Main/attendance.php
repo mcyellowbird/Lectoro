@@ -374,10 +374,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                         console.log('Image sent successfully:', response);
                         studentId = response.faces[0].name;
                         $.ajax({
-                            url: `http://localhost:8081/student/get/${studentId}`,
+                            url: `http://localhost:8081/student/get/${studentId}`, // Get student by id
                             method: 'GET',
                             success: function(student_response) {
-                                student_email = student_response.email;
+                                student_email = student_response.email; // Get student email
                                 updateAttendance(student_email, studentId, 1);
                             },
                             error: function(jqXHR, textStatus, errorThrown) {

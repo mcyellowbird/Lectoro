@@ -206,10 +206,12 @@ $userType = $data['role'];
                             studentId: $('#studentId').val(),
                             email: $("#email").val(),
                             phone: $("#phone").val(),
-                            subjects: $('#subjects').val()
+                            subjects: $('#subjects').val(),
+                            imageURL: " "
                         }),
                         contentType: "application/json; charset=utf-8",
                         success: function(response) {
+                            console.log(response);
                             // Handle the response from the server
                             $("#addStudentModal").addClass("hidden");
                         },
@@ -222,11 +224,11 @@ $userType = $data['role'];
 
                 // Form
                 $.ajax({
-                    url: './src/events/getLecturers.php', // Endpoint to get lecturers
+                    url: 'http://localhost:8081/users/all/Lecturer', // Endpoint to get lecturers
                     method: 'GET',
                     success: function(data) {
                         try {
-                            let lecturers = JSON.parse(data);
+                            let lecturers = data;
                             if (lecturers.error) {
                                 console.error(lecturers.error);
                                 alert('Error fetching lecturers: ' + lecturers.error);
@@ -235,7 +237,7 @@ $userType = $data['role'];
                             let lecturerSelect = $('#lecturer');
                             lecturerSelect.empty();
                             lecturers.forEach(function(lecturer) {
-                                lecturerSelect.append(`<option value="${lecturer.id}">${lecturer.name}</option>`);
+                                lecturerSelect.append(`<option value="${lecturer.userId}">${lecturer.fullName}</option>`);
                             });
                         } catch (e) {
                             console.error('Error parsing JSON:', e);
@@ -263,7 +265,7 @@ $userType = $data['role'];
                 });
 
                 $.ajax({
-                    url: 'http://localhost:8081/subject/all', // Endpoint to get students
+                    url: 'http://localhost:8081/subject/all', // Endpoint to get subjects
                     method: 'GET',
                     success: function(data) {
                         let subjects = data;
