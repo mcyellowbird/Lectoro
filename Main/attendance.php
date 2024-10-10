@@ -228,6 +228,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                     success: function(data) {
                         if (data.success) {
                             console.log(`Attendance updated for student ID: ${studentId}`);
+                            $.ajax({
+                                url: 'http://localhost:8081/email/send/1',
+                                method: 'POST',
+                                data: JSON.stringify({ 
+                                    toAddress: "jk790@uowmail.edu.au",
+                                    subject: "Attendance",
+                                    message: `Hi, You have successfully recorded your attendance at ${lectureId} lecture.`
+                                }),
+                                contentType: "application/json; charset=utf-8",
+                                success: function(data) {
+                                    if (data.success) {
+                                        console.log(`Email successfuly sent.`);
+                                        
+                                    } else {
+                                        console.error('Error sending email:', data.error);
+                                    }
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    console.error('Request failed:', textStatus, errorThrown);
+                                }
+                            })
                         } else {
                             console.error('Error updating attendance:', data.error);
                         }
@@ -327,39 +348,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
 
             // UPDATED FUNCTION - Capture and send the image
             async function sendImage() {
-            // Draw the video frame onto the canvas
-            canvas.getContext('2d').drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-            // console.log(canvas.width);
-            // console.log(canvas.height);
-            
-            // Get the base64-encoded JPEG image
-            base64Image = canvas.toDataURL('image/jpeg').split(',')[1]; // Get Base64 string without the prefix
+                // Draw the video frame onto the canvas
+                canvas.getContext('2d').drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                // console.log(canvas.width);
+                // console.log(canvas.height);
+                
+                // Get the base64-encoded JPEG image
+                base64Image = canvas.toDataURL('image/jpeg').split(',')[1]; // Get Base64 string without the prefix
 
-            
-            // Send the image to the server
-            if (base64Image === '') {
-                console.warn('No image captured.');
-                return;
-            }
-
-
-            $.ajax({
-                url: 'http://localhost:8081/image/upload',
-                type: 'POST',
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify({ image: base64Image }),
-                success: function(response) {
-                    console.log('Image sent successfully:', response);
-                    studentId = response.faces[0].name;
-                    updateAttendance(studentId, 1);
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error('Error sending image:', textStatus, errorThrown);
-                },
-                complete: function(jqXHR, textStatus) {
-                    console.log('Request complete:', textStatus);
+                
+                // Send the image to the server
+                if (base64Image === '') {
+                    console.warn('No image captured.');
+                    return;
                 }
-            });
+
+
+                $.ajax({
+                    url: 'http://localhost:8081/image/upload',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ image: base64Image }),
+                    success: function(response) {
+                        console.log('Image sent successfully:', response);
+                        studentId = response.faces[0].name;
+                        updateAttendance(studentId, 1);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error sending image:', textStatus, errorThrown);
+                    },
+                    complete: function(jqXHR, textStatus) {
+                        console.log('Request complete:', textStatus);
+                    }
+                });
         }
 
 
