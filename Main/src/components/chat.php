@@ -303,43 +303,33 @@ $loggedInUserId = $_SESSION['_id'];
             function sendMessage() {
                 const message = messageInput.val().trim();
                 const activeConversation = $('.activeConversation').data('conversationId');
+    
 
                 if (activeConversation && message.length > 0) {
-                    $.post('./src/events/chat/sendMessage.php', {
-                        conversationId: activeConversation,
-                        message: message
-                    })
-                    .done(function (data) {
-                        try {
-                            if (data.success) {
-                                // Send message over WebSocket
-                                // if (socket) {
-                                //     socket.send(JSON.stringify({
-                                //         action: 'message',
-                                //         conversationId: activeConversation,
-                                //         message: message
-                                //     }));
-                                // }
-                                $('#messageInput').val('');
+                    $.ajax({
+                        url: 'http://localhost:8081/messages/save',
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            conversationId: activeConversation,
+                            message: message,
+                            senderId: loggedInUserId,
+                            timestamp: new Date()
+                    }),
+                    success: function(response) {
+                        console.log('Message saved successfully:', response);
+                        $('#messageInput').val('');
                                 loadMessages(conversationIdentifier, function () {
                                     const messagesDiv = $('#messages');
                                     messagesDiv.scrollTop(messagesDiv[0].scrollHeight);
                                 });
-                            } else {
-                                console.error('Failed to send message:', data.error);
-                            }
-                        } catch (e) {
-                            console.error('Failed to parse JSON response:', e);
-                            console.error('Response:', data);
-                        }
-                    })
-                    .fail(function (error) {
-                        console.error('Error:', error);
+                    },
+                        error: function(xhr, status, error) {
+                            console.error('Error sending message:', error);
+                    }
                     });
-                } else {
-                    console.error('No conversation selected');
-                }
-            };
+                };
+        }
             
             sendMessageButton.click(function() {sendMessage();});
 
