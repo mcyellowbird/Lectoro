@@ -180,6 +180,7 @@ $lecturers = $data['lecturers'];
                             last_name: $("#last_name").val(),   // Get last_name input value
                             phone: $("#phone").val(),         // Get phone input value
                             password: $("#password").val(),   // Get password input value
+                            role: "Lecturer"
                             
                         }),
                         success: function(response) {
@@ -190,7 +191,7 @@ $lecturers = $data['lecturers'];
                                 contentType: "application/json; charset=utf-8",
                                 data: JSON.stringify({
                                     assigned_subjects: $('#subjects').val(),  // Get assigned_subjects (multiple values)
-                                    userId: response.userId
+                                    userId: response.userId,
                                 }),
                                 success: function(response) {
                                     // Handle the response from the server
