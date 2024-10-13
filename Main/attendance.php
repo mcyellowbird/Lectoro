@@ -194,8 +194,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                     }
 
                     // Update totalAttending and attendance rate
-                    updateAttendanceStats(isAttending ? -1 : 1);
                     updateAttendance(studentId, !isAttending); // Send the updated attendance status
+                    attend = updateAttendanceStats(isAttending ? -1 : 1);
+                    updateGraph(attend[0], attend[1]);
                 }
             });
 
@@ -208,6 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
 
                 const attendanceRate = ((newTotalAttending / totalEnrolled) * 100).toFixed(2);
                 $('#averageAttendance').text(attendanceRate + '%');
+
+                return [newTotalAttending, <?php echo count($subject["students"])?> - newTotalAttending];
             }
 
             function updateAttendance(student_email, studentId, isAttending) {
@@ -401,6 +404,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
         }
 
 
+            function createGraph(attending, absent) {
+                // Donut Graph
+                var donutSeries = [attending, absent];
+                var donutLabels = ["Attending", "Absent"];
+
+                var chart = {
+                    series: donutSeries,
+                    chart: {
+                        height: 500,
+                        width: "100%",
+                        type: "donut",
+                    },
+                    stroke: {
+                        colors: ["transparent"],
+                        lineCap: "d",
+                    },
+                    grid: {
+                        padding: {
+                            top: -2,
+                        },
+                    },
+                    labels: donutLabels,
+                    legend: {
+                        position: "bottom",
+                        fontFamily: "Quicksand",
+                        offsetY: -230
+                    },
+                    toolbar: {
+                        show: true,
+                        offsetX: 0,
+                        offsetY: 0,
+                        tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        customIcons: []
+                        },
+                        export: {
+                        svg: {
+                            filename: undefined,
+                        },
+                        png: {
+                            filename: undefined,
+                        }
+                        },
+                        autoSelected: 'zoom' 
+                    },
+                };
+
+                // Render the chart
+                var bChart = new ApexCharts(document.querySelector("#bar-chart"), chart);
+                bChart.render();
+            }
+
+            createGraph(0, <?php echo count($subject['students'])?>);
+
+            function updateGraph(attending, absent) {
+                $('#bar-chart').empty();
+
+                createGraph(attending, absent);
+            }
             // function capturePhoto() {
             //     canvasElement.width = videoElement.videoWidth;
             //     canvasElement.height = videoElement.videoHeight;
@@ -472,11 +539,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                     <div class="flex justify-between">
                         <div class="flex flex-col flex-grow">
                             <div class="flex items-center gap-2 text-textColour">
-                                <span class="text-lg font-bold">CSIT110</span>
-                                <span class="text-sm text-textAccent">13/05/2024</span>
-                                <a href="#nothing">
-                                    <i class="bx bx-info-circle"></i>
-                                </a>
+                                <span class="text-lg font-bold"><?php echo $_GET['subjectId']; ?></span>
+                                <span class="text-sm text-textAccent"><?php echo date('m/d/Y', time()); ?></span>
                             </div>
                         </div>
                         <a href="#nothing" class="text-lg">
@@ -488,11 +552,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
 
                     <div class="flex items-center pt-4 border-t border-gray-500">
                         <a href="#nothing" class="text-textAccent flex flex-grow items-center gap-2">
-                            <span>Lecture - 3PM to 5PM</span>
-                        </a>
-                        <a href="#nothing" class="text-accentBold flex items-center gap-2">
-                            <span>REPORT</span>
-                            <i class="bx bx-chevron-right"></i>
+                            <span>Lecture</span>
                         </a>
                     </div>
                 </div>
