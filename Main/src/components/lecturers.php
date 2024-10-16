@@ -172,7 +172,7 @@ $lecturers = $data['lecturers'];
                     event.preventDefault(); // Prevent the default form submission
 
                     $.ajax({
-                        url: './src/events/CRUD/addLecturer.php', // Updated URL of your server-side script for adding a user
+                        url: './src/events/CRUD/addLecturer.php',
                         type: 'POST',
                         data: {
                             firstName: $("#first_name").val(), // Get first_name input value
