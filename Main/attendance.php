@@ -150,6 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
         var attendanceRate = 0.00;
         var lectureId;
         var live = false;
+        var attending = [];
 
         $(document).ready(function () {
             if ("<?php echo $sidebarStatus?>" === "small"){
@@ -187,8 +188,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                     updateTable(studentId, isAttending);
                 }
             });
-
-            window.updateTable = function (studentId, isAttending) {
+            
+            window.updateTable = function (student_email, studentId, isAttending) {
                 const table = $('table');
                 
                 // Find the row with the matching data-student-id attribute
@@ -206,15 +207,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                 // Toggle attendance state based on isAttending
                 if (isAttending) {
                     iconElement.removeClass('bx-check-circle text-successBold').addClass('bx-x-circle text-errorBold');
+                    if (getAttending(studentId)){
+                        attending = attending.filter(id => id !== studentId);
+                        // Update total attendance and attendance rate
+                        updateAttendance(studentId, !isAttending); // Send the updated attendance status
+                        const attend = updateAttendanceStats(isAttending ? -1 : 1);
+                        updateGraph(attend[0], attend[1]);
+                    }
                 } else {
                     iconElement.removeClass('bx-x-circle text-errorBold').addClass('bx-check-circle text-successBold');
-                }
+                    if (!getAttending(studentId)){
+                        attending.push(studentId);
 
-                // Update total attendance and attendance rate
-                updateAttendance(studentId, !isAttending); // Send the updated attendance status
-                const attend = updateAttendanceStats(isAttending ? -1 : 1);
-                updateGraph(attend[0], attend[1]);
+                        // Update total attendance and attendance rate
+                        updateAttendance(studentId, !isAttending); // Send the updated attendance status
+                        const attend = updateAttendanceStats(isAttending ? -1 : 1);
+                        updateGraph(attend[0], attend[1]);
+                    }
+                }
             };
+
+            window.getAttending = function (studentId) {
+                return attending.includes(studentId);
+            }
 
             function updateAttendanceStats(change) {
                 const totalAttending = parseInt($('#totalAttending').text());
@@ -397,7 +412,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                             method: 'GET',
                             success: function(student_response) {
                                 student_email = student_response.email; // Get student email
-                                updateAttendance(student_email, studentId, 1);
+                                updateTable(student_email, studentId, 0);
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 console.error('Error sending image:', textStatus, errorThrown);
