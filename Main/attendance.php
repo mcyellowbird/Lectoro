@@ -174,31 +174,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
 
             // Attendance click event
             $('body').on('click', '.attendance-toggle', function () {
-                if (live){
+                if (live) {
+                    // Get the student ID from the parent <tr> element
+                    const studentId = $(this).parent().attr('data-student-id');
+                    console.log(studentId);
+
+                    // Find the icon element within the row to check if the student is currently attending
                     const iconElement = $(this).find('i');
-                    const studentId = $(this).attr('data-student-id');
-                    console.log($(this));
                     const isAttending = iconElement.hasClass('bx-check-circle');
 
-                    timeRegistered = new Date();
-                    timeRegistered.toLocaleString('en-US', { hour: 'numeric', hour12: true })
-
-                    const row = $(`table tr[data-student-id='${studentId}']`);
-                    row.find('.timeColumn').text(timeRegistered);
-
-                    // Toggle attendance state
-                    if (isAttending) {
-                        iconElement.removeClass('bx-check-circle text-successBold').addClass('bx-x-circle text-errorBold');
-                    } else {
-                        iconElement.removeClass('bx-x-circle text-errorBold').addClass('bx-check-circle text-successBold');
-                    }
-
-                    // Update totalAttending and attendance rate
-                    updateAttendance(studentId, !isAttending); // Send the updated attendance status
-                    attend = updateAttendanceStats(isAttending ? -1 : 1);
-                    updateGraph(attend[0], attend[1]);
+                    // Call the updateTable function to handle attendance update
+                    updateTable(studentId, isAttending);
                 }
             });
+
+            window.updateTable = function (studentId, isAttending) {
+                const table = $('table');
+                
+                // Find the row with the matching data-student-id attribute
+                const row = table.find('tr[data-student-id="' + studentId + '"]');
+                
+                // Get the time and format it
+                const timeRegistered = new Date().toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+                
+                // Update the time in the row's timeColumn
+                row.find('.timeColumn').text(timeRegistered);
+
+                // Find the icon element within the row
+                const iconElement = row.find('i');
+
+                // Toggle attendance state based on isAttending
+                if (isAttending) {
+                    iconElement.removeClass('bx-check-circle text-successBold').addClass('bx-x-circle text-errorBold');
+                } else {
+                    iconElement.removeClass('bx-x-circle text-errorBold').addClass('bx-check-circle text-successBold');
+                }
+
+                // Update total attendance and attendance rate
+                updateAttendance(studentId, !isAttending); // Send the updated attendance status
+                const attend = updateAttendanceStats(isAttending ? -1 : 1);
+                updateGraph(attend[0], attend[1]);
+            };
 
             function updateAttendanceStats(change) {
                 const totalAttending = parseInt($('#totalAttending').text());
@@ -517,11 +533,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                         <th>Attendance</th>
                     </tr>
                     <?php foreach ($students as $student): ?>
-                    <tr>
+                    <tr data-student-id="<?php echo $student['studentId']; ?>">
                         <td><?php echo $student['firstName']; ?></td>
                         <td><?php echo $student['studentId']; ?></td>
-                        <td class="timeColumn" data-student-id="<?php echo $student['studentId']; ?>"><?php echo isset($student['time_registered']) ? $student['time_registered'] : 'N/A'; ?></td>
-                        <td class="attendance-toggle" data-student-id="<?php echo $student['studentId']; ?>">
+                        <td class="timeColumn"><?php echo isset($student['time_registered']) ? $student['time_registered'] : 'N/A'; ?></td>
+                        <td class="attendance-toggle">
                             <i class="ml-6 bx <?php echo isset($student['attendance']) && $student['attendance'] === true ? 'bx-check-circle text-successBold' : 'bx-x-circle text-errorBold'; ?> text-xl"></i>
                         </td>
                     </tr>
