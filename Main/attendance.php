@@ -210,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                     if (getAttending(studentId)){
                         attending = attending.filter(id => id !== studentId);
                         // Update total attendance and attendance rate
-                        updateAttendance(studentId, !isAttending); // Send the updated attendance status
+                        updateAttendance(student_email, studentId, !isAttending); // Send the updated attendance status
                         const attend = updateAttendanceStats(isAttending ? -1 : 1);
                         updateGraph(attend[0], attend[1]);
                     }
@@ -220,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['startLecture'])) {
                         attending.push(studentId);
 
                         // Update total attendance and attendance rate
-                        updateAttendance(studentId, !isAttending); // Send the updated attendance status
+                        updateAttendance(student_email, studentId, !isAttending); // Send the updated attendance status
                         const attend = updateAttendanceStats(isAttending ? -1 : 1);
                         updateGraph(attend[0], attend[1]);
                     }
